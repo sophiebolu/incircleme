@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IncircleMe - Local Experiences, Real Connections</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#060D18;--bg2:#0A1628;--card:#0F2035;--elevated:#142A42;--border:#1A3A5C;--text:#FFFFFF;--text2:#8899AA;--muted:#5A6B7E;--primary:#0A7D8C;--primaryL:#0C9BAD;--cta:#E07B39;--ctaH:#F0924F;--success:#22C55E;--warn:#F59E0B;--err:#EF4444;--info:#3B82F6}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);max-width:375px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden}
+.screen{display:none;padding-bottom:80px;min-height:100vh}
+.screen.active{display:block}
+.status-bar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:12px;font-weight:600;color:var(--text)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:375px;height:64px;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:100}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;color:var(--muted);font-size:10px;cursor:pointer;font-family:inherit}
+.nav button.active{color:var(--primary)}
+.nav button svg{width:22px;height:22px}
+.header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:24px;font-weight:700}
+.search{margin:0 16px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.cats{display:flex;gap:8px;padding:0 16px;overflow-x:auto;margin-bottom:16px;-webkit-overflow-scrolling:touch}
+.cats::-webkit-scrollbar{display:none}
+.cat{padding:8px 16px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text2);flex-shrink:0}
+.cat.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.section-title{font-size:18px;font-weight:600;padding:0 16px;margin-bottom:12px}
+.events{padding:0 16px;display:flex;flex-direction:column;gap:12px}
+.event-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer}
+.event-img{height:160px;position:relative;overflow:hidden}
+.event-img .gradient{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,rgba(15,32,53,.9))}
+.event-img .badge{position:absolute;top:12px;left:12px;background:rgba(10,125,140,.85);color:#fff;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600}
+.event-img .heart{position:absolute;top:12px;right:12px;width:32px;height:32px;background:rgba(0,0,0,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.event-body{padding:12px 16px}
+.event-body h3{font-size:16px;font-weight:600;margin-bottom:4px}
+.event-meta{font-size:12px;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.event-footer{display:flex;justify-content:space-between;align-items:center}
+.event-price{font-size:18px;font-weight:700;color:var(--cta)}
+.event-rating{font-size:12px;color:var(--warn);font-weight:500}
+.btn{padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;border:none;cursor:pointer;font-family:inherit;width:100%;display:block;text-align:center}
+.btn-primary{background:var(--cta);color:#fff}
+.btn-primary:hover{background:var(--ctaH)}
+.btn-secondary{background:var(--card);color:var(--primary);border:1px solid var(--border)}
+.creator{display:flex;align-items:center;gap:12px;padding:12px 16px}
+.avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600}
+.creator-info h4{font-size:14px;font-weight:600}
+.creator-info p{font-size:12px;color:var(--text2)}
+.detail-hero{height:240px;position:relative;display:flex;align-items:flex-end;padding:16px}
+.detail-hero .overlay{position:absolute;inset:0;background:linear-gradient(transparent 40%,var(--bg))}
+.detail-hero h2{position:relative;z-index:1;font-size:24px;font-weight:700}
+.detail-section{padding:16px}
+.detail-section h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.detail-section p{font-size:14px;color:var(--text2);line-height:1.6}
+.info-row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px}
+.info-row svg{width:18px;height:18px;color:var(--primary);flex-shrink:0}
+.book-bar{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);width:375px;padding:12px 16px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;z-index:99}
+.profile-header{text-align:center;padding:24px 16px}
+.profile-avatar{width:80px;height:80px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.profile-header h2{font-size:20px;font-weight:600;margin-bottom:4px}
+.profile-header p{font-size:13px;color:var(--text2)}
+.stat-row{display:flex;justify-content:center;gap:32px;padding:16px;margin-bottom:16px}
+.stat{text-align:center}
+.stat .num{font-size:20px;font-weight:700;color:var(--primary)}
+.stat .label{font-size:11px;color:var(--text2);margin-top:2px}
+.menu-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:14px}
+.menu-item svg{width:20px;height:20px;color:var(--primary)}
+.circles-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin:0 16px 12px}
+.circles-card h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.circles-card p{font-size:12px;color:var(--text2);margin-bottom:8px}
+.members{display:flex;gap:-8px}
+.member-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--card);display:flex;align-items:center;justify-content:center;font-size:10px;margin-left:-6px}
+.member-dot:first-child{margin-left:0}
+.booking-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin:0 16px 12px}
+.booking-status{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;margin-bottom:8px}
+.booking-status.confirmed{background:rgba(34,197,94,.15);color:var(--success)}
+.booking-status.pending{background:rgba(245,158,11,.15);color:var(--warn)}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:500;z-index:200;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- EXPLORE SCREEN -->
+<div class="screen active" id="explore">
+<div class="status-bar"><span>9:41</span><span>IncircleMe</span><span>BCN</span></div>
+<div class="header"><h1>Explore</h1><div style="display:flex;gap:12px"><span style="font-size:20px;cursor:pointer" onclick="showToast('Notifications coming soon!')">&#128276;</span></div></div>
+<div class="search" onclick="showToast('Search coming in v2!')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Search events, creators...</div>
+<div class="cats" id="catList"></div>
+<div class="section-title">Trending in Barcelona</div>
+<div class="events" id="eventList"></div>
+</div>
+
+<!-- DETAIL SCREEN -->
+<div class="screen" id="detail">
+<div class="status-bar"><span style="cursor:pointer" onclick="showScreen('explore')">&larr; Back</span><span></span><span style="cursor:pointer">&#9829;</span></div>
+<div id="detailContent"></div>
+<div class="book-bar"><div><span class="event-price" id="detailPrice"></span><span style="font-size:12px;color:var(--text2)"> /person</span></div><button class="btn btn-primary" style="width:auto;padding:14px 32px" onclick="bookEvent()">Book Now</button></div>
+</div>
+
+<!-- CIRCLES SCREEN -->
+<div class="screen" id="circles">
+<div class="status-bar"><span>9:41</span><span>IncircleMe</span><span>BCN</span></div>
+<div class="header"><h1>Circles</h1></div>
+<div style="padding:0 16px 12px;font-size:13px;color:var(--text2)">Your community groups</div>
+<div id="circlesList"></div>
+</div>
+
+<!-- BOOKINGS SCREEN -->
+<div class="screen" id="bookings">
+<div class="status-bar"><span>9:41</span><span>IncircleMe</span><span>BCN</span></div>
+<div class="header"><h1>Bookings</h1></div>
+<div id="bookingsList"><div style="text-align:center;padding:40px 16px;color:var(--text2)"><p style="font-size:48px;margin-bottom:12px">&#128197;</p><p>No bookings yet</p><p style="font-size:13px;margin-top:4px">Explore events and book your first experience!</p><button class="btn btn-primary" style="width:auto;margin:16px auto;padding:12px 24px" onclick="showScreen('explore')">Explore Events</button></div></div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="screen" id="profile">
+<div class="status-bar"><span>9:41</span><span>IncircleMe</span><span>BCN</span></div>
+<div class="header"><h1>Profile</h1><span style="font-size:20px;cursor:pointer" onclick="showToast('Settings coming soon!')">&#9881;</span></div>
+<div class="profile-header"><div class="profile-avatar" style="background:linear-gradient(135deg,var(--primary),var(--cta))">E</div><h2>Erik</h2><p>Barcelona Explorer</p></div>
+<div class="stat-row"><div class="stat"><div class="num">0</div><div class="label">Events</div></div><div class="stat"><div class="num">0</div><div class="label">Reviews</div></div><div class="stat"><div class="num">2</div><div class="label">Circles</div></div></div>
+<div class="menu-item" onclick="showToast('Edit profile coming soon!')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Edit Profile</div>
+<div class="menu-item" onclick="showToast('Payment methods coming soon!')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>Payment Methods</div>
+<div class="menu-item" onclick="showToast('Language: English')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Language &amp; Region</div>
+<div class="menu-item" onclick="showToast('Help center coming soon!')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Help &amp; Support</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+<button class="active" onclick="showScreen('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Explore</button>
+<button onclick="showScreen('circles')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Circles</button>
+<button onclick="showScreen('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Bookings</button>
+<button onclick="showScreen('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</button>
+</nav>
+
+<script>
+const events=[
+{id:1,title:"Sunrise Yoga in Barceloneta",creator:"Maria Santos",cat:"Yoga",date:"Sat, Apr 5",time:"07:00",loc:"Barceloneta Beach",price:12,rating:4.8,reviews:24,spots:3,color:"#0A7D8C",emoji:"\u{1F9D8}",desc:"Start your morning with a peaceful yoga session on the beach as the sun rises over the Mediterranean. All levels welcome."},
+{id:2,title:"Paella Masterclass",creator:"Chef Carlos",cat:"Cooking",date:"Sun, Apr 6",time:"11:00",loc:"El Born Kitchen Studio",price:35,rating:4.9,reviews:18,spots:6,color:"#E07B39",emoji:"\u{1F958}",desc:"Learn to cook authentic Valencian paella from a local chef. Includes all ingredients, wine pairing, and recipes to take home."},
+{id:3,title:"Gothic Quarter Photo Walk",creator:"Ana Photography",cat:"Photography",date:"Sat, Apr 5",time:"17:00",loc:"Placa de Catalunya",price:20,rating:4.7,reviews:31,spots:8,color:"#3B82F6",emoji:"\u{1F4F7}",desc:"Capture the magic of Barcelona's Gothic Quarter during golden hour. Tips on composition, lighting, and street photography."},
+{id:4,title:"Flamenco Guitar Workshop",creator:"Diego Ramirez",cat:"Music",date:"Fri, Apr 4",time:"19:00",loc:"Gracia Music Room",price:25,rating:4.6,reviews:12,spots:4,color:"#8B5CF6",emoji:"\u{1F3B8}",desc:"Learn basic flamenco guitar techniques in an intimate workshop setting. Guitars provided. No experience needed."},
+{id:5,title:"Street Art Tour Poblenou",creator:"Marc Urban",cat:"Art",date:"Sun, Apr 6",time:"10:00",loc:"Poblenou Metro",price:15,rating:4.8,reviews:42,spots:10,color:"#EC4899",emoji:"\u{1F3A8}",desc:"Discover the incredible street art scene of Poblenou with a local artist. Learn about the artists and techniques behind Barcelona's murals."},
+{id:6,title:"Meditation & Sound Bath",creator:"Luna Wellness",cat:"Wellness",date:"Thu, Apr 3",time:"18:30",loc:"Raval Wellness Center",price:18,rating:4.9,reviews:15,spots:5,color:"#22C55E",emoji:"\u{1F54A}",desc:"Deep relaxation through guided meditation and crystal singing bowls. Leave feeling refreshed and centered."}
+];
+const cats=["All","Yoga","Cooking","Photography","Music","Art","Wellness"];
+const circlesData=[
+{name:"Barcelona Yogis",members:47,emoji:"\u{1F9D8}",color:"#0A7D8C",desc:"Morning yoga lovers in BCN"},
+{name:"Foodies BCN",members:83,emoji:"\u{1F37D}",color:"#E07B39",desc:"Culinary adventures around the city"},
+{name:"Photo Walks BCN",members:62,emoji:"\u{1F4F8}",color:"#3B82F6",desc:"Weekly photo walks & tips"},
+{name:"Music Makers",members:34,emoji:"\u{1F3B6}",color:"#8B5CF6",desc:"Jam sessions & workshops"}
+];
+
+let activeScreen="explore";let activeCat="All";let myBookings=[];
+
+function showScreen(name){
+document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+document.getElementById(name).classList.add("active");
+document.querySelectorAll(".nav button").forEach((b,i)=>{
+b.classList.toggle("active",["explore","circles","bookings","profile"][i]===name);
+});
+activeScreen=name;
+}
+
+function showToast(msg){
+const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),2000);
+}
+
+function renderCats(){
+const el=document.getElementById("catList");
+el.innerHTML=cats.map(c=>'<div class="cat'+(c===activeCat?' active':'')+'" onclick="filterCat(\''+c+'\')">'+c+'</div>').join("");
+}
+
+function filterCat(c){activeCat=c;renderCats();renderEvents();}
+
+function renderEvents(){
+const el=document.getElementById("eventList");
+const filtered=activeCat==="All"?events:events.filter(e=>e.cat===activeCat);
+el.innerHTML=filtered.map(e=>'<div class="event-card" onclick="showDetail('+e.id+')"><div class="event-img" style="background:linear-gradient(135deg,'+e.color+'33,'+e.color+'11);display:flex;align-items:center;justify-content:center"><span style="font-size:64px">'+e.emoji+'</span><div class="gradient"></div><div class="badge">'+e.cat+'</div><div class="heart" onclick="event.stopPropagation();showToast(\'Saved!\')">&#9825;</div></div><div class="event-body"><h3>'+e.title+'</h3><div class="event-meta"><span>&#128197; '+e.date+'</span><span>&#128336; '+e.time+'</span><span>&#128205; '+e.loc+'</span></div><div class="event-footer"><span class="event-price">\u20AC'+e.price+'</span><span class="event-rating">\u2B50 '+e.rating+' ('+e.reviews+')</span></div></div></div>').join("");
+}
+
+function showDetail(id){
+const e=events.find(ev=>ev.id===id);if(!e)return;
+document.getElementById("detailPrice").textContent="\u20AC"+e.price;
+document.getElementById("detailContent").innerHTML='<div class="detail-hero" style="background:linear-gradient(135deg,'+e.color+'44,'+e.color+'11);display:flex;align-items:center;justify-content:center"><span style="font-size:80px;position:relative;z-index:1">'+e.emoji+'</span><div class="overlay"></div></div><div class="detail-section"><h2 style="font-size:22px;margin-bottom:12px">'+e.title+'</h2><div class="creator" style="padding:0;margin-bottom:16px"><div class="avatar" style="background:'+e.color+'33;color:'+e.color+';width:40px;height:40px;font-size:16px">'+e.creator[0]+'</div><div class="creator-info"><h4>'+e.creator+'</h4><p>\u2B50 '+e.rating+' \u00B7 '+e.reviews+' reviews</p></div></div><p>'+e.desc+'</p></div><div class="detail-section" style="border-top:1px solid var(--border)"><h3>Details</h3><div class="info-row"><span>&#128197;</span>'+e.date+' at '+e.time+'</div><div class="info-row"><span>&#128205;</span>'+e.loc+'</div><div class="info-row"><span>&#128101;</span>'+e.spots+' spots left</div><div class="info-row"><span>&#128176;</span>\u20AC'+e.price+' per person</div></div>';
+showScreen("detail");
+}
+
+function bookEvent(){
+showToast("\u2705 Booking confirmed!");
+setTimeout(()=>showScreen("bookings"),1500);
+const el=document.getElementById("bookingsList");
+el.innerHTML='<div class="booking-card"><div class="booking-status confirmed">Confirmed</div><h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Sunrise Yoga in Barceloneta</h3><p style="font-size:12px;color:var(--text2)">Sat, Apr 5 \u00B7 07:00 \u00B7 Barceloneta Beach</p><p style="font-size:14px;font-weight:600;color:var(--cta);margin-top:8px">\u20AC12</p></div>'+el.innerHTML;
+}
+
+function renderCircles(){
+const el=document.getElementById("circlesList");
+el.innerHTML=circlesData.map(c=>'<div class="circles-card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:24px">'+c.emoji+'</span><div><h3>'+c.name+'</h3><p>'+c.desc+'</p></div></div><div style="display:flex;justify-content:space-between;align-items:center"><div class="members">'+Array(4).fill(0).map((_,i)=>'<div class="member-dot" style="background:'+["#0A7D8C","#E07B39","#3B82F6","#8B5CF6"][i]+'33;color:'+["#0A7D8C","#E07B39","#3B82F6","#8B5CF6"][i]+'">'+["M","C","A","D"][i]+'</div>').join("")+'<div class="member-dot" style="background:var(--elevated);color:var(--text2)">+'+c.members+'</div></div><button class="btn btn-secondary" style="width:auto;padding:8px 16px;font-size:12px">Join</button></div></div>').join("");
+}
+
+renderCats();renderEvents();renderCircles();
+</script>
+</body>
+</html>
