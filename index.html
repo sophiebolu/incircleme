@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>IncircleMe - Local Experiences, Real Connections</title>
 <meta name="description" content="Discover authentic local experiences in Barcelona. Book yoga, cooking, photography, music & art workshops with local creators.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#060D18;--bg2:#0A1628;--card:#0F2035;--elevated:#142A42;--border:#1A3A5C;--text:#FFFFFF;--text2:#8899AA;--muted:#5A6B7E;--primary:#0A7D8C;--primaryL:#0C9BAD;--cta:#E07B39;--ctaH:#F0924F;--success:#22C55E;--warn:#F59E0B;--err:#EF4444;--info:#3B82F6}
@@ -19,7 +21,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 .header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
 .header h1{font-size:24px;font-weight:700}
 .search{margin:0 16px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px;cursor:pointer}
-.cats{display:flex;gap:8px;padding:0 16px;overflow-x:auto;margin-bottom:16px;-webkit-overflow-scrolling:touch}
+.cats{display:flex;gap:8px;padding:0 16px;overflow-x:auto;margin-bottom:12px;-webkit-overflow-scrolling:touch}
 .cats::-webkit-scrollbar{display:none}
 .cat{padding:8px 16px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text2);flex-shrink:0;transition:all .2s}
 .cat.active{background:var(--primary);color:#fff;border-color:var(--primary)}
@@ -81,6 +83,29 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 .onboarding .lang-select{display:flex;gap:12px;margin-bottom:32px}
 .onboarding .lang-opt{padding:12px 24px;border-radius:12px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:16px;font-weight:600;cursor:pointer;transition:all .2s}
 .onboarding .lang-opt.selected{border-color:var(--primary);background:rgba(10,125,140,.15)}
+/* MAP STYLES */
+.view-toggle{display:flex;gap:6px;padding:0 16px;margin-bottom:12px}
+.view-btn{padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text2);transition:all .2s;display:flex;align-items:center;gap:6px}
+.view-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.view-btn svg{width:16px;height:16px}
+#mapContainer{display:none;margin:0 16px 16px;border-radius:16px;overflow:hidden;border:1px solid var(--border);height:420px;position:relative}
+#map{width:100%;height:100%;z-index:1}
+.leaflet-popup-content-wrapper{background:var(--card)!important;color:var(--text)!important;border:1px solid var(--border)!important;border-radius:12px!important;box-shadow:0 8px 24px rgba(0,0,0,.4)!important}
+.leaflet-popup-tip{background:var(--card)!important;border:1px solid var(--border)!important}
+.leaflet-popup-content{margin:12px 14px!important;font-family:'Inter',system-ui,sans-serif!important;min-width:180px}
+.leaflet-popup-content h4{font-size:14px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.leaflet-popup-content .popup-meta{font-size:11px;color:var(--text2);margin-bottom:6px}
+.leaflet-popup-content .popup-price{font-size:16px;font-weight:700;color:var(--cta);margin-bottom:8px}
+.leaflet-popup-content .popup-btn{display:inline-block;background:var(--cta);color:#fff;padding:6px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;border:none;font-family:inherit}
+.leaflet-popup-content .popup-btn:hover{background:var(--ctaH)}
+.leaflet-popup-close-button{color:var(--text2)!important;font-size:18px!important;right:8px!important;top:6px!important}
+.leaflet-control-zoom a{background:var(--card)!important;color:var(--text)!important;border-color:var(--border)!important}
+.leaflet-control-zoom a:hover{background:var(--elevated)!important}
+.leaflet-control-attribution{background:rgba(6,13,24,.8)!important;color:var(--muted)!important;font-size:9px!important}
+.leaflet-control-attribution a{color:var(--primary)!important}
+.map-legend{position:absolute;bottom:30px;left:12px;z-index:1000;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)}
+.legend-dot{width:10px;height:10px;border-radius:50%}
 </style>
 </head>
 <body>
@@ -88,12 +113,12 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 
 <!-- ONBOARDING -->
 <div class="onboarding" id="onboarding">
-<div style="font-size:64px;margin-bottom:16px">\u{1F30D}</div>
+<div style="font-size:64px;margin-bottom:16px">&#127757;</div>
 <h1>IncircleMe</h1>
 <p id="onb-sub">Choose your language</p>
 <div class="lang-select">
-<div class="lang-opt" onclick="pickLang('ca')">Catal\u00E0</div>
-<div class="lang-opt" onclick="pickLang('es')">Espa\u00F1ol</div>
+<div class="lang-opt" onclick="pickLang('ca')">Català</div>
+<div class="lang-opt" onclick="pickLang('es')">Español</div>
 <div class="lang-opt selected" onclick="pickLang('en')">English</div>
 </div>
 <button class="btn btn-primary" style="width:auto;padding:14px 48px;font-size:16px" onclick="startApp()" id="onb-btn">Get Started</button>
@@ -102,17 +127,25 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 <!-- EXPLORE -->
 <div class="screen" id="explore">
 <div class="status-bar"><span>9:41</span><span>IncircleMe</span><span>BCN</span></div>
-<div class="header"><h1 id="nav-explore-title">Explore</h1><div style="display:flex;gap:12px"><span style="font-size:20px;cursor:pointer" onclick="showToast(t('notif_soon'))">\u{1F514}</span></div></div>
+<div class="header"><h1 id="nav-explore-title">Explore</h1><div style="display:flex;gap:12px"><span style="font-size:20px;cursor:pointer" onclick="showToast(t('notif_soon'))">&#128276;</span></div></div>
 <div class="lang-picker" id="langPicker"></div>
 <div class="search" onclick="showToast(t('search_soon'))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span id="search-placeholder">Search events, creators...</span></div>
+<div class="view-toggle" id="viewToggle">
+<div class="view-btn active" onclick="switchView('list')" id="listBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span id="list-label">List</span></div>
+<div class="view-btn" onclick="switchView('map')" id="mapBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="map-label">Map</span></div>
+</div>
 <div class="cats" id="catList"></div>
 <div class="section-title" id="trending-title">Trending in Barcelona</div>
 <div class="events" id="eventList"></div>
+<div id="mapContainer">
+<div id="map"></div>
+<div class="map-legend" id="mapLegend"></div>
+</div>
 </div>
 
 <!-- DETAIL -->
 <div class="screen" id="detail">
-<div class="status-bar"><span style="cursor:pointer" onclick="showScreen('explore')">\u2190 <span id="back-text">Back</span></span><span></span><span style="cursor:pointer">\u2665</span></div>
+<div class="status-bar"><span style="cursor:pointer" onclick="showScreen('explore')">← <span id="back-text">Back</span></span><span></span><span style="cursor:pointer">♥</span></div>
 <div id="detailContent"></div>
 <div class="book-bar"><div><span class="event-price" id="detailPrice"></span><span style="font-size:12px;color:var(--text2)" id="per-person"> /person</span></div><button class="btn btn-primary" style="width:auto;padding:14px 32px" onclick="bookEvent()" id="book-btn">Book Now</button></div>
 </div>
@@ -135,7 +168,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 <!-- PROFILE -->
 <div class="screen" id="profile">
 <div class="status-bar"><span>9:41</span><span>IncircleMe</span><span>BCN</span></div>
-<div class="header"><h1 id="nav-profile-title">Profile</h1><span style="font-size:20px;cursor:pointer" onclick="showToast(t('settings_soon'))">\u2699</span></div>
+<div class="header"><h1 id="nav-profile-title">Profile</h1><span style="font-size:20px;cursor:pointer" onclick="showToast(t('settings_soon'))">⚙</span></div>
 <div class="profile-header"><div class="profile-avatar" style="background:linear-gradient(135deg,var(--primary),var(--cta))">E</div><h2>Erik</h2><p>Barcelona Explorer</p></div>
 <div class="stat-row"><div class="stat"><div class="num">0</div><div class="label" id="stat-events">Events</div></div><div class="stat"><div class="num">0</div><div class="label" id="stat-reviews">Reviews</div></div><div class="stat"><div class="num">2</div><div class="label" id="stat-circles">Circles</div></div></div>
 <div class="menu-item" onclick="showToast(t('coming_soon'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="menu-edit">Edit Profile</span></div>
@@ -165,110 +198,173 @@ no_bookings:"No bookings yet",no_bookings_sub:"Explore events and book your firs
 explore_btn:"Explore Events",circles_sub:"Your community groups",
 edit_profile:"Edit Profile",payment:"Payment Methods",language:"Language & Region",help:"Help & Support",
 events:"Events",reviews:"Reviews",circles_stat:"Circles",
-cat_all:"All",cat_yoga:"Yoga",cat_cooking:"Cooking",cat_photo:"Photography",cat_music:"Music",cat_art:"Art",cat_wellness:"Wellness"
+cat_all:"All",cat_yoga:"Yoga",cat_cooking:"Cooking",cat_photo:"Photography",cat_music:"Music",cat_art:"Art",cat_wellness:"Wellness",
+view_list:"List",view_map:"Map",view_details:"View Details"
 },
 es: {
-nav_explore:"Explorar",nav_circles:"C\u00EDrculos",nav_bookings:"Reservas",nav_profile:"Perfil",
+nav_explore:"Explorar",nav_circles:"C\u00edrculos",nav_bookings:"Reservas",nav_profile:"Perfil",
 trending:"Tendencias en Barcelona",search:"Buscar eventos, creadores...",back:"Volver",
 book_now:"Reservar",per_person:"/persona",join:"Unirse",spots_left:"plazas libres",
-coming_soon:"\u00A1Pr\u00F3ximamente!",notif_soon:"\u00A1Notificaciones pronto!",search_soon:"\u00A1B\u00FAsqueda en v2!",
-settings_soon:"\u00A1Ajustes pronto!",booked:"\u00A1Reserva confirmada!",saved:"\u00A1Guardado!",
-no_bookings:"Sin reservas a\u00FAn",no_bookings_sub:"\u00A1Explora eventos y reserva tu primera experiencia!",
+coming_soon:"\u00a1Pr\u00f3ximamente!",notif_soon:"\u00a1Notificaciones pronto!",search_soon:"\u00a1B\u00fasqueda en v2!",
+settings_soon:"\u00a1Ajustes pronto!",booked:"\u00a1Reserva confirmada!",saved:"\u00a1Guardado!",
+no_bookings:"Sin reservas a\u00fan",no_bookings_sub:"\u00a1Explora eventos y reserva tu primera experiencia!",
 explore_btn:"Explorar Eventos",circles_sub:"Tus grupos de comunidad",
-edit_profile:"Editar Perfil",payment:"M\u00E9todos de Pago",language:"Idioma y Regi\u00F3n",help:"Ayuda y Soporte",
-events:"Eventos",reviews:"Rese\u00F1as",circles_stat:"C\u00EDrculos",
-cat_all:"Todos",cat_yoga:"Yoga",cat_cooking:"Cocina",cat_photo:"Fotograf\u00EDa",cat_music:"M\u00FAsica",cat_art:"Arte",cat_wellness:"Bienestar"
+edit_profile:"Editar Perfil",payment:"M\u00e9todos de Pago",language:"Idioma y Regi\u00f3n",help:"Ayuda y Soporte",
+events:"Eventos",reviews:"Rese\u00f1as",circles_stat:"C\u00edrculos",
+cat_all:"Todos",cat_yoga:"Yoga",cat_cooking:"Cocina",cat_photo:"Fotograf\u00eda",cat_music:"M\u00fasica",cat_art:"Arte",cat_wellness:"Bienestar",
+view_list:"Lista",view_map:"Mapa",view_details:"Ver Detalles"
 },
 ca: {
 nav_explore:"Explorar",nav_circles:"Cercles",nav_bookings:"Reserves",nav_profile:"Perfil",
-trending:"Tend\u00E8ncies a Barcelona",search:"Cercar esdeveniments, creadors...",back:"Enrere",
+trending:"Tend\u00e8ncies a Barcelona",search:"Cercar esdeveniments, creadors...",back:"Enrere",
 book_now:"Reservar",per_person:"/persona",join:"Unir-se",spots_left:"places lliures",
-coming_soon:"Pr\u00F2ximament!",notif_soon:"Notificacions aviat!",search_soon:"Cerca a la v2!",
-settings_soon:"Configuraci\u00F3 aviat!",booked:"Reserva confirmada!",saved:"Desat!",
-no_bookings:"Sense reserves encara",no_bookings_sub:"Explora esdeveniments i reserva la teva primera experi\u00E8ncia!",
+coming_soon:"Pr\u00f2ximament!",notif_soon:"Notificacions aviat!",search_soon:"Cerca a la v2!",
+settings_soon:"Configuraci\u00f3 aviat!",booked:"Reserva confirmada!",saved:"Desat!",
+no_bookings:"Sense reserves encara",no_bookings_sub:"Explora esdeveniments i reserva la teva primera experi\u00e8ncia!",
 explore_btn:"Explorar Esdeveniments",circles_sub:"Els teus grups de comunitat",
-edit_profile:"Editar Perfil",payment:"M\u00E8todes de Pagament",language:"Idioma i Regi\u00F3",help:"Ajuda i Suport",
+edit_profile:"Editar Perfil",payment:"M\u00e8todes de Pagament",language:"Idioma i Regi\u00f3",help:"Ajuda i Suport",
 events:"Esdeveniments",reviews:"Ressenyes",circles_stat:"Cercles",
-cat_all:"Tots",cat_yoga:"Ioga",cat_cooking:"Cuina",cat_photo:"Fotografia",cat_music:"M\u00FAsica",cat_art:"Art",cat_wellness:"Benestar"
+cat_all:"Tots",cat_yoga:"Ioga",cat_cooking:"Cuina",cat_photo:"Fotografia",cat_music:"M\u00fasica",cat_art:"Art",cat_wellness:"Benestar",
+view_list:"Llista",view_map:"Mapa",view_details:"Veure Detalls"
 }
 };
-
 let lang="en";
 function t(key){return (i18n[lang]&&i18n[lang][key])||i18n.en[key]||key;}
 function setLang(l){lang=l;updateUI();}
-
 function updateUI(){
 document.querySelectorAll(".nav-label").forEach(el=>{const k=el.dataset.key;if(k)el.textContent=t(k);});
-const ids={"nav-explore-title":t("nav_explore"),"nav-circles-title":t("nav_circles"),"nav-bookings-title":t("nav_bookings"),"nav-profile-title":t("nav_profile"),"trending-title":t("trending"),"search-placeholder":t("search"),"back-text":t("back"),"book-btn":t("book_now"),"per-person":" "+t("per_person"),"circles-sub":t("circles_sub"),"menu-edit":t("edit_profile"),"menu-pay":t("payment"),"menu-lang":t("language"),"menu-help":t("help"),"stat-events":t("events"),"stat-reviews":t("reviews"),"stat-circles":t("circles_stat")};
+const ids={"nav-explore-title":t("nav_explore"),"nav-circles-title":t("nav_circles"),"nav-bookings-title":t("nav_bookings"),"nav-profile-title":t("nav_profile"),"trending-title":t("trending"),"search-placeholder":t("search"),"back-text":t("back"),"book-btn":t("book_now"),"per-person":" "+t("per_person"),"circles-sub":t("circles_sub"),"menu-edit":t("edit_profile"),"menu-pay":t("payment"),"menu-lang":t("language"),"menu-help":t("help"),"stat-events":t("events"),"stat-reviews":t("reviews"),"stat-circles":t("circles_stat"),"list-label":t("view_list"),"map-label":t("view_map")};
 Object.entries(ids).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.textContent=val;});
 renderLangPicker();renderCats();renderEvents();renderCircles();renderBookings();
+if(currentView==='map'&&map)renderMapMarkers();
 }
-
 function renderLangPicker(){
 const el=document.getElementById("langPicker");
 el.innerHTML=["ca","es","en"].map(l=>'<div class="lang-btn'+(l===lang?' active':'')+'" onclick="setLang(\''+l+'\')">'+{ca:"CAT",es:"ES",en:"EN"}[l]+'</div>').join("");
 }
 
-// === DATA ===
+// === DATA (with Barcelona coordinates) ===
 const events=[
-{id:1,title:"Sunrise Yoga in Barceloneta",creator:"Maria Santos",cat:"yoga",date:"Sat, Apr 5",time:"07:00",loc:"Barceloneta Beach",price:12,rating:4.8,reviews:24,spots:3,color:"#0A7D8C",emoji:"\u{1F9D8}",desc:"Start your morning with a peaceful yoga session on the beach as the sun rises over the Mediterranean. All levels welcome."},
-{id:2,title:"Paella Masterclass",creator:"Chef Carlos",cat:"cooking",date:"Sun, Apr 6",time:"11:00",loc:"El Born Kitchen Studio",price:35,rating:4.9,reviews:18,spots:6,color:"#E07B39",emoji:"\u{1F958}",desc:"Learn to cook authentic Valencian paella from a local chef. Includes all ingredients, wine pairing, and recipes to take home."},
-{id:3,title:"Gothic Quarter Photo Walk",creator:"Ana Photography",cat:"photo",date:"Sat, Apr 5",time:"17:00",loc:"Pla\u00E7a de Catalunya",price:20,rating:4.7,reviews:31,spots:8,color:"#3B82F6",emoji:"\u{1F4F7}",desc:"Capture the magic of Barcelona's Gothic Quarter during golden hour. Tips on composition, lighting, and street photography."},
-{id:4,title:"Flamenco Guitar Workshop",creator:"Diego Ramirez",cat:"music",date:"Fri, Apr 4",time:"19:00",loc:"Gr\u00E0cia Music Room",price:25,rating:4.6,reviews:12,spots:4,color:"#8B5CF6",emoji:"\u{1F3B8}",desc:"Learn basic flamenco guitar techniques in an intimate workshop setting. Guitars provided. No experience needed."},
-{id:5,title:"Street Art Tour Poblenou",creator:"Marc Urban",cat:"art",date:"Sun, Apr 6",time:"10:00",loc:"Poblenou Metro",price:15,rating:4.8,reviews:42,spots:10,color:"#EC4899",emoji:"\u{1F3A8}",desc:"Discover the incredible street art scene of Poblenou with a local artist. Learn about the artists and techniques behind Barcelona's murals."},
-{id:6,title:"Meditation & Sound Bath",creator:"Luna Wellness",cat:"wellness",date:"Thu, Apr 3",time:"18:30",loc:"Raval Wellness Center",price:18,rating:4.9,reviews:15,spots:5,color:"#22C55E",emoji:"\u{1F54A}",desc:"Deep relaxation through guided meditation and crystal singing bowls. Leave feeling refreshed and centered."}
+{id:1,title:"Sunrise Yoga in Barceloneta",creator:"Maria Santos",cat:"yoga",date:"Sat, Apr 5",time:"07:00",loc:"Barceloneta Beach",lat:41.3784,lng:2.1915,price:12,rating:4.8,reviews:24,spots:3,color:"#0A7D8C",emoji:"\ud83e\uddd8",desc:"Start your morning with a peaceful yoga session on the beach as the sun rises over the Mediterranean. All levels welcome."},
+{id:2,title:"Paella Masterclass",creator:"Chef Carlos",cat:"cooking",date:"Sun, Apr 6",time:"11:00",loc:"El Born Kitchen Studio",lat:41.3851,lng:2.1834,price:35,rating:4.9,reviews:18,spots:6,color:"#E07B39",emoji:"\ud83e\udd58",desc:"Learn to cook authentic Valencian paella from a local chef. Includes all ingredients, wine pairing, and recipes to take home."},
+{id:3,title:"Gothic Quarter Photo Walk",creator:"Ana Photography",cat:"photo",date:"Sat, Apr 5",time:"17:00",loc:"Pla\u00e7a de Catalunya",lat:41.3874,lng:2.1700,price:20,rating:4.7,reviews:31,spots:8,color:"#3B82F6",emoji:"\ud83d\udcf7",desc:"Capture the magic of Barcelona's Gothic Quarter during golden hour. Tips on composition, lighting, and street photography."},
+{id:4,title:"Flamenco Guitar Workshop",creator:"Diego Ramirez",cat:"music",date:"Fri, Apr 4",time:"19:00",loc:"Gr\u00e0cia Music Room",lat:41.4025,lng:2.1567,price:25,rating:4.6,reviews:12,spots:4,color:"#8B5CF6",emoji:"\ud83c\udfb8",desc:"Learn basic flamenco guitar techniques in an intimate workshop setting. Guitars provided. No experience needed."},
+{id:5,title:"Street Art Tour Poblenou",creator:"Marc Urban",cat:"art",date:"Sun, Apr 6",time:"10:00",loc:"Poblenou Metro",lat:41.4035,lng:2.1993,price:15,rating:4.8,reviews:42,spots:10,color:"#EC4899",emoji:"\ud83c\udfa8",desc:"Discover the incredible street art scene of Poblenou with a local artist. Learn about the artists and techniques behind Barcelona's murals."},
+{id:6,title:"Meditation & Sound Bath",creator:"Luna Wellness",cat:"wellness",date:"Thu, Apr 3",time:"18:30",loc:"Raval Wellness Center",lat:41.3800,lng:2.1690,price:18,rating:4.9,reviews:15,spots:5,color:"#22C55E",emoji:"\ud83d\udd4a\ufe0f",desc:"Deep relaxation through guided meditation and crystal singing bowls. Leave feeling refreshed and centered."}
 ];
-
 const catKeys=["all","yoga","cooking","photo","music","art","wellness"];
 const circlesData=[
-{name:"Barcelona Yogis",members:47,emoji:"\u{1F9D8}",color:"#0A7D8C",desc_en:"Morning yoga lovers in BCN",desc_es:"Amantes del yoga matutino en BCN",desc_ca:"Amants del ioga matin\u00ED a BCN"},
-{name:"Foodies BCN",members:83,emoji:"\u{1F37D}",color:"#E07B39",desc_en:"Culinary adventures around the city",desc_es:"Aventuras culinarias por la ciudad",desc_ca:"Aventures culin\u00E0ries per la ciutat"},
-{name:"Photo Walks BCN",members:62,emoji:"\u{1F4F8}",color:"#3B82F6",desc_en:"Weekly photo walks & tips",desc_es:"Paseos fotogr\u00E1ficos semanales",desc_ca:"Passejades fotogr\u00E0fiques setmanals"},
-{name:"Music Makers",members:34,emoji:"\u{1F3B6}",color:"#8B5CF6",desc_en:"Jam sessions & workshops",desc_es:"Sesiones de jam y talleres",desc_ca:"Sessions de jam i tallers"}
+{name:"Barcelona Yogis",members:47,emoji:"\ud83e\uddd8",color:"#0A7D8C",desc_en:"Morning yoga lovers in BCN",desc_es:"Amantes del yoga matutino en BCN",desc_ca:"Amants del ioga matin\u00ed a BCN"},
+{name:"Foodies BCN",members:83,emoji:"\ud83c\udf7d\ufe0f",color:"#E07B39",desc_en:"Culinary adventures around the city",desc_es:"Aventuras culinarias por la ciudad",desc_ca:"Aventures culin\u00e0ries per la ciutat"},
+{name:"Photo Walks BCN",members:62,emoji:"\ud83d\udcf8",color:"#3B82F6",desc_en:"Weekly photo walks & tips",desc_es:"Paseos fotogr\u00e1ficos semanales",desc_ca:"Passejades fotogr\u00e0fiques setmanals"},
+{name:"Music Makers",members:34,emoji:"\ud83c\udfb6",color:"#8B5CF6",desc_en:"Jam sessions & workshops",desc_es:"Sesiones de jam y talleres",desc_ca:"Sessions de jam i tallers"}
 ];
+let activeCat="all";let hasBooked=false;let currentView="list";
+let map=null;let markers=[];
 
-let activeCat="all";let hasBooked=false;
+// === VIEW TOGGLE ===
+function switchView(view){
+currentView=view;
+document.getElementById("listBtn").classList.toggle("active",view==="list");
+document.getElementById("mapBtn").classList.toggle("active",view==="map");
+document.getElementById("eventList").style.display=view==="list"?"flex":"none";
+document.getElementById("trending-title").style.display=view==="list"?"block":"none";
+document.getElementById("mapContainer").style.display=view==="map"?"block":"none";
+if(view==="map"){
+if(!map)initMap();
+else{setTimeout(()=>{map.invalidateSize();},100);}
+renderMapMarkers();
+}
+}
 
+// === MAP ===
+function initMap(){
+map=L.map('map',{zoomControl:true,attributionControl:true}).setView([41.3920,2.1780],13);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+subdomains:'abcd',maxZoom:19
+}).addTo(map);
+renderMapMarkers();
+renderMapLegend();
+}
+
+function createMarkerIcon(color,emoji){
+return L.divIcon({
+className:'custom-marker',
+html:'<div style="width:40px;height:40px;border-radius:50%;background:'+color+';border:3px solid '+color+'44;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,.4);cursor:pointer;transition:transform .2s;">'+emoji+'</div>',
+iconSize:[40,40],
+iconAnchor:[20,20],
+popupAnchor:[0,-24]
+});
+}
+
+function renderMapMarkers(){
+markers.forEach(m=>map.removeLayer(m));
+markers=[];
+const filtered=activeCat==="all"?events:events.filter(e=>e.cat===activeCat);
+filtered.forEach(e=>{
+const icon=createMarkerIcon(e.color,e.emoji);
+const marker=L.marker([e.lat,e.lng],{icon:icon}).addTo(map);
+const popup='<div><h4>'+e.title+'</h4><div class="popup-meta">'+e.emoji+' '+e.creator+' &middot; '+e.date+'</div><div class="popup-meta">\ud83d\udccd '+e.loc+' &middot; '+e.spots+' '+t('spots_left')+'</div><div class="popup-price">\u20ac'+e.price+'<span style="font-size:11px;color:#8899AA;font-weight:400"> '+t('per_person')+'</span></div><button class="popup-btn" onclick="showDetail('+e.id+')">'+t('view_details')+'</button></div>';
+marker.bindPopup(popup,{closeButton:true,maxWidth:220});
+marker.on('mouseover',function(){this.getElement().querySelector('div').style.transform='scale(1.2)';});
+marker.on('mouseout',function(){this.getElement().querySelector('div').style.transform='scale(1)';});
+markers.push(marker);
+});
+if(filtered.length>0){
+const group=new L.featureGroup(markers);
+map.fitBounds(group.getBounds().pad(0.15));
+}
+}
+
+function renderMapLegend(){
+const el=document.getElementById("mapLegend");
+const cats=[{key:"yoga",color:"#0A7D8C"},{key:"cooking",color:"#E07B39"},{key:"photo",color:"#3B82F6"},{key:"music",color:"#8B5CF6"},{key:"art",color:"#EC4899"},{key:"wellness",color:"#22C55E"}];
+el.innerHTML=cats.map(c=>'<div class="legend-item"><div class="legend-dot" style="background:'+c.color+'"></div>'+t("cat_"+c.key)+'</div>').join("");
+}
+
+// === SCREENS & EVENTS ===
 function showScreen(name){
 document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
 document.getElementById(name).classList.add("active");
 document.querySelectorAll(".nav button").forEach((b,i)=>{
 b.classList.toggle("active",["explore","circles","bookings","profile"][i]===name);
 });
+if(name==='explore'&&currentView==='map'&&map){
+setTimeout(()=>{map.invalidateSize();},100);
 }
-
+}
 function showToast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2000);}
-
 function renderCats(){
 const el=document.getElementById("catList");
-el.innerHTML=catKeys.map(c=>'<div class="cat'+(c===activeCat?' active':'')+'" onclick="filterCat(\''+c+'\')">'+t("cat_"+c)+'</div>').join("");
+el.innerHTML=catKeys.map(c=>'<div class="cat'+(c===activeCat?' active':'')+'" onclick="filterCat(\''+c+'\')">' +t("cat_"+c)+'</div>').join("");
 }
-function filterCat(c){activeCat=c;renderCats();renderEvents();}
-
+function filterCat(c){activeCat=c;renderCats();renderEvents();if(currentView==='map'&&map){renderMapMarkers();renderMapLegend();}}
 function renderEvents(){
 const el=document.getElementById("eventList");
 const filtered=activeCat==="all"?events:events.filter(e=>e.cat===activeCat);
-el.innerHTML=filtered.map(e=>'<div class="event-card" onclick="showDetail('+e.id+')"><div class="event-img" style="background:linear-gradient(135deg,'+e.color+'33,'+e.color+'11);display:flex;align-items:center;justify-content:center"><span style="font-size:64px">'+e.emoji+'</span><div class="gradient"></div><div class="badge">'+t("cat_"+e.cat)+'</div><div class="heart" onclick="event.stopPropagation();showToast(t(\'saved\'))">\u2661</div></div><div class="event-body"><h3>'+e.title+'</h3><div class="event-meta"><span>\u{1F4C5} '+e.date+'</span><span>\u{1F550} '+e.time+'</span><span>\u{1F4CD} '+e.loc+'</span></div><div class="event-footer"><span class="event-price">\u20AC'+e.price+'</span><span class="event-rating">\u2B50 '+e.rating+' ('+e.reviews+')</span></div></div></div>').join("");
+el.innerHTML=filtered.map(e=>'<div class="event-card" onclick="showDetail('+e.id+')"><div class="event-img" style="background:linear-gradient(135deg,'+e.color+'33,'+e.color+'11);display:flex;align-items:center;justify-content:center"><span style="font-size:64px">'+e.emoji+'</span><div class="gradient"></div><div class="badge">'+t("cat_"+e.cat)+'</div><div class="heart" onclick="event.stopPropagation();showToast(t(\'saved\'))">♡</div></div><div class="event-body"><h3>'+e.title+'</h3><div class="event-meta"><span>\ud83d\udcc5 '+e.date+'</span><span>\ud83d\udd50 '+e.time+'</span><span>\ud83d\udccd '+e.loc+'</span></div><div class="event-footer"><span class="event-price">\u20ac'+e.price+'</span><span class="event-rating">\u2b50 '+e.rating+' ('+e.reviews+')</span></div></div></div>').join("");
 }
-
 function showDetail(id){
 const e=events.find(ev=>ev.id===id);if(!e)return;
-document.getElementById("detailPrice").textContent="\u20AC"+e.price;
-document.getElementById("detailContent").innerHTML='<div style="height:240px;background:linear-gradient(135deg,'+e.color+'44,'+e.color+'11);display:flex;align-items:center;justify-content:center"><span style="font-size:80px">'+e.emoji+'</span></div><div class="detail-section"><h2 style="font-size:22px;margin-bottom:12px">'+e.title+'</h2><div class="creator" style="padding:0;margin-bottom:16px"><div class="avatar" style="background:'+e.color+'33;color:'+e.color+';width:40px;height:40px;font-size:16px">'+e.creator[0]+'</div><div class="creator-info"><h4>'+e.creator+'</h4><p>\u2B50 '+e.rating+' \u00B7 '+e.reviews+' '+t("reviews")+'</p></div></div><p>'+e.desc+'</p></div><div class="detail-section" style="border-top:1px solid var(--border)"><div class="info-row"><span>\u{1F4C5}</span>'+e.date+' '+e.time+'</div><div class="info-row"><span>\u{1F4CD}</span>'+e.loc+'</div><div class="info-row"><span>\u{1F465}</span>'+e.spots+' '+t("spots_left")+'</div><div class="info-row"><span>\u{1F4B0}</span>\u20AC'+e.price+' '+t("per_person")+'</div></div>';
+document.getElementById("detailPrice").textContent="\u20ac"+e.price;
+document.getElementById("detailContent").innerHTML='<div style="height:240px;background:linear-gradient(135deg,'+e.color+'44,'+e.color+'11);display:flex;align-items:center;justify-content:center"><span style="font-size:80px">'+e.emoji+'</span></div><div class="detail-section"><h2 style="font-size:22px;margin-bottom:12px">'+e.title+'</h2><div class="creator" style="padding:0;margin-bottom:16px"><div class="avatar" style="background:'+e.color+'33;color:'+e.color+';width:40px;height:40px;font-size:16px">'+e.creator[0]+'</div><div class="creator-info"><h4>'+e.creator+'</h4><p>\u2b50 '+e.rating+' \u00b7 '+e.reviews+' '+t("reviews")+'</p></div></div><p>'+e.desc+'</p></div><div class="detail-section" style="border-top:1px solid var(--border)"><div class="info-row"><span>\ud83d\udcc5</span>'+e.date+' '+e.time+'</div><div class="info-row"><span>\ud83d\udccd</span>'+e.loc+'</div><div class="info-row"><span>\ud83d\udc65</span>'+e.spots+' '+t("spots_left")+'</div><div class="info-row"><span>\ud83d\udcb0</span>\u20ac'+e.price+' '+t("per_person")+'</div></div><div id="detailMap" style="margin:0 16px 16px;height:180px;border-radius:12px;overflow:hidden;border:1px solid var(--border)"></div>';
 showScreen("detail");
+setTimeout(()=>{
+const dm=L.map('detailMap',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false}).setView([e.lat,e.lng],15);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(dm);
+L.marker([e.lat,e.lng],{icon:createMarkerIcon(e.color,e.emoji)}).addTo(dm);
+},200);
 }
-
 function bookEvent(){
 showToast("\u2705 "+t("booked"));hasBooked=true;
 setTimeout(()=>{showScreen("bookings");renderBookings();},1500);
 }
-
 function renderBookings(){
 const el=document.getElementById("bookingsList");
-if(hasBooked){el.innerHTML='<div class="booking-card"><div class="booking-status confirmed">\u2713 Confirmed</div><h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Sunrise Yoga in Barceloneta</h3><p style="font-size:12px;color:var(--text2)">Sat, Apr 5 \u00B7 07:00 \u00B7 Barceloneta Beach</p><p style="font-size:14px;font-weight:600;color:var(--cta);margin-top:8px">\u20AC12</p></div>';}
-else{el.innerHTML='<div style="text-align:center;padding:40px 16px;color:var(--text2)"><p style="font-size:48px;margin-bottom:12px">\u{1F4C5}</p><p>'+t("no_bookings")+'</p><p style="font-size:13px;margin-top:4px">'+t("no_bookings_sub")+'</p><button class="btn btn-primary" style="width:auto;margin:16px auto;padding:12px 24px" onclick="showScreen(\'explore\')">'+t("explore_btn")+'</button></div>';}
+if(hasBooked){el.innerHTML='<div class="booking-card"><div class="booking-status confirmed">\u2713 Confirmed</div><h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Sunrise Yoga in Barceloneta</h3><p style="font-size:12px;color:var(--text2)">Sat, Apr 5 \u00b7 07:00 \u00b7 Barceloneta Beach</p><p style="font-size:14px;font-weight:600;color:var(--cta);margin-top:8px">\u20ac12</p></div>';}
+else{el.innerHTML='<div style="text-align:center;padding:40px 16px;color:var(--text2)"><p style="font-size:48px;margin-bottom:12px">\ud83d\udcc5</p><p>'+t("no_bookings")+'</p><p style="font-size:13px;margin-top:4px">'+t("no_bookings_sub")+'</p><button class="btn btn-primary" style="width:auto;margin:16px auto;padding:12px 24px" onclick="showScreen(\'explore\')">'+t("explore_btn")+'</button></div>';}
 }
-
 function renderCircles(){
 const el=document.getElementById("circlesList");
 el.innerHTML=circlesData.map(c=>{
@@ -282,7 +378,7 @@ function pickLang(l){
 selectedLang=l;
 document.querySelectorAll(".lang-opt").forEach(el=>el.classList.remove("selected"));
 event.target.classList.add("selected");
-const labels={en:"Get Started",es:"Empezar",ca:"Comen\u00E7ar"};
+const labels={en:"Get Started",es:"Empezar",ca:"Comen\u00e7ar"};
 document.getElementById("onb-btn").textContent=labels[l];
 const subs={en:"Choose your language",es:"Elige tu idioma",ca:"Tria el teu idioma"};
 document.getElementById("onb-sub").textContent=subs[l];
@@ -291,7 +387,6 @@ function startApp(){
 document.getElementById("onboarding").style.display="none";
 setLang(selectedLang);
 }
-
 // Init
 renderCats();renderEvents();renderCircles();renderBookings();
 </script>
