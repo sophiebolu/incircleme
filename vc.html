@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IncircleMe - The Marketplace for Local Experiences</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #060D18;
+            --accent-teal: #0A7D8C;
+            --accent-orange: #E07B39;
+            --card-bg: rgba(15,28,46,0.6);
+            --card-border: #1a2d44;
+            --text-white: #FFFFFF;
+            --text-gray: #A0AEC0;
+            --text-muted: #7a8a9e;
+            --color-food: #C53030;
+            --color-fitness: #38A169;
+            --color-art: #805AD5;
+            --color-music: #5A67D8;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-gray);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: transparent;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(6, 13, 24, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-teal);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-teal);
+        }
+
+        .cta-button {
+            padding: 10px 24px;
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(224, 123, 57, 0.3);
+        }
+
+        .ghost-button {
+            padding: 10px 24px;
+            background: transparent;
+            color: var(--accent-teal);
+            border: 1.5px solid var(--accent-teal);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .ghost-button:hover {
+            background: rgba(10, 125, 140, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            margin-top: 70px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 125, 140, 0.1) 0%, rgba(224, 123, 57, 0.05) 100%);
+            animation: gradientShift 8s ease infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 1;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background: var(--accent-teal);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 800;
+            color: var(--text-white);
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 24px;
+            color: var(--text-gray);
+            margin-bottom: 50px;
+            max-width: 600px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 80px;
+        }
+
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+            font-size: 24px;
+            color: var(--accent-teal);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        /* Sections */
+        section {
+            padding: 100px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        section h2 {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--text-white);
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            transform: translateY(30px);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Problem Section */
+        .problem-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-teal);
+            box-shadow: 0 20px 40px rgba(10, 125, 140, 0.15);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            font-size: 15px;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* Solution Section */
+        .solution-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 80px;
+            gap: 40px;
+        }
+
+        .solution-step {
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--accent-teal);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 auto 20px;
+        }
+
+        .solution-step h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 12px;
+        }
+
+        .solution-step p {
+            font-size: 15px;
+            color: var(--text-gray);
+        }
+
+        .flow-arrow {
+            color: var(--accent-teal);
+            font-size: 32px;
+            opacity: 0.5;
+        }
+
+        .mockup-frame {
+            width: 375px;
+            height: 812px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 40px;
+            padding: 12px;
+            margin: 0 auto;
+            box-shadow: 0 30px 60px rgba(10, 125, 140, 0.2);
+            overflow: hidden;
+        }
+
+        .mockup-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 36px;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-left: 3px solid var(--accent-teal);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateX(5px);
+            border-left-color: var(--accent-orange);
+        }
+
+        .feature-card-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        /* Market Opportunity */
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .market-stat {
+            padding: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+        }
+
+        .market-stat.orange {
+            border-top: 3px solid var(--accent-orange);
+        }
+
+        .market-stat.teal {
+            border-top: 3px solid var(--accent-teal);
+        }
+
+        .market-number {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .market-number.orange {
+            color: var(--accent-orange);
+        }
+
+        .market-number.teal {
+            color: var(--accent-teal);
+        }
+
+        .market-stat p {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .market-subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        /* Business Model */
+        .business-content {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .fee-highlight {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-orange);
+            margin-bottom: 40px;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .pricing-card.featured {
+            transform: scale(1.05);
+            border-color: var(--accent-teal);
+            box-shadow: 0 20px 40px rgba(10, 125, 140, 0.2);
+        }
+
+        .pricing-tier {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 15px;
+        }
+
+        .pricing-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-orange);
+            margin-bottom: 30px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+        }
+
+        .pricing-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--card-border);
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline-items {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            position: relative;
+        }
+
+        .timeline-items::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-teal) 0%, var(--accent-teal) 40%, var(--text-muted) 100%);
+            z-index: -1;
+        }
+
+        .timeline-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .timeline-dot {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-dark);
+            border: 3px solid var(--accent-teal);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .timeline-item.completed .timeline-dot {
+            background: var(--accent-teal);
+            color: white;
+        }
+
+        .timeline-item.upcoming .timeline-dot {
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        .timeline-item h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 8px;
+        }
+
+        .timeline-item p {
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+
+        /* Investment Section */
+        .investment-content {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .ask-amount {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--accent-orange);
+            margin-bottom: 30px;
+        }
+
+        .use-of-funds {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 50px 0;
+        }
+
+        .fund-category {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .fund-percentage {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent-orange);
+            margin-bottom: 10px;
+        }
+
+        .fund-label {
+            font-size: 13px;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+
+        .cta-section {
+            font-size: 20px;
+            color: var(--text-white);
+            margin: 50px 0;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--card-border);
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-teal);
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-teal);
+        }
+
+        .footer-contact {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 20px;
+        }
+
+        .footer-copy {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .problem-cards, .features-grid, .market-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .solution-flow {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 60px 20px;
+            }
+
+            section h2 {
+                font-size: 36px;
+                margin-bottom: 40px;
+            }
+
+            .hero h1 {
+                font-size: 42px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            nav {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .problem-cards, .features-grid, .market-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-items::before {
+                display: none;
+            }
+
+            .timeline-dot {
+                margin-bottom: 15px;
+            }
+
+            .mockup-frame {
+                width: 100%;
+                max-width: 375px;
+            }
+
+            .use-of-funds {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="logo">◯ IncircleMe</div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#market">Market</a>
+            <a href="#investment">Investment</a>
+            <a href="https://incircleme.vercel.app" target="_blank" class="cta-button">Try Prototype</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-logo">◯</div>
+            <h1>The Marketplace<br>for Local Experiences</h1>
+            <p>Connecting creators with their community.<br>One event at a time.</p>
+            <div class="hero-buttons">
+                <a href="https://incircleme.vercel.app" target="_blank" class="cta-button">Try the Prototype →</a>
+                <button class="ghost-button" onclick="document.getElementById('investment').scrollIntoView()">View Pitch Deck →</button>
+            </div>
+            <div style="margin-top: 60px;">
+                <div class="scroll-indicator">↓</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="fade-in">
+        <h2>The Experience Economy is Broken</h2>
+        <div class="problem-cards">
+            <div class="card">
+                <div class="card-icon">🎯</div>
+                <h3>Creators Can't Monetize</h3>
+                <p>Talented local creators lack tools to host and sell experiences. Where do yoga teachers, chefs, artists, and musicians actually go?</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔍</div>
+                <h3>Discovery is Fragmented</h3>
+                <p>No single platform for finding intimate local events. Instagram stories, WhatsApp groups, scattered websites. Discovery is broken.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <h3>Big Platforms Don't Fit</h3>
+                <p>Eventbrite and Meetup were built for mass events and conferences, not 10-person workshops and community experiences.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="fade-in">
+        <h2>IncircleMe: Built for Creators,<br>Loved by Communities</h2>
+        <div class="solution-flow">
+            <div class="solution-step">
+                <div class="step-number">1</div>
+                <h3>Discover</h3>
+                <p>Interactive map + feed. Filter by interest and location.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="solution-step">
+                <div class="step-number">2</div>
+                <h3>Book</h3>
+                <p>Instant checkout. Secure payments.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="solution-step">
+                <div class="step-number">3</div>
+                <h3>Experience</h3>
+                <p>QR check-in, event circles, reviews.</p>
+            </div>
+        </div>
+        <div class="mockup-frame">
+            <iframe src="index.html?embed" title="IncircleMe Prototype"></iframe>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="fade-in" id="features">
+        <h2>Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-card-icon">🗺️</div>
+                <h3>Interactive Map</h3>
+                <p>Real-time discovery with Leaflet maps. See events happening near you right now.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card-icon">📊</div>
+                <h3>Creator Dashboard</h3>
+                <p>Earnings, events, attendee management. Full control in one place.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card-icon">💬</div>
+                <h3>Event Circles</h3>
+                <p>Group chat for each event. Community that builds relationships, not noise.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card-icon">📱</div>
+                <h3>QR Check-in</h3>
+                <p>Seamless arrival experience. No friction, just community.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card-icon">✅</div>
+                <h3>Smart Booking</h3>
+                <p>Waitlists, refunds, transfers. The creator economy deserves better tools.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card-icon">🌐</div>
+                <h3>Multi-language</h3>
+                <p>Catalan, Spanish, English from day one. Built for Barcelona.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Opportunity -->
+    <section class="fade-in" id="market">
+        <h2>The Opportunity</h2>
+        <div class="market-grid">
+            <div class="market-stat orange">
+                <div class="market-number orange">$1.1T+</div>
+                <p>Global experience economy</p>
+            </div>
+            <div class="market-stat teal">
+                <div class="market-number teal">$100B+</div>
+                <p>Creator economy</p>
+            </div>
+            <div class="market-stat">
+                <div class="market-number">5M+</div>
+                <p>Annual Barcelona tourists</p>
+            </div>
+            <div class="market-stat">
+                <div class="market-number">1.7M</div>
+                <p>Barcelona residents</p>
+            </div>
+        </div>
+        <p class="market-subtitle">Barcelona: The perfect launch city for hyperlocal experiences</p>
+    </section>
+
+    <!-- Business Model -->
+    <section class="fade-in">
+        <h2>Business Model</h2>
+        <div class="business-content">
+            <div class="fee-highlight">15% service fee on every booking</div>
+            <p style="font-size: 16px; margin-bottom: 10px;">Creator Tiers & Promotions Generate Additional Revenue</p>
+        </div>
+        <div class="pricing-cards">
+            <div class="pricing-card">
+                <div class="pricing-tier">Basic</div>
+                <div class="pricing-price">Free</div>
+                <ul class="pricing-features">
+                    <li>✓ List events</li>
+                    <li>✓ Basic analytics</li>
+                    <li>✓ Community chat</li>
+                    <li>✓ 15% booking fee</li>
+                </ul>
+            </div>
+            <div class="pricing-card featured">
+                <div class="pricing-tier">Pro</div>
+                <div class="pricing-price">€9.99/mo</div>
+                <ul class="pricing-features">
+                    <li>✓ Everything in Basic</li>
+                    <li>✓ Event boosts</li>
+                    <li>✓ Advanced analytics</li>
+                    <li>✓ 12% booking fee</li>
+                </ul>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-tier">Elite</div>
+                <div class="pricing-price">€24.99/mo</div>
+                <ul class="pricing-features">
+                    <li>✓ Everything in Pro</li>
+                    <li>✓ Priority support</li>
+                    <li>✓ Unlimited boosts</li>
+                    <li>✓ 10% booking fee</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Traction & Roadmap -->
+    <section class="fade-in">
+        <h2>Traction & Roadmap</h2>
+        <div class="timeline">
+            <div class="timeline-items">
+                <div class="timeline-item completed">
+                    <div class="timeline-dot">✓</div>
+                    <h4>Q1 2026</h4>
+                    <p>Complete prototype (37 screens)</p>
+                </div>
+                <div class="timeline-item completed">
+                    <div class="timeline-dot">✓</div>
+                    <h4>Q1 2026</h4>
+                    <p>Brand identity & design system</p>
+                </div>
+                <div class="timeline-item upcoming">
+                    <div class="timeline-dot">●</div>
+                    <h4>Q2 2026</h4>
+                    <p>MVP development</p>
+                </div>
+                <div class="timeline-item upcoming">
+                    <div class="timeline-dot">●</div>
+                    <h4>Q3 2026</h4>
+                    <p>Beta launch (50 creators)</p>
+                </div>
+                <div class="timeline-item upcoming">
+                    <div class="timeline-dot">○</div>
+                    <h4>Q4 2026</h4>
+                    <p>Public launch</p>
+                </div>
+                <div class="timeline-item upcoming">
+                    <div class="timeline-dot">○</div>
+                    <h4>2027</h4>
+                    <p>Expand to Madrid, Valencia</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Investment Section -->
+    <section class="fade-in" id="investment">
+        <h2>The Ask</h2>
+        <div class="investment-content">
+            <div class="ask-amount">€250K Pre-Seed</div>
+            <h3 style="color: var(--text-white); margin-bottom: 40px; font-size: 20px;">Use of Funds</h3>
+        </div>
+        <div class="use-of-funds">
+            <div class="fund-category">
+                <div class="fund-percentage">60%</div>
+                <div class="fund-label">Engineering</div>
+            </div>
+            <div class="fund-category">
+                <div class="fund-percentage">20%</div>
+                <div class="fund-label">Marketing</div>
+            </div>
+            <div class="fund-category">
+                <div class="fund-percentage">10%</div>
+                <div class="fund-label">Operations</div>
+            </div>
+            <div class="fund-category">
+                <div class="fund-percentage">10%</div>
+                <div class="fund-label">Reserve</div>
+            </div>
+        </div>
+        <div class="cta-section">Join us in building the future of local experiences</div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">◯ IncircleMe</div>
+        <div class="footer-contact">sophie.boluda1@gmail.com</div>
+        <div class="footer-links">
+            <a href="https://incircleme.vercel.app" target="_blank">Prototype</a>
+            <a href="https://incircleme.vercel.app/album.html" target="_blank">Album</a>
+            <a href="#">Pitch Deck</a>
+        </div>
+        <div class="footer-copy">© 2026 IncircleMe. All rights reserved.<br>Barcelona, Spain 🇪🇸</div>
+    </footer>
+
+    <script>
+        // Smooth scroll and navbar effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
