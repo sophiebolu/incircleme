@@ -672,6 +672,7 @@ body.embed-mode .sc{padding-top:0}
   <div class="screen" id="s-bookings">
     <div class="sc">
       <div class="rel">
+        <div style="position:relative;z-index:20">
         <div class="topbar">
           <span class="topbar-title">My Bookings</span>
           <div class="filter-btn" onclick="toggleBookingFilter(event)" id="filter-btn-bookings">
@@ -698,6 +699,7 @@ body.embed-mode .sc{padding-top:0}
           <button onclick="closeBookingFilter()" style="width:100%;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">Apply</button>
         </div>
         <div class="filter-backdrop" id="booking-filter-backdrop" onclick="closeBookingFilter()"></div>
+        </div>
         <p class="muted px20 mb12" style="font-size:13px">3 upcoming this week</p>
         <div class="px20">
           <div class="ticket-card" onclick="go('s-ticket')">
