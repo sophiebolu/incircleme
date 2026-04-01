@@ -82,9 +82,9 @@ h3{color:var(--text);font-weight:600;font-size:17px}
 .w100{width:100%}
 .scroll-x{display:flex;overflow-x:auto;gap:10px;padding-bottom:4px;-webkit-overflow-scrolling:touch}
 .scroll-x::-webkit-scrollbar{height:0}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:40;background:var(--bg);border-top:1px solid var(--border);box-sizing:border-box}
-.home-header .topbar{position:relative;bottom:auto;left:auto;transform:none;width:auto;max-width:none;border-top:none;padding:12px 20px 4px}
-#s-profile .topbar,#s-confirmation .topbar,#s-event-published .topbar,#s-messages .topbar,#s-bookings .topbar{position:relative;bottom:auto;left:auto;transform:none;width:auto;max-width:none;border-top:none}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;position:relative;z-index:40;background:var(--bg);flex-shrink:0}
+.home-header .topbar{padding:12px 20px 4px}
+
 .topbar-title{color:#fff;font-size:18px;font-weight:700}
 .back-btn{color:var(--gray);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:4px}
 .img-placeholder{background:var(--bg2);border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
@@ -113,7 +113,7 @@ h3{color:var(--text);font-weight:600;font-size:17px}
 .filter-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg2);color:var(--gray);font-size:13px;font-weight:600;cursor:pointer;position:relative}
 .filter-btn svg{width:16px;height:16px}
 .filter-btn .filter-count{width:18px;height:18px;border-radius:50%;background:var(--gold);color:#1B1E24;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.filter-panel{display:none;position:absolute;bottom:100%;left:0;right:0;background:#0c1a2e;border:1px solid var(--border);border-radius:16px 16px 0 0;padding:16px 20px;z-index:20;box-shadow:0 -12px 32px rgba(0,0,0,.5)}
+.filter-panel{display:none;position:absolute;top:100%;left:0;right:0;background:#0c1a2e;border:1px solid var(--border);border-radius:0 0 16px 16px;padding:16px 20px;z-index:20;box-shadow:0 12px 32px rgba(0,0,0,.5)}
 .filter-panel.open{display:block}
 .filter-panel h4{color:var(--gray);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
 .filter-panel .fchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
@@ -681,7 +681,7 @@ body.embed-mode .sc{padding-top:0}
           </div>
         </div>
         <!-- Booking filter dropdown -->
-        <div class="filter-panel" id="booking-filter-panel" style="left:20px;right:20px;bottom:100%">
+        <div class="filter-panel" id="booking-filter-panel" style="left:20px;right:20px;top:100%">
           <h4>Status</h4>
           <div class="fchips">
             <div class="fchip active" onclick="toggleBFchip(this)">Upcoming</div>
