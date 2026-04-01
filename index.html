@@ -15,7 +15,7 @@
 body{min-height:100vh;background:#15171C;display:flex;justify-content:center;font-family:'Inter',sans-serif;padding:0;margin:0;max-width:100%}
 .phone{width:100%;max-width:430px;min-height:100vh;background:var(--bg);margin:0 auto;position:relative;overflow:hidden}
 .notch{display:none}
-.statusbar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 0;color:var(--text);font-size:14px;font-weight:600;height:50px;position:relative;z-index:99}
+.statusbar{display:none}
 .screen{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
 .sc{padding:50px 0 0;flex:1;overflow-y:auto;position:relative}
@@ -363,7 +363,7 @@ body.embed-mode .sc{padding-top:0}
           </div>
         </div>
         <div style="flex:1;min-height:20px"></div>
-        <button class="btn-orange w100" style="background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;box-shadow:0 4px 20px rgba(167,139,250,.25)" onclick="go('s-home')">Let's go! →</button>
+        <button class="btn-orange w100" style="background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;box-shadow:0 4px 20px rgba(167,139,250,.25)" onclick="go('s-onboarding')">Let's go! →</button>
         <p class="muted center" style="font-size:14px;cursor:pointer;margin-top:8px" onclick="go('s-home')">Skip for now</p>
         <div style="display:flex;gap:8px;justify-content:center;margin-top:16px">
           <div style="width:8px;height:8px;border-radius:50%;background:var(--purple)"></div>
@@ -571,6 +571,7 @@ body.embed-mode .sc{padding-top:0}
             <div class="card2 flex1 center" style="cursor:pointer;padding:10px" onclick="go('s-saved')"><span style="font-size:14px">❤️</span><p class="muted" style="font-size:11px;margin-top:4px">Save</p></div>
           </div>
           <button class="btn-accent mb24" onclick="go('s-checkout')">Get Ticket · €25</button>
+          <button class="btn-teal w100 mb12" style="text-align:center" onclick="go('s-request-ticket')">Request to Join (Elite) →</button>
         </div>
       </div>
     </div>
@@ -604,6 +605,7 @@ body.embed-mode .sc{padding-top:0}
             <p class="muted" style="font-size:14px">Gates open 09:30. Bring a valid ID.</p>
             <div class="row gap16 mt12"><span class="teal" style="font-size:13px;cursor:pointer">Refund policy</span><span class="teal" style="font-size:13px;cursor:pointer" onclick="go('s-chat')">Contact host</span></div>
           </div>
+          <button class="btn-accent mb20 mt16" onclick="go('s-checkin-attendee')">Check In Now</button>
         </div>
       </div>
     </div>
@@ -717,6 +719,10 @@ body.embed-mode .sc{padding-top:0}
             </div>
             <div class="ticket-actions"><button class="ticket-btn primary">Open Ticket</button><button class="ticket-btn secondary">Transfer</button></div>
           </div>
+          <div class="section-label mb8 mt16">PAST EVENTS</div>
+          <div class="card mb12" style="cursor:pointer;opacity:.8" onclick="go('s-post-event')">
+            <div class="row gap12"><div style="width:48px;height:48px;border-radius:10px;background-image:url(https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=100&h=100&fit=crop);background-size:cover;background-position:center;flex-shrink:0"></div><div class="flex1"><h3 style="font-size:14px">Intro to Pottery Workshop</h3><p class="muted" style="font-size:12px">Last week · Completed</p></div><span class="badge badge-teal" style="font-size:10px">Rate</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -809,6 +815,12 @@ body.embed-mode .sc{padding-top:0}
             <p class="teal center mt16" style="font-size:13px;cursor:pointer" onclick="go('s-bookings')">See all 7 events &#8250;</p>
           </div>
 
+          <!-- Become a Creator -->
+          <div style="background:rgba(232,184,74,.08);border:1.5px solid rgba(232,184,74,.3);border-radius:20px;padding:20px;margin-bottom:14px;cursor:pointer" onclick="go('s-creator-onboard')">
+            <div class="row-between"><div class="row gap8"><span style="font-size:20px">⭐</span><h3 style="color:var(--gold)">Become a Creator</h3></div><span style="font-size:13px;color:var(--gold)">Start →</span></div>
+            <p class="muted mt8" style="font-size:13px">Set up your profile, choose a tier & start hosting events</p>
+          </div>
+
           <!-- Creator mode -->
           <div style="background:rgba(167,139,250,.08);border:1.5px solid rgba(167,139,250,.3);border-radius:20px;padding:20px;margin-bottom:20px;cursor:pointer" onclick="go('s-creator-dashboard')">
             <div class="row-between"><div class="row gap8"><span style="font-size:20px">&#128640;</span><h3 style="color:var(--purple)">Creator Mode</h3></div><span style="font-size:13px;color:var(--purple)">Open &#8250;</span></div>
@@ -881,6 +893,7 @@ body.embed-mode .sc{padding-top:0}
             <p class="muted" style="font-size:13px">Fri, 20:00 · El Born</p>
             <div style="text-align:right;margin-top:8px"><span class="badge badge-dp">Upcoming</span></div>
           </div>
+          <button class="btn-accent mb20" onclick="go('s-create-circle')">+ Create a Circle</button>
         </div>
       </div>
     </div>
@@ -965,7 +978,7 @@ body.embed-mode .sc{padding-top:0}
         <div class="row-between mb12"><span class="muted" style="font-size:13px">Invite limit:</span><span style="color:#fff;font-size:14px;font-weight:600">50</span><span class="muted" style="font-size:13px;margin-left:auto">Expires:</span><span style="color:#fff;font-size:14px;font-weight:600">7 days</span></div>
         <div class="row gap8 mb16"><span class="chip active" style="font-size:12px">@alexv</span><span class="chip active" style="font-size:12px">chris.doe@email.com</span></div>
         <button class="btn-accent mb12">Send invites</button>
-        <button class="btn-ghost" onclick="go('s-circle-detail')">Cancel</button>
+        <button class="btn-accent mb20" onclick="go('s-circle-detail')">Done</button>
       </div>
     </div>
   </div>
@@ -1029,6 +1042,7 @@ body.embed-mode .sc{padding-top:0}
             <button class="btn-ghost" style="width:auto;padding:10px 20px;font-size:13px" onclick="alert('Added to Calendar!')">Add to Calendar</button>
             <button class="btn-ghost" style="width:auto;padding:10px 20px;font-size:13px" onclick="go('s-event-detail')">Get Directions</button>
           </div>
+          <button class="btn-teal w100 mb12" style="text-align:center" onclick="go('s-checkin-attendee')">Event Day Check-in →</button>
           <div class="card mb20">
             <h3 class="mb8">Receipt & help</h3>
             <p class="muted" style="font-size:13px">Download receipt (PDF) · <span class="teal">Email sent to you</span></p>
@@ -1202,6 +1216,7 @@ body.embed-mode .sc{padding-top:0}
           <h3 class="mb12">Registrations</h3>
           <div class="row gap8 mb16"><span class="chip">Manage tickets</span><span class="chip" onclick="go('s-qr-scan')">Check-in mode</span></div>
           <div class="row gap8 mb20"><span class="chip">Duplicate event</span><span class="chip" onclick="go('s-create-event')">Create another event</span></div>
+          <button class="btn-teal w100 mb12" style="text-align:center" onclick="go('s-manage-attendees')">Manage Attendees →</button>
           <div class="row gap8 mb20">
             <button class="btn-ghost flex1" style="font-size:14px" onclick="go('s-event-detail')">View Event</button>
             <button class="btn-accent flex1" style="font-size:14px" onclick="go('s-creator-dashboard')">Go to Creator</button>
@@ -1307,7 +1322,7 @@ body.embed-mode .sc{padding-top:0}
     <div class="sc">
       <div class="rel">
         <div class="topbar"><span class="back-btn" onclick="go('s-profile')">&#8249;</span><span class="topbar-title">Wallet & Payments</span><span></span></div>
-        <div class="filter-tabs mb16"><div class="ftab">Payment Methods</div><div class="ftab active">Payouts</div><div class="ftab">Receipts</div></div>
+        <div class="filter-tabs mb16"><div class="ftab" onclick="go('s-wallet')">Payment Methods</div><div class="ftab active" onclick="go('s-payouts')">Payouts</div><div class="ftab">Receipts</div></div>
         <div class="px20">
           <div class="card mb16">
             <div class="row-between mb8"><span style="color:#fff;font-size:16px;font-weight:600">Apple Pay</span><span class="badge badge-orange">Default</span></div>
