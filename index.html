@@ -815,6 +815,50 @@
   .fp-keep.on{background:var(--forest-soft,#E4EAE1);border-color:rgba(46,69,49,0.22);color:var(--forest,#2E4531);}
   .fp-keep i{width:11px;height:11px;}
 
+  /* 2026-04-29 pass 36 · Go-together pill on people-cards (Sprint 43 close). Small floating pill on top-right of pc-photo for cards where the person is open to going together. Tap → openGoTogether sheet. Coral, warm, low-volume — sits beside the .intent badge without crowding. */
+  .pc-go-pill{position:absolute;top:8px;right:8px;background:rgba(212,130,90,0.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#F7F3ED;font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:10.5px;font-weight:500;padding:3px 9px 3px 7px;border-radius:10px;letter-spacing:0.005em;line-height:1.25;display:inline-flex;align-items:center;gap:4px;cursor:pointer;border:1px solid rgba(247,243,237,0.32);box-shadow:0 1px 4px rgba(166,86,58,0.22);transition:all .15s;z-index:2;}
+  .pc-go-pill i{width:10px;height:10px;stroke-width:2.4;}
+  .pc-go-pill:hover{background:var(--coral-ink);transform:translateY(-1px);}
+  /* On Home's compact fp-cards, hide the pill (cards too narrow). Lives only on full people-grid cards. */
+  [data-screen="home"] .pc-go-pill{display:none!important;}
+
+  /* 2026-04-29 pass 36 · 1:1 DM screen — permanent chat unlocked after Go-together accepted. Distinct from Circle chat: warmer header (cream not forest), "open since…" banner makes the permanence visible, smaller footprint. */
+  .dm1-bar{background:linear-gradient(155deg,rgba(212,130,90,0.10) 0%,rgba(212,130,90,0.04) 100%);border:1px solid rgba(212,130,90,0.20);border-radius:12px;padding:8px 11px;margin:0 0 10px;display:flex;align-items:center;gap:9px;}
+  .dm1-bar .dm1-ic{width:30px;height:30px;border-radius:50%;background:rgba(212,130,90,0.16);color:var(--coral-ink);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .dm1-bar .dm1-ic i{width:14px;height:14px;}
+  .dm1-bar .dm1-eb{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:12.5px;color:var(--coral-ink);font-weight:500;line-height:1.3;}
+  .dm1-bar .dm1-sub{font-size:10px;color:var(--text-2);margin-top:1px;letter-spacing:0.01em;}
+  .dm1-msgs{display:flex;flex-direction:column;gap:8px;padding:4px 0 12px;}
+  .dm1-msg{max-width:78%;padding:7px 11px;border-radius:14px;font-size:13px;line-height:1.4;color:var(--ink);}
+  .dm1-msg.them{background:#F7F3ED;border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px;}
+  .dm1-msg.you{background:var(--forest);color:#F7F3ED;align-self:flex-end;border-bottom-right-radius:4px;}
+  .dm1-tm{font-size:10px;color:var(--text-2);align-self:center;padding:6px 0 2px;letter-spacing:0.01em;}
+  .dm1-foot{display:flex;gap:6px;align-items:center;background:#F7F3ED;border:1px solid var(--border);border-radius:14px;padding:6px 6px 6px 12px;margin-top:6px;}
+  .dm1-foot input{flex:1;border:0;background:transparent;font-family:inherit;font-size:13px;color:var(--ink);outline:none;}
+  .dm1-foot input::placeholder{color:var(--text-2);}
+  .dm1-foot .dm1-send{background:var(--coral);color:#F7F3ED;border:0;width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .dm1-foot .dm1-send i{width:14px;height:14px;}
+  .dm1-context{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 10px;margin:0 0 10px;cursor:pointer;}
+  .dm1-context .dm1-cx-img{width:38px;height:38px;border-radius:9px;background-size:cover;background-position:center;flex-shrink:0;}
+  .dm1-context .dm1-cx-t{font-family:'Fraunces',Georgia,serif;font-size:13px;color:var(--ink);font-weight:500;}
+  .dm1-context .dm1-cx-s{font-size:10px;color:var(--text-2);margin-top:1px;}
+  .dm1-context i.dm1-cx-chev{width:14px;height:14px;color:var(--text-2);margin-left:auto;}
+
+  /* 2026-04-29 pass 36 · People-filter chips polish. Active state was ink-black (.pill.on) — overridden to GOLD here, scoped to data-people-filters parent so booking pills + msg-filters keep their existing ink-active. Per Erik's gold-icons rule extended to filter chips. */
+  .pills[data-people-filters] .pill.on{background:var(--gold)!important;border-color:var(--gold)!important;color:var(--ink)!important;font-weight:600;}
+  .pills[data-people-filters] .pill.on:hover{background:#D8AA38!important;border-color:#D8AA38!important;color:var(--ink)!important;}
+  .pills[data-people-filters]{gap:6px;}
+  .pills[data-people-filters] .pill{padding:6px 12px;font-size:11.5px;font-weight:500;letter-spacing:0.01em;}
+
+  /* 2026-04-29 pass 36 · Profile "Kept close" 3-up grid — mutual-only people surfaced on Profile + people-profile. Verb stays "Kept close" — never Followers/Following. */
+  .pp-kc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .pp-kc-cell{background:#fff;border:1px solid var(--border);border-radius:11px;padding:8px 6px 9px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:all .15s;}
+  .pp-kc-cell:hover{border-color:var(--coral);transform:translateY(-1px);}
+  .pp-kc-av{width:54px;height:54px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--bg3);margin-bottom:6px;border:1.5px solid var(--coral-soft);}
+  .pp-kc-nm{font-family:'Fraunces',Georgia,serif;font-size:12px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1.2;}
+  .pp-kc-meta{font-size:9.5px;color:var(--text-2);margin-top:2px;letter-spacing:0.01em;}
+  .pp-kc-foot{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:11px;color:var(--text-2);text-align:center;padding:8px 0 2px;letter-spacing:0.005em;}
+
   /* 2026-04-25 pass 32 · "More people" arrow card — last item in the Find-people strip. Coral-tinted, dominant arrow, "More people" label. Tap → standalone People grid (data-screen="people"). */
   .fp-arrow-card{flex:0 0 76px;background:linear-gradient(155deg,rgba(212,130,90,0.10) 0%,rgba(212,130,90,0.18) 100%);border:1px solid rgba(212,130,90,0.28);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:all .15s;color:var(--coral-ink);}
   .fp-arrow-card:hover{transform:translateY(-1px);background:linear-gradient(155deg,rgba(212,130,90,0.16) 0%,rgba(212,130,90,0.26) 100%);border-color:rgba(212,130,90,0.42);}
@@ -853,6 +897,280 @@
   .circle-bar .cbs{font-size:10.5px;color:var(--text-2);margin-top:1px;}
   .circle-bar.kept{background:#EEF3E9;border-color:rgba(46,69,49,0.32);}
   .circle-bar.kept .cbt em{color:var(--coral-ink);}
+
+  /* 2026-04-29 pass 38 · Programs strip on Home (locked eyebrow: "Programs. Where craft becomes your way.").
+     Bottom-of-Home horizontal scroll strip surfacing verified Programs (multi-week rooms with certificates).
+     Card pattern echoes .kc-card / .fp-card but warmer — gold accent because Programs are credentials.
+     Per Alina 2026-04-29 — surface the Verified-Programs system on Home so attendees discover it natively. */
+  .pg-strip{margin:14px 0 0;}
+  .pg-row{display:flex;gap:9px;overflow-x:auto;margin:0 -16px;padding:4px 16px 8px;scrollbar-width:none;align-items:stretch;}
+  .pg-row::-webkit-scrollbar{display:none;}
+  .pg-card{flex:0 0 154px;background:#FFFFFF;border:1px solid var(--border);border-radius:13px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(28,28,30,0.04),0 4px 12px rgba(28,28,30,0.04);transition:all .15s;position:relative;}
+  .pg-card:hover{transform:translateY(-1px);border-color:rgba(229,183,61,0.42);box-shadow:0 2px 4px rgba(28,28,30,0.06),0 8px 20px rgba(229,183,61,0.10);}
+  .pg-photo{width:100%;height:96px;background-size:cover;background-position:center;background-color:var(--bg3);position:relative;}
+  .pg-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(38,40,35,0) 50%,rgba(38,40,35,0.34) 100%);pointer-events:none;}
+  .pg-badge{position:absolute;top:6px;left:6px;display:inline-flex;align-items:center;gap:3px;background:rgba(229,183,61,0.92);backdrop-filter:blur(6px);color:#1C1C1E;font-size:9px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,255,255,0.42);box-shadow:0 1px 3px rgba(28,28,30,0.18);}
+  .pg-badge i{width:9px;height:9px;stroke-width:2.6;}
+  .pg-badge.acc{background:rgba(46,69,49,0.92);color:#F7F3ED;}
+  .pg-body{padding:9px 10px 10px;display:flex;flex-direction:column;flex:1;}
+  .pg-name{font-family:'Fraunces','Georgia',serif;font-variation-settings:"opsz" 96,"SOFT" 50,"WONK" 0;font-size:13px;font-weight:500;color:var(--ink);letter-spacing:-0.005em;line-height:1.22;}
+  .pg-name em{font-style:italic;color:var(--coral-ink);font-weight:500;}
+  .pg-host{font-size:10px;color:var(--text-2);margin-top:3px;display:inline-flex;align-items:center;gap:3px;letter-spacing:0.005em;}
+  .pg-host i{width:9px;height:9px;}
+  .pg-meta{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:9.5px;color:var(--ink-soft,var(--text-2));font-weight:600;letter-spacing:0.02em;}
+  .pg-meta .dot{width:3px;height:3px;background:rgba(38,40,35,0.32);border-radius:50%;}
+  .pg-foot{margin-top:7px;padding-top:6px;border-top:1px solid var(--line,#E0D9CB);display:flex;justify-content:space-between;align-items:center;}
+  .pg-price{font-family:'Fraunces','Georgia',serif;font-size:12.5px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;}
+  .pg-price em{font-style:italic;color:var(--coral-ink);font-weight:500;font-size:10px;}
+  .pg-cohort{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:10px;color:var(--coral-ink);}
+
+  /* arrow card — see-all programs at strip end */
+  .pg-arrow-card{flex:0 0 76px;background:linear-gradient(155deg,rgba(229,183,61,0.14) 0%,rgba(229,183,61,0.24) 100%);border:1px solid rgba(229,183,61,0.36);border-radius:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:all .15s;color:#7A5F12;}
+  .pg-arrow-card:hover{transform:translateY(-1px);background:linear-gradient(155deg,rgba(229,183,61,0.22) 0%,rgba(229,183,61,0.34) 100%);border-color:rgba(229,183,61,0.52);}
+  .pg-arrow-circle{width:42px;height:42px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(229,183,61,0.32);}
+  .pg-arrow-circle i{width:20px;height:20px;color:var(--gold);stroke-width:2.4;}
+  .pg-arrow-lbl{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:11px;color:#7A5F12;font-weight:500;letter-spacing:-0.005em;text-align:center;line-height:1.25;padding:0 6px;}
+
+  /* eyebrow + tagline pair specifically for Programs — gold flourish */
+  .sect-eyebrow.sect-programs{margin-top:16px;}
+  .sect-eyebrow.sect-programs .txt{color:var(--ink);font-weight:700;}
+  .sect-eyebrow.sect-programs .tagline{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:13.5px;color:var(--coral-ink);font-weight:500;letter-spacing:-0.005em;margin-left:6px;}
+  .sect-eyebrow.sect-programs .pg-eb-ic{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(229,183,61,0.20);color:#7A5F12;margin-right:5px;}
+  .sect-eyebrow.sect-programs .pg-eb-ic i{width:11px;height:11px;}
+
+  /* Home compactness override — slightly tighter cards on Home (the strip should match the kc/fp rhythm) */
+  [data-screen="home"] .pg-card{flex:0 0 142px;}
+  [data-screen="home"] .pg-photo{height:88px;}
+  [data-screen="home"] .pg-arrow-card{flex:0 0 64px;}
+  [data-screen="home"] .pg-arrow-circle{width:36px;height:36px;}
+  [data-screen="home"] .pg-arrow-circle i{width:16px;height:16px;}
+
+  /* === program-detail screen (Pass 38B) — single example: Hands in Clay, Teresa's 6-week pottery foundation === */
+  .pd-hero{position:relative;height:200px;background-size:cover;background-position:center;border-radius:14px;margin:8px 0 12px;overflow:hidden;}
+  .pd-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(28,28,30,0.62) 100%);}
+  .pd-hero .pd-badge{position:absolute;top:10px;left:10px;display:inline-flex;align-items:center;gap:5px;background:rgba(229,183,61,0.94);color:#1C1C1E;font-size:10px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;padding:4px 10px;border-radius:9px;border:1px solid rgba(255,255,255,0.45);box-shadow:0 1px 4px rgba(28,28,30,0.22);z-index:2;}
+  .pd-hero .pd-badge i{width:11px;height:11px;}
+  .pd-hero .pd-h{position:absolute;left:14px;right:14px;bottom:12px;color:#F7F3ED;z-index:2;}
+  .pd-hero .pd-eb{font-size:10px;font-weight:800;letter-spacing:0.10em;text-transform:uppercase;opacity:0.92;margin-bottom:3px;}
+  .pd-hero .pd-t{font-family:'Fraunces','Georgia',serif;font-variation-settings:"opsz" 96;font-size:24px;font-weight:500;letter-spacing:-0.005em;line-height:1.1;}
+  .pd-hero .pd-t em{font-style:italic;color:var(--coral-soft,#E8A585);font-weight:500;}
+  .pd-host-row{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--border);border-radius:13px;padding:10px 12px;margin-bottom:11px;cursor:pointer;}
+  .pd-host-av{width:42px;height:42px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;border:1.5px solid var(--coral-soft);}
+  .pd-host-nm{font-family:'Fraunces','Georgia',serif;font-size:14px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1.2;}
+  .pd-host-meta{font-size:10.5px;color:var(--text-2);margin-top:2px;}
+  .pd-host-tier{display:inline-flex;align-items:center;gap:3px;background:rgba(229,183,61,0.18);color:#7A5F12;font-size:9px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;padding:2px 7px;border-radius:8px;margin-left:auto;flex-shrink:0;}
+  .pd-host-tier i{width:9px;height:9px;}
+
+  .pd-week{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;background:#fff;border:1px solid var(--border);border-radius:11px;margin-bottom:6px;}
+  .pd-week-n{width:26px;height:26px;border-radius:50%;background:rgba(212,130,90,0.10);color:var(--coral-ink);font-family:'Fraunces',Georgia,serif;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .pd-week-t{font-family:'Fraunces',Georgia,serif;font-size:13px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1.25;}
+  .pd-week-s{font-size:10.5px;color:var(--text-2);margin-top:2px;line-height:1.4;}
+
+  .pd-cert{background:linear-gradient(150deg,rgba(229,183,61,0.10) 0%,#FFFFFF 65%);border:1px solid rgba(229,183,61,0.32);border-radius:14px;padding:14px 16px;}
+  .pd-cert-eb{font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:#7A5F12;font-weight:800;margin-bottom:5px;display:inline-flex;align-items:center;gap:5px;}
+  .pd-cert-eb i{width:11px;height:11px;}
+  .pd-cert-h{font-family:'Fraunces','Georgia',serif;font-size:16px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1.25;}
+  .pd-cert-h em{font-style:italic;color:var(--coral-ink);}
+  .pd-cert-body{font-family:'Fraunces',Georgia,serif;font-size:13px;color:var(--text-2);line-height:1.5;margin-top:7px;font-style:italic;}
+  .pd-cert-body b{font-style:normal;color:var(--ink);font-weight:600;font-family:'Fraunces',Georgia,serif;}
+  .pd-cert-foot{display:flex;gap:10px;align-items:center;margin-top:10px;}
+  .pd-cert-foot .pd-cert-link{font-size:10.5px;color:var(--coral-ink);font-weight:600;cursor:pointer;}
+  .pd-cert-foot .pd-cert-link:hover{text-decoration:underline;}
+
+  .pd-cohort{display:flex;justify-content:space-between;align-items:center;background:var(--forest-soft,#E4EAE1);border:1px solid rgba(46,69,49,0.20);border-radius:11px;padding:10px 14px;margin-top:12px;}
+  .pd-cohort-l{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:13px;color:var(--forest);font-weight:500;line-height:1.3;}
+  .pd-cohort-l b{font-style:normal;color:var(--ink);font-weight:600;font-family:'Fraunces',Georgia,serif;}
+  .pd-cohort-spots{font-family:'Fraunces','Georgia',serif;font-size:13px;color:var(--coral-ink);font-weight:500;font-style:italic;}
+
+  .pd-cta-bar{position:sticky;bottom:0;background:linear-gradient(180deg,transparent 0%,rgba(247,243,237,0.88) 30%,var(--bg,#F7F3ED) 60%);padding:14px 0 8px;display:flex;gap:8px;align-items:center;margin-top:12px;}
+  .pd-cta-price{font-family:'Fraunces','Georgia',serif;font-size:18px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;flex-shrink:0;padding-left:6px;}
+  .pd-cta-price em{font-style:italic;color:var(--coral-ink);font-weight:500;font-size:13px;}
+  .pd-cta-btn{flex:1;background:var(--ink);color:#F7F3ED;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;padding:12px 16px;border-radius:999px;border:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.005em;}
+  .pd-cta-btn:hover{background:#0A0A0B;}
+  .pd-cta-btn i{width:14px;height:14px;}
+
+  /* 2026-04-29 pass 39 · Voices from past cohorts (curated curly-quote testimonials).
+     Pulled editorially from each kept Circle's Memory Capsule.
+     Editorial: Fraunces big curly-quote opening, italic body, attendee credit row beneath. Trust-building, signal-only — no free-form comment thread (kept under "small rooms" voice). */
+  .pd-voice{background:#FFFFFF;border:1px solid var(--border);border-radius:13px;padding:14px 16px 13px;margin-bottom:9px;position:relative;}
+  .pd-voice::before{content:"\201C";position:absolute;top:-2px;left:10px;font-family:'Fraunces','Georgia',serif;font-size:42px;color:rgba(212,130,90,0.28);line-height:1;font-weight:500;}
+  .pd-voice-q{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:14px;color:var(--ink);line-height:1.5;letter-spacing:-0.005em;padding-left:24px;font-weight:500;}
+  .pd-voice-q em{color:var(--coral-ink);font-style:italic;}
+  .pd-voice-foot{display:flex;align-items:center;gap:9px;margin-top:11px;padding-left:24px;}
+  .pd-voice-av{width:30px;height:30px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;border:1.5px solid var(--coral-soft);}
+  .pd-voice-meta{font-size:10.5px;color:var(--text-2);line-height:1.3;}
+  .pd-voice-meta .pd-voice-nm{color:var(--ink);font-weight:600;font-family:'Inter',sans-serif;letter-spacing:0.005em;}
+  .pd-voice-meta em{font-style:italic;color:var(--coral-ink);font-family:'Fraunces',Georgia,serif;}
+  .pd-voice-foot-note{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:11px;color:var(--text-2);text-align:center;padding:6px 0 2px;line-height:1.4;}
+  .pd-voice-foot-note em{color:var(--coral-ink);}
+
+  /* 2026-04-29 pass 39 · Public Q&A thread on Program detail.
+     Asked by neighbours · answered by the host. Each Q&A pair = question card + reply card.
+     Ends with inline "Ask Teresa" composer (textarea + post button + visibility hint).
+     Distinct from the static "Quiet questions" FAQ above — this is dynamic, public, attendee-asked. */
+  .pd-qa{margin-top:4px;}
+  .pd-qa-pair{margin-bottom:14px;}
+  .pd-qa-q{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#FFFFFF;border:1px solid var(--border);border-radius:13px 13px 13px 4px;}
+  .pd-qa-q-av{width:30px;height:30px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;}
+  .pd-qa-q-body{flex:1;}
+  .pd-qa-q-head{display:flex;align-items:baseline;gap:7px;margin-bottom:3px;}
+  .pd-qa-q-nm{font-size:11.5px;font-weight:700;color:var(--ink);letter-spacing:0.005em;font-family:'Inter',sans-serif;}
+  .pd-qa-tm{font-size:10px;color:var(--text-2);letter-spacing:0.01em;}
+  .pd-qa-q-text{font-size:13px;color:var(--ink);line-height:1.45;letter-spacing:-0.005em;}
+  .pd-qa-r{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(46,69,49,0.06);border:1px solid rgba(46,69,49,0.18);border-radius:4px 13px 13px 13px;margin:6px 0 0 28px;}
+  .pd-qa-r-av{width:30px;height:30px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;border:1.5px solid var(--forest);}
+  .pd-qa-r-body{flex:1;}
+  .pd-qa-r-head{display:flex;align-items:baseline;gap:7px;margin-bottom:3px;flex-wrap:wrap;}
+  .pd-qa-r-nm{font-size:11.5px;font-weight:700;color:var(--forest);letter-spacing:0.005em;font-family:'Inter',sans-serif;}
+  .pd-qa-r-badge{display:inline-flex;align-items:center;gap:3px;background:var(--forest);color:#F7F3ED;font-size:8.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;padding:1px 6px;border-radius:7px;}
+  .pd-qa-r-badge i{width:8px;height:8px;}
+  .pd-qa-r-text{font-family:'Fraunces',Georgia,serif;font-size:13px;color:var(--ink);line-height:1.5;letter-spacing:-0.005em;}
+  .pd-qa-r-text em{font-style:italic;color:var(--coral-ink);}
+
+  /* Composer at end of thread */
+  .pd-qa-composer{background:#FFFFFF;border:1px dashed rgba(166,86,58,0.30);border-radius:14px;padding:13px 14px 11px;margin-top:6px;transition:border-style .15s;}
+  .pd-qa-composer:focus-within{border-style:solid;border-color:var(--coral);}
+  .pd-qa-composer-eb{font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--coral-ink);font-weight:800;margin-bottom:6px;display:inline-flex;align-items:center;gap:5px;}
+  .pd-qa-composer-eb i{width:11px;height:11px;}
+  .pd-qa-composer-h{font-family:'Fraunces',Georgia,serif;font-size:14px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1.25;margin-bottom:8px;}
+  .pd-qa-composer-h em{font-style:italic;color:var(--coral-ink);}
+  .pd-qa-composer-input{width:100%;border:0;background:transparent;font-family:inherit;font-size:13px;color:var(--ink);outline:none;line-height:1.45;resize:none;min-height:46px;padding:2px 0;letter-spacing:-0.005em;}
+  .pd-qa-composer-input::placeholder{color:var(--text-2);font-style:italic;font-family:'Fraunces',Georgia,serif;}
+  .pd-qa-composer-foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;}
+  .pd-qa-composer-note{font-size:10px;color:var(--text-2);font-style:italic;font-family:'Fraunces',Georgia,serif;letter-spacing:0.005em;}
+  .pd-qa-composer-btn{background:var(--coral);color:#F7F3ED;font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;padding:7px 14px;border-radius:999px;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:5px;letter-spacing:0.005em;}
+  .pd-qa-composer-btn:hover{background:var(--coral-ink);}
+  .pd-qa-composer-btn i{width:11px;height:11px;}
+  .pd-qa-composer-suggestions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);}
+  .pd-qa-suggest-chip{font-size:10.5px;color:var(--text-2);background:rgba(212,130,90,0.06);border:1px solid rgba(212,130,90,0.20);padding:4px 9px;border-radius:999px;cursor:pointer;letter-spacing:0.005em;font-style:italic;font-family:'Fraunces',Georgia,serif;transition:all .12s;}
+  .pd-qa-suggest-chip:hover{background:rgba(212,130,90,0.14);border-color:rgba(212,130,90,0.40);color:var(--coral-ink);}
+
+  /* 2026-04-29 pass 37 · Creator Business view (Sprint 46/47 mock).
+     Two surfaces: (a) compact summary card on Creator Dashboard, (b) standalone deep view at data-screen="creator-business" with all 6 sections per spec.
+     Editorial voice: Fraunces big numbers · Inter labels · cream/coral/forest/gold palette.
+     Tier-gated demo state shown is PREMIUM (all 6 sections) so the Pro→Premium upgrade story is visible. */
+
+  /* compact dashboard card — at-a-glance Business summary + "Open full review" CTA */
+  .cb-card{background:linear-gradient(160deg,#FFFFFF 0%,rgba(212,130,90,0.06) 100%);border:1px solid rgba(166,86,58,0.18);border-radius:16px;padding:14px 16px 14px;margin:14px 0 12px;cursor:pointer;transition:all .18s;}
+  .cb-card:hover{transform:translateY(-1px);box-shadow:0 2px 14px rgba(166,86,58,0.10);border-color:rgba(166,86,58,0.32);}
+  .cb-card .cb-eb{font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--coral-ink);font-weight:800;margin-bottom:3px;}
+  .cb-card .cb-h{font-family:'Fraunces','Georgia',serif;font-variation-settings:"opsz" 96,"SOFT" 50,"WONK" 0;font-size:20px;font-weight:500;color:var(--ink);letter-spacing:-0.005em;line-height:1.2;}
+  .cb-card .cb-h em{font-style:italic;color:var(--coral-ink);}
+  .cb-card .cb-sub{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:12.5px;color:var(--text-2);margin-top:3px;line-height:1.35;}
+  .cb-card .cb-mini-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:11px 0 12px;}
+  .cb-card .cb-mini{background:#FFFFFF;border:1px solid var(--border);border-radius:11px;padding:8px 9px;text-align:center;}
+  .cb-card .cb-mini .n{font-family:'Fraunces',Georgia,serif;font-size:18px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1;}
+  .cb-card .cb-mini .n em{font-style:italic;color:var(--coral-ink);font-weight:400;}
+  .cb-card .cb-mini .l{font-size:9px;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-2);font-weight:600;margin-top:4px;}
+  .cb-card .cb-mini .d{font-size:10px;color:var(--forest);margin-top:2px;font-weight:600;}
+  .cb-card .cb-cta{display:inline-flex;align-items:center;gap:6px;background:var(--coral);color:#F7F3ED;font-family:inherit;font-weight:600;font-size:12px;padding:8px 14px;border-radius:999px;border:0;cursor:pointer;letter-spacing:0.005em;}
+  .cb-card .cb-cta:hover{background:var(--coral-ink);}
+  .cb-card .cb-cta i{width:13px;height:13px;}
+  .cb-card .cb-tier{display:inline-flex;align-items:center;gap:4px;background:rgba(229,183,61,0.18);border:1px solid rgba(229,183,61,0.32);color:#7A5F12;font-size:9.5px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:8px;margin-left:auto;}
+  .cb-card .cb-tier i{width:9px;height:9px;}
+
+  /* standalone deep view (data-screen="creator-business") */
+  [data-screen="creator-business"] .content{padding:0 16px 28px;}
+  .cb-greet{font-family:'Fraunces','Georgia',serif;font-variation-settings:"opsz" 96,"SOFT" 50,"WONK" 0;font-size:24px;font-weight:500;color:var(--ink);line-height:1.2;letter-spacing:-0.005em;margin:8px 0 4px;}
+  .cb-greet em{font-style:italic;color:var(--coral-ink);}
+  .cb-greet-sub{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:13.5px;color:var(--text-2);margin-bottom:14px;line-height:1.4;}
+  .cb-quarter-chip{display:inline-flex;align-items:center;gap:5px;background:var(--forest-soft,#E4EAE1);border:1px solid rgba(46,69,49,0.20);color:var(--forest,#2E4531);font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:3px 9px;border-radius:8px;margin-bottom:14px;}
+  .cb-quarter-chip i{width:10px;height:10px;}
+
+  /* section heading */
+  .cb-sec-t{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.10em;color:var(--coral-ink);margin:22px 2px 9px;display:flex;align-items:center;gap:8px;}
+  .cb-sec-t::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(166,86,58,0.20),transparent);}
+  .cb-sec-t .lock{font-size:9.5px;background:rgba(229,183,61,0.18);color:#7A5F12;border:1px solid rgba(229,183,61,0.30);padding:1px 7px;border-radius:8px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;}
+
+  /* numbers grid — section 1 */
+  .cb-num-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .cb-num{background:#FFFFFF;border:1px solid var(--border);border-radius:13px;padding:11px 11px 12px;cursor:pointer;transition:all .15s;}
+  .cb-num:hover{border-color:rgba(166,86,58,0.30);transform:translateY(-1px);}
+  .cb-num .n{font-family:'Fraunces','Georgia',serif;font-variation-settings:"opsz" 96;font-size:22px;color:var(--ink);font-weight:500;line-height:1;letter-spacing:-0.005em;}
+  .cb-num .n em{font-style:italic;color:var(--coral-ink);font-weight:400;}
+  .cb-num .l{font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);font-weight:600;margin-top:5px;}
+  .cb-num .d{font-size:10px;font-weight:600;margin-top:3px;display:inline-flex;align-items:center;gap:3px;}
+  .cb-num .d.up{color:var(--forest,#2E4531);}
+  .cb-num .d.down{color:var(--coral-ink);}
+  .cb-num .d i{width:9px;height:9px;}
+  .cb-traj{background:linear-gradient(90deg,rgba(46,69,49,0.06),rgba(46,69,49,0.01));border:1px solid rgba(46,69,49,0.16);border-radius:11px;padding:9px 12px;margin-top:9px;font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:13px;color:var(--ink);line-height:1.4;}
+  .cb-traj em{color:var(--forest);font-weight:500;}
+
+  /* tier check card — section 2 */
+  .cb-tier-card{background:#FFFFFF;border:1px solid var(--border);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:13px;}
+  .cb-tier-card .cb-tier-ic{width:42px;height:42px;border-radius:50%;background:rgba(229,183,61,0.18);color:#7A5F12;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cb-tier-card .cb-tier-ic i{width:18px;height:18px;}
+  .cb-tier-card .cb-tier-msg{flex:1;font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:13.5px;color:var(--ink);line-height:1.4;letter-spacing:-0.005em;}
+  .cb-tier-card .cb-tier-msg b{font-style:normal;font-weight:600;color:var(--coral-ink);font-family:'Fraunces',Georgia,serif;}
+  .cb-tier-card .cb-tier-cta{background:var(--ink);color:#F7F3ED;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;padding:7px 13px;border-radius:999px;border:0;cursor:pointer;letter-spacing:0.005em;flex-shrink:0;}
+  .cb-tier-card .cb-tier-cta:hover{background:#0A0A0B;}
+
+  /* founding-host progress bars — section 3 */
+  .cb-fh-card{background:linear-gradient(150deg,rgba(229,183,61,0.10) 0%,#FFFFFF 70%);border:1px solid rgba(229,183,61,0.28);border-radius:14px;padding:13px 16px 14px;}
+  .cb-fh-eb{font-size:9.5px;letter-spacing:0.10em;text-transform:uppercase;color:#7A5F12;font-weight:800;margin-bottom:4px;display:inline-flex;align-items:center;gap:5px;}
+  .cb-fh-eb i{width:11px;height:11px;}
+  .cb-fh-h{font-family:'Fraunces',Georgia,serif;font-size:16px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1.25;}
+  .cb-fh-h em{font-style:italic;color:var(--coral-ink);}
+  .cb-fh-sub{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:12px;color:var(--text-2);margin:3px 0 12px;line-height:1.4;}
+  .cb-fh-row{margin:11px 0;}
+  .cb-fh-row-top{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;letter-spacing:0.005em;}
+  .cb-fh-row-top .lbl{font-weight:700;color:var(--ink);font-family:'Inter',sans-serif;}
+  .cb-fh-row-top .val{font-family:'Fraunces',Georgia,serif;font-size:13px;color:var(--coral-ink);font-weight:500;letter-spacing:0;}
+  .cb-fh-row-top .val .ok{color:var(--forest);font-weight:700;font-style:italic;}
+  .cb-fh-bar{height:8px;background:rgba(38,40,35,0.06);border-radius:999px;margin-top:5px;overflow:hidden;position:relative;}
+  .cb-fh-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#D8AA38);border-radius:999px;transition:width .4s ease;}
+  .cb-fh-bar-fill.met{background:linear-gradient(90deg,var(--forest),#5A7A6A);}
+  .cb-fh-line{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:12px;color:var(--text-2);margin-top:6px;line-height:1.4;}
+
+  /* recommendations — section 4 */
+  .cb-rec{background:#FFFFFF;border:1px solid var(--border);border-radius:14px;padding:12px 14px 13px;margin-bottom:9px;}
+  .cb-rec .cb-rec-eb{font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2);font-weight:700;margin-bottom:3px;display:inline-flex;align-items:center;gap:5px;}
+  .cb-rec .cb-rec-eb i{width:11px;height:11px;color:var(--coral-ink);}
+  .cb-rec .cb-rec-msg{font-family:'Fraunces',Georgia,serif;font-size:13.5px;color:var(--ink);line-height:1.4;letter-spacing:-0.005em;font-weight:500;}
+  .cb-rec .cb-rec-msg em{font-style:italic;color:var(--coral-ink);font-weight:400;}
+  .cb-rec .cb-rec-foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;}
+  .cb-rec .cb-rec-lift{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:11.5px;color:var(--forest);}
+  .cb-rec .cb-rec-cta{background:rgba(212,130,90,0.10);border:1px solid rgba(212,130,90,0.28);color:var(--coral-ink);font-family:'Inter',sans-serif;font-weight:600;font-size:11px;padding:6px 12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;letter-spacing:0.005em;}
+  .cb-rec .cb-rec-cta:hover{background:rgba(212,130,90,0.18);border-color:rgba(212,130,90,0.42);}
+  .cb-rec .cb-rec-cta i{width:11px;height:11px;}
+
+  /* peer benchmarks — section 5 (Premium) */
+  .cb-peer{background:#FFFFFF;border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:9px;}
+  .cb-peer-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .cb-peer-h .lbl{font-size:11px;font-weight:700;color:var(--ink);letter-spacing:0.005em;font-family:'Inter',sans-serif;}
+  .cb-peer-h .pos{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:12.5px;color:var(--coral-ink);font-weight:500;}
+  .cb-peer-track{position:relative;height:10px;background:linear-gradient(90deg,rgba(38,40,35,0.06),rgba(46,69,49,0.18));border-radius:999px;}
+  .cb-peer-marker{position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:var(--coral);border:3px solid #FFFFFF;box-shadow:0 1px 4px rgba(166,86,58,0.32);transform:translateX(-50%);}
+  .cb-peer-axis{display:flex;justify-content:space-between;font-size:9px;color:var(--text-2);margin-top:6px;letter-spacing:0.04em;text-transform:uppercase;font-weight:600;}
+  .cb-peer-line{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:12px;color:var(--text-2);margin-top:7px;line-height:1.4;}
+  .cb-peer-line b{font-style:normal;color:var(--ink);font-weight:600;font-family:'Fraunces',Georgia,serif;}
+
+  /* year-ahead projection — section 6 (Premium) */
+  .cb-proj-card{background:linear-gradient(150deg,var(--forest-soft,#E4EAE1) 0%,rgba(46,69,49,0.04) 100%);border:1px solid rgba(46,69,49,0.20);border-radius:14px;padding:13px 16px;}
+  .cb-proj-eb{font-size:9.5px;letter-spacing:0.10em;text-transform:uppercase;color:var(--forest,#2E4531);font-weight:800;margin-bottom:4px;}
+  .cb-proj-h{font-family:'Fraunces',Georgia,serif;font-size:17px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1.25;}
+  .cb-proj-h em{font-style:italic;color:var(--coral-ink);}
+  .cb-proj-body{font-family:'Fraunces',Georgia,serif;font-size:13.5px;color:var(--ink);line-height:1.5;margin-top:9px;letter-spacing:-0.005em;}
+  .cb-proj-body em{font-style:italic;color:var(--forest);font-weight:500;}
+  .cb-proj-foot{font-size:10px;color:var(--text-2);margin-top:11px;letter-spacing:0.005em;display:inline-flex;align-items:center;gap:5px;cursor:pointer;}
+  .cb-proj-foot:hover{color:var(--coral-ink);}
+  .cb-proj-foot i{width:10px;height:10px;}
+
+  /* quarterly PDF affordance */
+  .cb-pdf-card{display:flex;align-items:center;gap:13px;background:#FFFFFF;border:1px dashed rgba(166,86,58,0.32);border-radius:14px;padding:13px 14px;margin-top:18px;cursor:pointer;transition:all .15s;}
+  .cb-pdf-card:hover{border-style:solid;border-color:var(--coral);background:rgba(212,130,90,0.04);}
+  .cb-pdf-ic{width:42px;height:42px;border-radius:11px;background:var(--coral);color:#F7F3ED;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cb-pdf-ic i{width:20px;height:20px;}
+  .cb-pdf-t{font-family:'Fraunces',Georgia,serif;font-size:14.5px;color:var(--ink);font-weight:500;letter-spacing:-0.005em;line-height:1.25;}
+  .cb-pdf-t em{font-style:italic;color:var(--coral-ink);}
+  .cb-pdf-s{font-size:11px;color:var(--text-2);margin-top:2px;line-height:1.4;}
+  .cb-pdf-card .cb-pdf-cta{background:var(--coral);color:#F7F3ED;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;padding:7px 13px;border-radius:999px;border:0;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;gap:4px;}
+  .cb-pdf-card .cb-pdf-cta:hover{background:var(--coral-ink);}
+  .cb-pdf-card .cb-pdf-cta i{width:11px;height:11px;}
+
+  /* closing letter footer */
+  .cb-letter{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:12.5px;color:var(--text-2);text-align:center;line-height:1.5;padding:18px 6px 4px;}
+  .cb-letter em{font-style:italic;color:var(--coral-ink);font-weight:500;}
 
   /* Circle afterlife — vote prompt */
   .afterlife-vote{background:#FFFFFF;border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin:10px 0 12px;}
@@ -1162,6 +1480,9 @@
   .people-card .pc-mutual svg{width:11px;height:11px;color:var(--coral-ink);stroke-width:2.2;flex-shrink:0;}
   .people-card .pc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;align-items:center;}
   .people-card .pc-tag{background:rgba(166,86,58,0.08);border:1px solid rgba(166,86,58,0.20);color:var(--coral-ink);font-size:9px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:8px;}
+  /* 2026-04-29 pass 36 · pc-vibe — italic editorial vibe descriptor on people-cards. Routes to profile via parent card click; this span is decorative (no own click) so the existing card-click → openPeopleProfile flow handles routing. NEVER routes to a filter screen — that would conflate self-disclosure with discovery. */
+  .people-card .pc-vibe{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:11px;color:var(--text-2);margin-top:5px;letter-spacing:0.005em;line-height:1.3;display:block;}
+  .people-card .pc-vibe em{color:var(--coral-ink);font-style:italic;font-weight:500;}
   /* Reliability chip — forest variant inside People grid only (global .pmini stays untouched) */
   .people-card .pmini{background:rgba(61,92,74,0.09);border:1px solid rgba(61,92,74,0.22);color:var(--forest);font-family:"Inter",sans-serif;font-size:9.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;padding:2px 7px;border-radius:8px;gap:4px;}
   .people-card .pmini svg{color:var(--gold);width:10px;height:10px;}
@@ -1908,8 +2229,8 @@
   <div class="picker-item" data-goto="home"><span class="n">01</span> Home · Types</div>
   <div class="picker-item" data-goto="art"><span class="n">02</span> Art — Events</div>
   <div class="picker-item" data-goto="it"><span class="n">L</span> Learning — Events</div>
-  <div class="picker-item" data-goto="people"><span class="n">03</span> People (grid)</div>
-  <div class="picker-item" data-goto="people-profile"><span class="n">PP</span> People · Profile view</div>
+  <!-- Pass 40 · 03 People grid + standalone PP picker entries removed (people-discovery cut). PP screen still reachable via host avatars on event cards. -->
+  <div class="picker-item" data-goto="people-profile"><span class="n">PP</span> Host profile · María</div>
 
   <div class="picker-group">Retention (v26 · Sprint 42B)</div>
   <div class="picker-item" data-goto="welcome-back"><span class="n">WB</span> Welcome back (lapsed)</div>
@@ -1945,6 +2266,8 @@
   <div class="picker-item" data-goto="creator-dash"><span class="n">CD</span> Creator · Overview</div>
   <div class="picker-item" data-goto="creator-events"><span class="n">CE</span> Creator · My events</div>
   <div class="picker-item" data-goto="creator-attendees"><span class="n">CA</span> Creator · Attendees</div>
+  <div class="picker-item" data-goto="creator-business"><span class="n">CB</span> Creator · Business view (Pass 37)</div>
+  <div class="picker-item" data-goto="program-detail"><span class="n">PD</span> Program detail · Hands in Clay (Pass 38)</div>
   <div class="picker-item" data-goto="creator-payouts"><span class="n">CP</span> Creator · Payouts</div>
   <div class="picker-item" data-goto="creator-stripe"><span class="n">CS</span> Creator · Stripe setup</div>
 
@@ -2004,19 +2327,9 @@
             <div class="itile" onclick="togIntent(this)"><div class="icheck"><i data-lucide="check"></i></div><div class="iemo">✨</div><div class="ititle">Try something bold</div><div class="isub">Three steps past your comfort</div></div>
           </div>
 
-          <!-- ============ Pass 35 · Mandatory identity pick · Sprint 43 deliverable. Folds the "onboarding mandatory pick" into the existing intent screen (no new step). At least one chip required from below. These power the People-page filters from day one — your face shows up in the right filter set the first time someone browses People. Editable any time via Profile › "I'm here as…". ============ -->
-          <div class="card" style="margin-top:18px;background:linear-gradient(155deg,rgba(212,130,90,.04),rgba(212,130,90,.10));border-color:rgba(212,130,90,.22);">
-            <div class="lbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span>Right now I'm <em style="font-style:italic;font-family:'Fraunces',Georgia,serif;color:var(--coral-ink);font-weight:500;letter-spacing:-0.005em;text-transform:none;">…</em></span><span style="color:var(--coral-ink);font-size:9.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">Pick at least one</span></div>
-            <div class="pills" id="onb-identity-chips" style="margin-top:8px;gap:7px;flex-wrap:wrap;">
-              <span class="pill" onclick="togIdentityChip(this)">Open to going together</span>
-              <span class="pill" onclick="togIdentityChip(this)">Same vibe</span>
-              <span class="pill" onclick="togIdentityChip(this)">New to Barcelona</span>
-              <span class="pill" onclick="togIdentityChip(this)">Meeting neighbours</span>
-            </div>
-            <div style="font-size:10px;color:var(--text-2);margin-top:7px;line-height:1.45;">From day one your face lands in the right People filters. Editable later from Profile.</div>
-          </div>
+          <!-- Pass 40 · 2026-06-10 · "Right now I'm…" mandatory identity pick removed per Alina directive. People filters gone with the people-discovery cut, so the chip set no longer serves a purpose. Onboarding is shorter and cleaner. -->
 
-          <button class="btn btn-primary" style="margin-top:16px;" onclick="continueIntent()">Continue →</button>
+          <button class="btn btn-primary" style="margin-top:16px;" onclick="go('interests')">Continue →</button>
           <div style="font-size:10.5px;color:var(--text-2);text-align:center;margin-top:8px;">Moods shift. You can rearrange these any time.</div>
         </div>
       </section>
@@ -2214,140 +2527,95 @@
             <div class="cat-tile coral" onclick="goCategory('Learning')"><span class="cic"><i data-lucide="book-open"></i></span><span class="clb">Learning</span></div>
           </div>
 
-          <!-- ============ 3. People · find-people strip (compact) ============ -->
-          <!-- Pass 33 · moved from middle to third position. Cards shrunk 140→116px (photo 100→88). In-card Keep-close button hidden on home (still on People profile). Location row hidden. Name checkmark hidden. Eyebrow updated "Find people to join events with" → "Find people to join events with" (kept). -->
-          <div class="sect-eyebrow"><span class="txt">Find <em>people</em> to join events with</span><span class="line"></span></div>
-          <div class="fp-strip">
-            <div class="fp-row">
+          <!-- ============ Pass 40 · 2026-06-10 · Great Simplification ============
+            People discovery removed from Home per Alina directive.
+            Cut: Find-people strip · Walking-in strip · "More people" arrow card · all kc-* / fp-* surfaces.
+            New Home order: Greeting → Search → Tonight (rotating editorial Ad) → Types of events → Programs.
+            App scope narrows to Events + Programs. Profiles still exist (host/attendee profiles) but no people search.
+          ============ -->
 
-              <div class="fp-card" onclick="openPeopleProfile(this)">
-                <div class="pc-photo fp-photo" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span></div>
-                <div class="fp-body">
-                  <div class="fp-name">María L. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="fp-meta"><i data-lucide="map-pin"></i> Pillar · Gràcia</div>
-                  <div class="fp-event" onclick="event.stopPropagation();go('event')"><i data-lucide="calendar"></i><span><em>Hosts Sun</em> · Pottery in Sants</span></div>
-                  <div class="fp-actions">
-                    <button class="fp-keep" onclick="event.stopPropagation();keepClosePortrait(this,'María')"><i data-lucide="bookmark"></i> Keep close</button>
+          <!-- ============ 3. Programs strip · Pass 38 · 2026-04-29 ============
+            Eyebrow locked by Alina: "Programs. Where craft becomes your way."
+            Surfaces verified Programs (multi-week rooms with certificates) on Home — bottom of page so it doesn't compete with single-event discovery, but visible enough to plant the seed.
+            Cards mix Verified-Program (gold badge) and Accredited-Program (forest badge) tiers per Verified-Programs system locked 2026-04-27.
+            Tap any card → data-screen="program-detail" (Pass 38B). -->
+          <div class="sect-eyebrow sect-programs"><span class="pg-eb-ic"><i data-lucide="graduation-cap"></i></span><span class="txt">Programs.</span><span class="tagline">Where craft becomes your way.</span><span class="line"></span></div>
+
+          <div class="pg-strip">
+            <div class="pg-row">
+
+              <!-- Verified Program · Teresa pottery -->
+              <div class="pg-card" onclick="go('program-detail')">
+                <div class="pg-photo" style="background-image:url('https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=75&auto=format&fit=crop');">
+                  <span class="pg-badge"><i data-lucide="badge-check"></i> Verified</span>
+                </div>
+                <div class="pg-body">
+                  <div class="pg-name">Hands in <em>Clay</em></div>
+                  <div class="pg-host"><i data-lucide="user"></i> Teresa · Sants</div>
+                  <div class="pg-meta"><span>6 weeks</span><span class="dot"></span><span>Sun</span></div>
+                  <div class="pg-foot">
+                    <span class="pg-price">€180 <em>· total</em></span>
+                    <span class="pg-cohort">May cohort</span>
                   </div>
                 </div>
               </div>
 
-              <div class="fp-card" onclick="openPeopleProfile(this)">
-                <div class="pc-photo fp-photo" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&auto=format&fit=crop');"><span class="intent">Same vibe</span></div>
-                <div class="fp-body">
-                  <div class="fp-name">David K. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="fp-meta"><i data-lucide="map-pin"></i> Founding · Riverside</div>
-                  <div class="fp-event" onclick="event.stopPropagation();go('event')"><i data-lucide="calendar"></i><span><em>Hosts Tue</em> · Yoga in Gràcia</span></div>
-                  <div class="fp-actions">
-                    <button class="fp-keep" onclick="event.stopPropagation();keepClosePortrait(this,'David')"><i data-lucide="bookmark"></i> Keep close</button>
+              <!-- Accredited Program · Sofía drawing -->
+              <div class="pg-card" onclick="toast('Drawing from Life · Sofía R. · 8 weeks · Accredited Program — opening soon')">
+                <div class="pg-photo" style="background-image:url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&q=75&auto=format&fit=crop');">
+                  <span class="pg-badge acc"><i data-lucide="award"></i> Accredited</span>
+                </div>
+                <div class="pg-body">
+                  <div class="pg-name">Drawing from <em>Life</em></div>
+                  <div class="pg-host"><i data-lucide="user"></i> Sofía R. · El Born</div>
+                  <div class="pg-meta"><span>8 weeks</span><span class="dot"></span><span>Tue + Thu</span></div>
+                  <div class="pg-foot">
+                    <span class="pg-price">€280 <em>· total</em></span>
+                    <span class="pg-cohort">Jun cohort</span>
                   </div>
                 </div>
               </div>
 
-              <div class="fp-card" onclick="openPeopleProfile(this)">
-                <div class="pc-photo fp-photo" style="background-image:url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80&auto=format&fit=crop');"><span class="intent">New to Barcelona</span></div>
-                <div class="fp-body">
-                  <div class="fp-name">Lena G. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="fp-meta"><i data-lucide="map-pin"></i> Newcomer · Eixample</div>
-                  <div class="fp-event" onclick="event.stopPropagation();go('event')"><i data-lucide="calendar"></i><span><em>Going Wed</em> · Watercolour basics</span></div>
-                  <div class="fp-actions">
-                    <button class="fp-keep" onclick="event.stopPropagation();keepClosePortrait(this,'Lena')"><i data-lucide="bookmark"></i> Keep close</button>
+              <!-- Verified Program · Joan Catalan -->
+              <div class="pg-card" onclick="toast('Catalan for Newcomers · Joan M. · 4 weeks · Verified Program — opening soon')">
+                <div class="pg-photo" style="background-image:url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=75&auto=format&fit=crop');">
+                  <span class="pg-badge"><i data-lucide="badge-check"></i> Verified</span>
+                </div>
+                <div class="pg-body">
+                  <div class="pg-name">Catalan for <em>Newcomers</em></div>
+                  <div class="pg-host"><i data-lucide="user"></i> Joan M. · Gràcia</div>
+                  <div class="pg-meta"><span>4 weeks</span><span class="dot"></span><span>Wed</span></div>
+                  <div class="pg-foot">
+                    <span class="pg-price">€90 <em>· total</em></span>
+                    <span class="pg-cohort">May cohort</span>
                   </div>
                 </div>
               </div>
 
-              <div class="fp-card" onclick="openPeopleProfile(this)">
-                <div class="pc-photo fp-photo" style="background-image:url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80&auto=format&fit=crop');"><span class="intent">Meeting neighbours</span></div>
-                <div class="fp-body">
-                  <div class="fp-name">Marc P.</div>
-                  <div class="fp-meta"><i data-lucide="map-pin"></i> Regular · Eixample</div>
-                  <div class="fp-event" onclick="event.stopPropagation();go('event')"><i data-lucide="calendar"></i><span><em>Going Sat</em> · Wine Walk in El Born</span></div>
-                  <div class="fp-actions">
-                    <button class="fp-keep" onclick="event.stopPropagation();keepClosePortrait(this,'Marc')"><i data-lucide="bookmark"></i> Keep close</button>
+              <!-- Verified Program · Marc photography -->
+              <div class="pg-card" onclick="toast('Looking & Seeing · Marc P. · 6 weeks · Verified Program — opening soon')">
+                <div class="pg-photo" style="background-image:url('https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&q=75&auto=format&fit=crop');">
+                  <span class="pg-badge"><i data-lucide="badge-check"></i> Verified</span>
+                </div>
+                <div class="pg-body">
+                  <div class="pg-name">Looking &amp; <em>Seeing</em></div>
+                  <div class="pg-host"><i data-lucide="user"></i> Marc P. · Eixample</div>
+                  <div class="pg-meta"><span>6 weeks</span><span class="dot"></span><span>Sat</span></div>
+                  <div class="pg-foot">
+                    <span class="pg-price">€210 <em>· total</em></span>
+                    <span class="pg-cohort">Jun cohort</span>
                   </div>
                 </div>
               </div>
 
-              <div class="fp-card" onclick="openPeopleProfile(this)">
-                <div class="pc-photo fp-photo" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80&auto=format&fit=crop');"><span class="intent">Shared events</span></div>
-                <div class="fp-body">
-                  <div class="fp-name">Sofía R. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="fp-meta"><i data-lucide="map-pin"></i> Trusted · El Born</div>
-                  <div class="fp-event" onclick="event.stopPropagation();go('event')"><i data-lucide="calendar"></i><span><em>Hosts Sun</em> · Life drawing</span></div>
-                  <div class="fp-actions">
-                    <button class="fp-keep" onclick="event.stopPropagation();keepClosePortrait(this,'Sofía')"><i data-lucide="bookmark"></i> Keep close</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 2026-04-25 pass 32 · Arrow CTA card at strip end · routes to standalone People grid for full-browse. Pass 33 · shrunk 76→64px. -->
-              <div class="fp-arrow-card" onclick="go('people')" aria-label="See more people">
-                <div class="fp-arrow-circle"><i data-lucide="arrow-right"></i></div>
-                <div class="fp-arrow-lbl">More <em>people</em></div>
+              <!-- See-all arrow card -->
+              <div class="pg-arrow-card" onclick="toast('All verified Programs in Barcelona — coming soon')" aria-label="See more programs">
+                <div class="pg-arrow-circle"><i data-lucide="arrow-right"></i></div>
+                <div class="pg-arrow-lbl">More <em>programs</em></div>
               </div>
 
             </div>
-          </div>
-
-          <!-- ============ 4. Where your people are walking in · KC strip (compact) ============ -->
-          <!-- Pass 33 · moved from top to fourth/last position. Cards shrunk 180→132px square. Three states preserved (populated default · empty · sparse). -->
-          <div class="sect-eyebrow"><span class="txt">Where your people are <em>walking in</em></span><span class="line"></span></div>
-
-          <!-- Populated state — events from people you keep close. Demo-default. -->
-          <div id="kc-strip" class="kc-strip">
-            <div class="kc-row">
-              <div class="kc-card" onclick="go('event')" style="background-image:url('https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=75&auto=format&fit=crop');">
-                <div class="kc-av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=70&auto=format&fit=crop');"></div>
-                <div class="kc-body">
-                  <div class="kc-line"><em>María hosts</em> Sun</div>
-                  <div class="kc-meta">Pottery · Sants</div>
-                </div>
-              </div>
-              <div class="kc-card" onclick="go('event')" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=600&q=75&auto=format&fit=crop');">
-                <div class="kc-av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=70&auto=format&fit=crop');"></div>
-                <div class="kc-body">
-                  <div class="kc-line"><em>Lucas going</em> Tue</div>
-                  <div class="kc-meta">Yoga · Gràcia</div>
-                </div>
-              </div>
-              <div class="kc-card" onclick="go('event')" style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=75&auto=format&fit=crop');">
-                <div class="kc-stack">
-                  <div class="kc-av" style="background-image:url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=120&q=70&auto=format&fit=crop');"></div>
-                  <div class="kc-av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=70&auto=format&fit=crop');"></div>
-                </div>
-                <div class="kc-body">
-                  <div class="kc-line"><em>Marc + Sofía</em> Sat</div>
-                  <div class="kc-meta">Wine Walk · El Born</div>
-                </div>
-              </div>
-              <div class="kc-card" onclick="go('event')" style="background-image:url('https://images.unsplash.com/photo-1515772255001-5bff7e4c7bf0?w=600&q=75&auto=format&fit=crop');">
-                <div class="kc-av" style="background-image:url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&q=70&auto=format&fit=crop');"></div>
-                <div class="kc-body">
-                  <div class="kc-line"><em>Nora going</em> Wed</div>
-                  <div class="kc-meta">Sound Bath · Poble-sec</div>
-                </div>
-              </div>
-            </div>
-            <div class="kc-foot">
-              <span class="kc-foot-txt">From the <b>5 faces</b> you keep close · <span class="kc-foot-link" onclick="go('people')">manage in People</span></span>
-            </div>
-          </div>
-
-          <!-- Empty state — no faces kept close yet. -->
-          <div id="kc-empty" class="kc-empty" style="display:none;">
-            <div class="kc-empty-card">
-              <div class="kc-empty-eb"><em>Your strip will fill as you keep faces close.</em></div>
-              <div class="kc-empty-line">Find a face you'd like to share a room with — tap <i data-lucide="bookmark" style="width:11px;height:11px;vertical-align:-1px;"></i> Keep close on their profile and their public rooms will land here.</div>
-            </div>
-          </div>
-
-          <!-- Sparse state — kept some, but no public events from them this week. -->
-          <div id="kc-sparse" class="kc-sparse" style="display:none;">
-            <div class="kc-sparse-card">
-              <div class="kc-sparse-line"><em>María's not in a public room this week.</em></div>
-              <div class="kc-sparse-sub">Find more faces above — or browse all in <b>People</b>.</div>
-              <button class="btn btn-ghost-purple kc-sparse-cta" onclick="go('people')">Open People</button>
-            </div>
+            <div style="font-size:10.5px;color:var(--text-2);padding:6px 4px 0;letter-spacing:0.005em;">Verified by IncircleMe Trust · the certificate is real. <span style="color:var(--coral-ink);font-weight:500;cursor:pointer;" onclick="toast('How verification works · 4-gate review · accredited tier links to a governing body')">How it works →</span></div>
           </div>
 
           <!-- Pass 33 · footer "1,247 neighbours in Gràcia this week" ribbon REMOVED per Alina directive (signal/noise). -->
@@ -2409,55 +2677,35 @@
         <!-- 2026-04-25 pass 26 · Bug — title was hard-coded "Events in Barcelona" so users couldn't tell which category they tapped. Now dynamic: each home tile pipes its name through goCategory(cat) which writes the title (e.g. "Art & Craft in Barcelona"). Default "Events" stays for search-bar entries. -->
         <div class="appbar"><div class="left"><div class="iconbtn gold" onclick="go('home')"><i data-lucide="arrow-left"></i></div><div><div class="title-ed" id="art-title"><em>Events</em> in Barcelona</div><div class="sub-ed">142 rooms · 318 neighbours nearby</div></div></div></div>
         <div class="content scroll">
-          <!-- ============ Pass 35 · 2026-04-27 · Events/People segmented control RESTORED per Alina directive. The previous removal (Pass 24 / Pass 31) was right at the time — the old People tab routed AWAY to data-screen="people", a fake segmented control. THIS TIME done right: in-place toggle, title stays the category name, count badges keep navigation honest, cards filtered to the category. The standalone People screen (#03) still exists as the deep-browse destination from Home's "More people" arrow. ============ -->
-          <style>
-            .cat-tabs{display:inline-flex;gap:3px;background:#fff;border:1px solid var(--line,#E0D9CB);border-radius:99px;padding:3px;margin:2px 0 12px;box-shadow:0 1px 2px rgba(28,28,30,0.04);}
-            .cat-tab{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border:none;background:transparent;border-radius:99px;cursor:pointer;color:var(--text-2);font-family:inherit;font-size:12px;font-weight:500;letter-spacing:.005em;transition:all .15s;-webkit-tap-highlight-color:transparent;}
-            .cat-tab:hover{color:var(--ink);}
-            .cat-tab.on{background:var(--ink);color:var(--bg,#F7F3ED);}
-            .cat-tab .ct-count{font-family:'Fraunces','Georgia',serif;font-style:italic;font-size:11px;font-weight:500;opacity:.7;}
-            .cat-tab.on .ct-count{opacity:1;color:var(--coral-soft,#D98F6A);}
-            .cat-tab i{width:13px;height:13px;}
-          </style>
-          <div class="cat-tabs" id="art-tabs" role="tablist">
-            <button type="button" class="cat-tab on" data-cat-tab="events" onclick="setCatTab('art','events')" role="tab" aria-selected="true"><i data-lucide="calendar-days"></i><span class="ct-lbl">Events</span><span class="ct-count">7</span></button>
-            <button type="button" class="cat-tab" data-cat-tab="people" onclick="setCatTab('art','people')" role="tab" aria-selected="false"><i data-lucide="users"></i><span class="ct-lbl">People</span><span class="ct-count">4</span></button>
-          </div>
-
-          <!-- Audit trail · Pass 24/31 removed the tabs because the People tab routed AWAY to data-screen="people". Pass 35 restores in-place. -->
+          <!-- ============ Pass 40 · 2026-06-10 · Events/People segmented control REMOVED again, this time permanently per Alina directive. App scope narrows to Events + Programs only. People discovery surfaces all cut. Pass 35 segmented control + #art-people-tab gone. ============ -->
           <div id="art-events">
 
-            <!-- 2026-04-22 v4 · Source eyebrow relocated INTO the list below (after vibe chip, above first event row) per Erik MVP directive. Original position here removed. -->
-
-            <!-- Art editorial hero — the Ritual -->
-            <div class="art-hero" onclick="go('ritual')" style="background-image:url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=900&q=80&auto=format&fit=crop');">
-              <div class="ah-badge"><i data-lucide="repeat"></i> 6-week ritual</div>
-              <div class="ah-host">
-                <div class="av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=70&auto=format&fit=crop');"></div>
-                <span class="nm">with David</span>
-              </div>
-              <div class="ah-body">
-                <div class="ah-title">Sunday Yoga <em>with the same 12 people</em></div>
-                <div class="ah-meta"><span>Sundays · 10 AM</span><span class="dot"></span><span>Riverside Park</span><span class="dot"></span><span>€99 / 6 weeks</span></div>
+            <!-- 2026-04-29 pass 38C · Ad slot parity per Alina directive — Art now matches Home's rotating Ad treatment in addition to the existing art-hero (6-week ritual). The Ad surfaces tonight's category-relevant pick; the art-hero below stays as the editorial 6-week ritual feature. Two distinct purposes, both visible. -->
+            <div class="ad-slot" style="margin-bottom:14px;">
+              <div class="ad-slide on" data-idx="0" onclick="go('event')" style="background-image:url('https://images.unsplash.com/photo-1606722590583-6951b5ea92ad?w=900&q=80&auto=format&fit=crop');">
+                <div class="ad-eyebrow"><i data-lucide="sparkles"></i> Tonight in Art &amp; Craft</div>
+                <div class="ad-body">
+                  <div class="ad-title">Pottery night — <em>six pairs of hands, one wheel</em></div>
+                  <div class="ad-meta"><span>Thu 7:30 PM</span><span class="dot"></span><span>Sants</span><span class="dot"></span><span>€18</span></div>
+                </div>
+                <div class="ad-cta">Open <i data-lucide="arrow-right"></i></div>
               </div>
             </div>
 
+            <!-- 2026-04-22 v4 · Source eyebrow relocated INTO the list below (after vibe chip, above first event row) per Erik MVP directive. Original position here removed. -->
+
+            <!-- Pass 40G · 2026-06-10 · Art screen normalised to match Learning's structure per Alina directive. REMOVED: art-hero (6-week ritual editorial — Programs strip on Home is the right home for multi-week courses now) · Hosts-you'd-love mini strip (people-discovery flavour) · "Also this week" eyebrow + footer flourish (sub-sections collapsed into single events list). New structure mirrors Learning: ad-slot → section title → pills → events. -->
+
+            <div class="section-title">This week in Barcelona</div>
             <div class="pills" id="art-filters" style="margin-bottom:10px;">
               <span class="pill on" data-art-filter="all">All</span>
               <span class="pill" data-art-filter="weekend">Weekend</span>
               <span class="pill" data-art-filter="weekday">Weekday</span>
               <span class="pill" data-art-filter="free">Free</span>
               <span class="pill" data-art-filter="paid">Paid</span>
-              <!-- 2026-04-22 pass 14 · Dates pill opens the shared booking.com calendar on Search, so filtering by date range is reachable from the Events browse screen too. -->
-              <span class="pill pill-cal" onclick="openSearchWithCal()"><i data-lucide="calendar" style="width:12px;height:12px;stroke-width:2.4;vertical-align:-1px;margin-right:3px;"></i>Dates</span>
             </div>
 
-            <div class="sect-eyebrow"><span class="txt">This week in Barcelona</span><span class="line"></span></div>
-
-            <!-- 2026-04-22 v2 · Active-vibe chip (set from Home Feel tile). Highlighted pill showing the currently-applied vibe filter. Tap = clear. -->
-            <div id="art-vibe-active" style="display:none;margin:0 2px 10px;"><span id="art-vibe-chip" onclick="clearArtVibe()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 10px;background:linear-gradient(155deg,var(--forest-soft),rgba(122,140,115,0.14));border:1px solid var(--forest);border-radius:999px;color:var(--forest);font-size:11px;font-weight:700;letter-spacing:0.02em;text-transform:uppercase;cursor:pointer;"><i data-lucide="sparkles" style="width:12px;height:12px;stroke-width:2.4;"></i><span id="art-vibe-chip-label">Relaxed</span><i data-lucide="x" style="width:11px;height:11px;stroke-width:2.4;opacity:0.7;"></i></span></div>
-
-            <!-- 2026-04-22 v4 · Source eyebrow card moved here (was above ritual hero) per Erik MVP directive. Highlighted coral frame + "Picked from home" label sits inside the list, at the top, so the user's chosen event is the first row they see. -->
+            <!-- Source eyebrow card (kept — surfaces home-tile selection per goCategory). -->
             <div class="source-eyebrow source-eyebrow-inlist" id="art-source" style="display:none;">
               <div class="se-head">
                 <span class="se-txt"><em>Picked from home</em> — you tapped <span class="se-label"></span></span>
@@ -2478,105 +2726,12 @@
             <div class="event-row" data-when="weekend" data-price="paid" onclick="go('event')"><div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1565193298357-c5b46b0ff68b?w=200&q=70&auto=format&fit=crop');"></div><div class="info"><div class="t">Pottery wheel <em>throwing</em></div><div class="s"><i data-lucide="calendar"></i> Sat 18 Apr · 11 AM · Poble-sec</div><span class="chip p" style="margin-top:4px;">Small group · 6</span></div><div class="pp">€25</div></div>
             <div class="event-row" data-when="weekend" data-price="paid" onclick="go('event')"><div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=200&q=70&auto=format&fit=crop');"></div><div class="info"><div class="t">Life drawing <em>with live model</em></div><div class="s"><i data-lucide="calendar"></i> Sun 19 Apr · 5 PM · El Born</div><span class="chip g" style="margin-top:4px;">All levels</span></div><div class="pp">€15</div></div>
             <div class="event-row" data-when="weekend" data-price="paid" onclick="go('event')"><div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=200&q=70&auto=format&fit=crop');"></div><div class="info"><div class="t">Live <em>indie night</em></div><div class="s"><i data-lucide="calendar"></i> Sun 19 Apr · 9 PM · Raval</div><span class="chip pk" style="margin-top:4px;">3 spots left</span></div><div class="pp">€12</div></div>
-
-            <!-- Hosts you'd love mini strip -->
-            <div class="hosts-strip">
-              <div class="hs-head">
-                <div class="hs-eyebrow">Hosts you'd love</div>
-                <div class="hs-see" onclick="go('people')">See all →</div>
-              </div>
-              <div class="hs-scroll">
-                <div class="hs-card" onclick="go('passport')">
-                  <div class="hs-av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=70&auto=format&fit=crop');"><span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="hs-nm">María L.</div>
-                  <div class="hs-role">Pottery · 47 hosted</div>
-                  <div class="hs-rating"><i data-lucide="star"></i> 4.9 · Pillar</div>
-                </div>
-                <div class="hs-card" onclick="go('passport')">
-                  <div class="hs-av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=70&auto=format&fit=crop');"><span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="hs-nm">David K.</div>
-                  <div class="hs-role">Yoga · 122 hosted</div>
-                  <div class="hs-rating"><i data-lucide="star"></i> 4.8 · Founding</div>
-                </div>
-                <div class="hs-card" onclick="go('passport')">
-                  <div class="hs-av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=70&auto=format&fit=crop');"><span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="hs-nm">Sofía R.</div>
-                  <div class="hs-role">Life drawing · 18</div>
-                  <div class="hs-rating"><i data-lucide="star"></i> 4.9 · Trusted</div>
-                </div>
-                <div class="hs-card" onclick="go('passport')">
-                  <div class="hs-av" style="background-image:url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&q=70&auto=format&fit=crop');"></div>
-                  <div class="hs-nm">Marc P.</div>
-                  <div class="hs-role">Sketching · 9</div>
-                  <div class="hs-rating"><i data-lucide="star"></i> 4.7 · Regular</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="sect-eyebrow"><span class="txt">Also this week</span><span class="line"></span></div>
-
-            <div class="event-row" data-when="weekday" data-price="free" onclick="go('event')"><div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=200&q=70&auto=format&fit=crop');"></div><div class="info"><div class="t">Urban sketching <em>walk</em></div><div class="s"><i data-lucide="calendar"></i> Tue 21 Apr · 6:30 PM · Eixample</div><span class="chip gr" style="margin-top:4px;">Free</span></div><div class="pp" style="color:var(--forest);">Free</div></div>
-            <div class="event-row" data-when="weekday" data-price="free" onclick="go('event')"><div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=200&q=70&auto=format&fit=crop');"></div><div class="info"><div class="t">Gallery opening <em>· local artists</em></div><div class="s"><i data-lucide="calendar"></i> Wed 22 Apr · 7:30 PM · Poblenou</div><span class="chip p" style="margin-top:4px;">Networking</span></div><div class="pp" style="color:var(--forest);">Free</div></div>
-
-            <div style="text-align:center;padding:14px 0 4px;">
-              <div style="font-family:'Fraunces','Georgia',serif;font-variation-settings:'opsz' 96,'SOFT' 50,'WONK' 0;font-size:13px;font-style:italic;color:var(--coral-ink);font-weight:500;letter-spacing:-0.005em;">142 more rooms in Gràcia & nearby</div>
-              <div style="font-size:10px;color:var(--text-2);margin-top:3px;letter-spacing:0.02em;">tap a hobby on your profile to see matching rooms</div>
-            </div>
-            <div style="height:10px;"></div>
+            <div class="event-row" data-when="weekday" data-price="free" onclick="go('event')"><div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=200&q=70&auto=format&fit=crop');"></div><div class="info"><div class="t">Urban sketching <em>walk</em></div><div class="s"><i data-lucide="calendar"></i> Tue 21 Apr · 6:30 PM · Eixample</div><span class="chip gr" style="margin-top:3px;">Free</span></div><div class="pp" style="color:var(--green);">Free</div></div>
+            <div class="event-row" data-when="weekday" data-price="free" onclick="go('event')"><div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=200&q=70&auto=format&fit=crop');"></div><div class="info"><div class="t">Gallery opening <em>· local artists</em></div><div class="s"><i data-lucide="calendar"></i> Wed 22 Apr · 7:30 PM · Poblenou</div><span class="chip p" style="margin-top:3px;">Networking</span></div><div class="pp" style="color:var(--green);">Free</div></div>
           </div>
 
-          <!-- ============ Pass 35 · Art-People tab content. Visible only when "People" tab active. Cards filtered to Art-relevant context. Filter pills follow the canonical 5-value vocabulary (All / Shared events / New to Barcelona / Meeting neighbours / Same vibe). Hosting curious + Solo arrivers were trimmed in Pass 29 and confirmed cut in Pass 35.2 — do not re-add (see feedback_filter_canonical_5 memory). ============ -->
-          <div id="art-people-tab" style="display:none;">
-            <div class="pills" data-people-filters style="margin-bottom:12px;flex-wrap:wrap;">
-              <span class="pill on" onclick="setPeopleFilter(this,'all')">All</span>
-              <span class="pill" onclick="setPeopleFilter(this,'shared-events')">Shared events</span>
-              <span class="pill" onclick="setPeopleFilter(this,'new-to-barcelona')">New to Barcelona</span>
-              <span class="pill" onclick="setPeopleFilter(this,'meeting-neighbours')">Meeting neighbours</span>
-              <span class="pill" onclick="setPeopleFilter(this,'same-vibe')">Same vibe</span>
-            </div>
+          <!-- Pass 40 · Art-People tab block removed (people-discovery cut). -->
 
-            <div style="font-size:11px;color:var(--text-2);margin:0 2px 8px;line-height:1.4;">Faces in <em style="font-style:italic;color:var(--coral-ink);">Art &amp; Craft</em> rooms. Tap a card for the full profile, or Keep close to land their next room on your home.</div>
-
-            <div class="people-grid">
-              <div class="people-card" data-filter="going same-vibe" onclick="openPeopleProfile(this)">
-                <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span></div>
-                <div class="pc-body">
-                  <div class="pc-name">María L. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="pc-mutual"><i data-lucide="calendar"></i> Hosts Sun · Pottery in Sants</div>
-                  <div class="pc-tags"><span class="pmini" onclick="event.stopPropagation();go('passport')"><i data-lucide="star"></i> Pillar · <span class="pct">98%</span></span><span class="pc-tag">Pottery</span></div>
-                </div>
-              </div>
-
-              <div class="people-card" data-filter="same-vibe" onclick="openPeopleProfile(this)">
-                <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80&auto=format&fit=crop');"><span class="intent">Same vibe</span></div>
-                <div class="pc-body">
-                  <div class="pc-name">Sofía R. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="pc-mutual"><i data-lucide="calendar"></i> Hosts Sun · Life drawing in El Born</div>
-                  <div class="pc-tags"><span class="pmini" onclick="event.stopPropagation();go('passport')"><i data-lucide="star"></i> Trusted · <span class="pct">94%</span></span><span class="pc-tag">Drawing</span></div>
-                </div>
-              </div>
-
-              <div class="people-card" data-filter="new-to-barcelona" onclick="openPeopleProfile(this)">
-                <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80&auto=format&fit=crop');"><span class="intent">New to Barcelona</span></div>
-                <div class="pc-body">
-                  <div class="pc-name">Lena G. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="pc-mutual"><i data-lucide="calendar"></i> Going Wed · Watercolour basics</div>
-                  <div class="pc-tags"><span class="pmini" onclick="event.stopPropagation();go('passport')"><i data-lucide="star"></i> Newcomer · <span class="pct">—</span></span><span class="pc-tag">Watercolour</span></div>
-                </div>
-              </div>
-
-              <div class="people-card" data-filter="meeting-neighbours" onclick="openPeopleProfile(this)">
-                <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80&auto=format&fit=crop');"><span class="intent">Meeting neighbours</span></div>
-                <div class="pc-body">
-                  <div class="pc-name">Marc P.</div>
-                  <div class="pc-mutual"><i data-lucide="calendar"></i> Going Sat · Urban sketching walk</div>
-                  <div class="pc-tags"><span class="pmini" onclick="event.stopPropagation();go('passport')"><i data-lucide="star"></i> Regular · <span class="pct">88%</span></span><span class="pc-tag">Sketching</span></div>
-                </div>
-              </div>
-            </div>
-
-            <div style="font-size:10px;color:var(--text-2);text-align:center;margin:14px 10px 4px;line-height:1.5;">4 faces in Art &amp; Craft this week. <b style="color:var(--coral-ink);cursor:pointer;" onclick="go('people')">Browse all faces →</b></div>
-          </div>
 
         </div>
       </section>
@@ -2586,12 +2741,21 @@
         <div class="brandbar"><div class="brand-name" onclick="go('home')">Incircle<span class="accent">Me</span></div></div>
         <div class="appbar"><div class="left"><div class="iconbtn gold" onclick="go('home')"><i data-lucide="arrow-left"></i></div><div><div class="title-ed"><em>Learning</em> in Barcelona</div><div class="sub-ed">89 rooms · 245 neighbours nearby</div></div></div></div>
         <div class="content scroll">
-          <!-- ============ Pass 35 · 2026-04-27 · Events/People tabs RESTORED on Learning (mirrors Art). In-place toggle. The standalone data-screen="it-people" section below remains an orphan from before — kept for back-compat; the new in-place tab is the primary People surface for Learning. ============ -->
-          <div class="cat-tabs" id="it-tabs" role="tablist">
-            <button type="button" class="cat-tab on" data-cat-tab="events" onclick="setCatTab('it','events')" role="tab" aria-selected="true"><i data-lucide="calendar-days"></i><span class="ct-lbl">Events</span><span class="ct-count">6</span></button>
-            <button type="button" class="cat-tab" data-cat-tab="people" onclick="setCatTab('it','people')" role="tab" aria-selected="false"><i data-lucide="users"></i><span class="ct-lbl">People</span><span class="ct-count">4</span></button>
-          </div>
+          <!-- Pass 40 · Learning cat-tabs segmented control removed. -->
+          
           <div id="it-events">
+            <!-- 2026-04-29 pass 38C · Ad slot parity per Alina directive — was missing on Learning. Now matches Home's rotating Ad treatment but with category-relevant featured pick. Single slide for now (no rotation) — easy to extend later. -->
+            <div class="ad-slot" style="margin-bottom:14px;">
+              <div class="ad-slide on" data-idx="0" onclick="go('event')" style="background-image:url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=900&q=80&auto=format&fit=crop');">
+                <div class="ad-eyebrow"><i data-lucide="sparkles"></i> Tonight in Learning</div>
+                <div class="ad-body">
+                  <div class="ad-title">Catalan beginners — <em>three faces, one café</em></div>
+                  <div class="ad-meta"><span>Wed 7:00 PM</span><span class="dot"></span><span>Gràcia</span><span class="dot"></span><span>€8</span></div>
+                </div>
+                <div class="ad-cta">Open <i data-lucide="arrow-right"></i></div>
+              </div>
+            </div>
+
             <div class="section-title">This week in Learning</div>
             <div class="pills" id="it-filters" style="margin-bottom:10px;">
               <span class="pill on" data-it-filter="all">All</span>
@@ -2608,58 +2772,8 @@
             <div class="event-row" data-when="weekend" data-price="free" onclick="go('event')"><div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=200&q=70&auto=format&fit=crop');"></div><div class="info"><div class="t">Open-source contrib day</div><div class="s"><i data-lucide="calendar"></i> Sat 25 Apr · 10 AM · Raval</div><span class="chip gr" style="margin-top:3px;">Free</span></div><div class="pp" style="color:var(--green);">Free</div></div>
           </div>
 
-          <!-- ============ Pass 35 · Learning-People tab content (in-place). Same filter set as Art — canonical 5 (All / Shared events / New to Barcelona / Meeting neighbours / Same vibe). Cards filtered to Learning context — language exchanges, workshop attendees. ============ -->
-          <div id="it-people-tab" style="display:none;">
-            <div class="pills" data-people-filters style="margin-bottom:12px;flex-wrap:wrap;">
-              <span class="pill on" onclick="setPeopleFilter(this,'all')">All</span>
-              <span class="pill" onclick="setPeopleFilter(this,'shared-events')">Shared events</span>
-              <span class="pill" onclick="setPeopleFilter(this,'new-to-barcelona')">New to Barcelona</span>
-              <span class="pill" onclick="setPeopleFilter(this,'meeting-neighbours')">Meeting neighbours</span>
-              <span class="pill" onclick="setPeopleFilter(this,'same-vibe')">Same vibe</span>
-            </div>
+          <!-- Pass 40 · Learning-People tab block removed (people-discovery cut). -->
 
-            <div style="font-size:11px;color:var(--text-2);margin:0 2px 8px;line-height:1.4;">Faces in <em style="font-style:italic;color:var(--coral-ink);">Learning</em> rooms. Workshop-goers, language-exchange regulars, hosts curious to teach.</div>
-
-            <div class="people-grid">
-              <div class="people-card" data-filter="going same-vibe" onclick="openPeopleProfile(this)">
-                <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span></div>
-                <div class="pc-body">
-                  <div class="pc-name">Alex K. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="pc-mutual"><i data-lucide="calendar"></i> Going Mon · React workshop</div>
-                  <div class="pc-tags"><span class="pmini" onclick="event.stopPropagation();go('passport')"><i data-lucide="star"></i> Trusted · <span class="pct">96%</span></span><span class="pc-tag">Python</span></div>
-                </div>
-              </div>
-
-              <div class="people-card" data-filter="meeting-neighbours same-vibe" onclick="openPeopleProfile(this)">
-                <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&q=80&auto=format&fit=crop');"><span class="intent">Meeting neighbours</span></div>
-                <div class="pc-body">
-                  <div class="pc-name">Jordi P. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="pc-mutual"><i data-lucide="calendar"></i> Going Mon · Catalan beginners</div>
-                  <div class="pc-tags"><span class="pmini" onclick="event.stopPropagation();go('passport')"><i data-lucide="star"></i> Pillar · <span class="pct">99%</span></span><span class="pc-tag">Catalan</span></div>
-                </div>
-              </div>
-
-              <div class="people-card" data-filter="new-to-barcelona meeting-neighbours" onclick="openPeopleProfile(this)">
-                <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=400&q=80&auto=format&fit=crop');"><span class="intent">New to Barcelona</span></div>
-                <div class="pc-body">
-                  <div class="pc-name">Priya S. <span class="vb"><i data-lucide="check"></i></span></div>
-                  <div class="pc-mutual"><i data-lucide="calendar"></i> Went · AI Hackathon</div>
-                  <div class="pc-tags"><span class="pmini" onclick="event.stopPropagation();go('passport')"><i data-lucide="star"></i> Newcomer · <span class="pct">—</span></span><span class="pc-tag">Data</span></div>
-                </div>
-              </div>
-
-              <div class="people-card" data-filter="shared-events same-vibe" onclick="openPeopleProfile(this)">
-                <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1548142813-c348350df52b?w=400&q=80&auto=format&fit=crop');"><span class="intent">Same vibe</span></div>
-                <div class="pc-body">
-                  <div class="pc-name">David M.</div>
-                  <div class="pc-mutual"><i data-lucide="calendar"></i> Going Tue · Founders Talk</div>
-                  <div class="pc-tags"><span class="pmini" onclick="event.stopPropagation();go('passport')"><i data-lucide="star"></i> Regular · <span class="pct">90%</span></span><span class="pc-tag">Startup</span></div>
-                </div>
-              </div>
-            </div>
-
-            <div style="font-size:10px;color:var(--text-2);text-align:center;margin:14px 10px 4px;line-height:1.5;">4 faces in Learning this week. <b style="color:var(--coral-ink);cursor:pointer;" onclick="go('people')">Browse all faces →</b></div>
-          </div>
 
         </div>
       </section>
@@ -2683,7 +2797,7 @@
 
           <div class="people-grid">
             <div class="people-card" data-filter="shared-events same-vibe" onclick="openPeopleProfile(this)">
-              <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span></div>
+              <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span><span class="pc-go-pill" onclick="event.stopPropagation();openGoTogether();"><i data-lucide="footprints"></i> Go together</span></div>
               <div class="pc-body">
                 <div class="pc-name">Alex, 27 <span class="vb"><i data-lucide="check"></i></span></div>
                 <div class="pc-mutual"><i data-lucide="sparkles"></i> Both in AI Meetup Circle</div>
@@ -2710,7 +2824,7 @@
             </div>
 
             <div class="people-card" data-filter="shared-events meeting-neighbours" onclick="openPeopleProfile(this)">
-              <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span></div>
+              <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span><span class="pc-go-pill" onclick="event.stopPropagation();openGoTogether();"><i data-lucide="footprints"></i> Go together</span></div>
               <div class="pc-body">
                 <div class="pc-name">Priya, 28 <span class="vb"><i data-lucide="check"></i></span></div>
                 <div class="pc-mutual"><i data-lucide="users"></i> Went to Hackathon Night</div>
@@ -2781,7 +2895,7 @@
             </div>
 
             <div class="people-card" data-filter="meeting-neighbours same-vibe" onclick="openPeopleProfile(this)">
-              <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span></div>
+              <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span><span class="pc-go-pill" onclick="event.stopPropagation();openGoTogether();"><i data-lucide="footprints"></i> Go together</span></div>
               <div class="pc-body">
                 <div class="pc-name">Marc P. <em>· Eixample</em></div>
                 <div class="pc-mutual"><i data-lucide="sparkles"></i> Wants to host his first room</div>
@@ -2790,7 +2904,7 @@
             </div>
 
             <div class="people-card" data-filter="same-vibe shared-events" onclick="openPeopleProfile(this)">
-              <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span></div>
+              <div class="pc-photo" style="background-image:url('https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80&auto=format&fit=crop');"><span class="intent">Open to going together</span><span class="pc-go-pill" onclick="event.stopPropagation();openGoTogether();"><i data-lucide="footprints"></i> Go together</span></div>
               <div class="pc-body">
                 <div class="pc-name">David K. <span class="vb"><i data-lucide="check"></i></span> <em>· Riverside</em></div>
                 <div class="pc-mutual"><i data-lucide="sparkles"></i> Both into Sunday yoga</div>
@@ -2875,17 +2989,17 @@
             </div>
           </div>
 
-          <!-- People group -->
-          <div class="sect-eyebrow" style="margin:14px 2px 6px;"><span class="txt">People</span><span class="line"></span></div>
+          <!-- People group · 2026-04-29 pass 36 · eyebrow now signals the permanence rule. 1:1 chats opened via Go-together don't close after 24h — they stay until someone mutes or closes. -->
+          <div class="sect-eyebrow" style="margin:14px 2px 6px;"><span class="txt">People <em style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;color:var(--coral-ink);font-size:11px;letter-spacing:0;text-transform:none;">· these stay open once you said yes</em></span><span class="line"></span></div>
 
-          <div class="dm-row has-unread" data-msg-type="people" onclick="go('chat')">
+          <div class="dm-row has-unread" data-msg-type="people" onclick="go('dm-maria')">
             <div class="dm-av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=70&auto=format&fit=crop');"><span class="vb"><i data-lucide="check"></i></span></div>
             <div class="dm-body">
               <div class="dm-top">
                 <div class="dm-nm">María L. <span class="chip founding" style="margin-left:4px;padding:1px 5px;font-size:8.5px;">Founding host</span></div>
                 <div class="dm-tm">2m</div>
               </div>
-              <div class="dm-prev">Perfecto! See you Sat at the studio ✨</div>
+              <div class="dm-prev"><em style="font-style:italic;color:var(--coral-ink);">Going together · Sun</em> — Tot inclòs, vine només amb ganes. 🌿</div>
             </div>
             <div class="dm-unread">2</div>
           </div>
@@ -3105,6 +3219,64 @@
         </div>
       </section>
 
+      <!-- ============ 05b 1:1 DM thread (Pass 36 · 2026-04-29 · Sprint 43 close) ============
+        Permanent chat unlocked when both parties say yes to going together. Distinct from Circle group chat.
+        Banner makes the permanence visible: "Open since you both said yes — this room doesn't close." Reinforces
+        Alina's locked rule (feedback_go_together_verb): chat unlock is permanent, not 24h scoped. -->
+      <section class="screen" data-screen="dm-maria">
+        <div class="brandbar"><div class="brand-name" onclick="go('home')">Incircle<span class="accent">Me</span></div></div>
+        <div class="appbar">
+          <div class="left">
+            <div class="iconbtn gold" onclick="go('messages')"><i data-lucide="arrow-left"></i></div>
+            <div class="avatar sm" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=70&auto=format&fit=crop');background-size:cover;background-position:center;"></div>
+            <div>
+              <div class="title-ed">María L. <em>·</em> 1:1</div>
+              <div class="sub-ed">Open since you both said yes <em>— this chat stays</em></div>
+            </div>
+          </div>
+          <div class="iconbtn" onclick="openPeopleProfile({querySelector:function(){return null;}})" title="View profile"><i data-lucide="user"></i></div>
+        </div>
+        <div class="content scroll">
+          <div class="dm1-bar">
+            <div class="dm1-ic"><i data-lucide="footprints"></i></div>
+            <div style="flex:1;">
+              <div class="dm1-eb">You're going together</div>
+              <div class="dm1-sub">Pottery in Sants · Sun, 4 May · 11am</div>
+            </div>
+            <div class="dm1-sub" style="font-style:italic;color:var(--coral-ink);font-family:'Fraunces',Georgia,serif;">Permanent</div>
+          </div>
+
+          <div class="dm1-context" onclick="go('event')">
+            <div class="dm1-cx-img" style="background-image:url('https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=160&q=70&auto=format&fit=crop');"></div>
+            <div>
+              <div class="dm1-cx-t">Pottery <em style="font-style:italic;color:var(--coral-ink);">in Sants</em></div>
+              <div class="dm1-cx-s">Sun · 11am · 6 going · €18</div>
+            </div>
+            <i data-lucide="chevron-right" class="dm1-cx-chev"></i>
+          </div>
+
+          <div class="dm1-msgs">
+            <div class="dm1-tm">Mon, 28 April · 19:42</div>
+            <div class="dm1-msg them">¡Sí! Anem junts. Em sembla bé arribar a 10:50, així agafem un cafè abans?</div>
+            <div class="dm1-msg you">Perfecte. Cafè al Punto BCN i després al taller. ✨</div>
+            <div class="dm1-msg them">Fet. Fins diumenge.</div>
+            <div class="dm1-tm">Tue, 29 April · 09:14</div>
+            <div class="dm1-msg you">Bon dia! Una pregunta — porto la meva carmanyola o porten material allà?</div>
+            <div class="dm1-msg them">Tot inclòs — vine només amb ganes. 🌿</div>
+          </div>
+
+          <div class="dm1-foot">
+            <input type="text" placeholder="Write to María…" />
+            <button class="dm1-send" onclick="toast('Sent to María')" type="button"><i data-lucide="arrow-up"></i></button>
+          </div>
+
+          <div style="font-size:10px;color:var(--text-2);text-align:center;margin:14px 14px 4px;line-height:1.5;">
+            This 1:1 stays open. Either of you can mute or close it from the room sheet. Read more in <span style="color:var(--coral-ink);font-weight:500;cursor:pointer;" onclick="toast('Privacy &amp; conduct')">Privacy &amp; conduct</span>.
+          </div>
+          <div style="height:14px;"></div>
+        </div>
+      </section>
+
       <!-- ============ MEMORY CAPSULE ============ -->
       <section class="screen" data-screen="capsule">
         <div class="brandbar"><div class="iconbtn gold" onclick="go('chat')"><i data-lucide="arrow-left"></i></div><div class="brand-name" onclick="go('home')">Incircle<span class="accent">Me</span></div><div class="iconbtn gold" onclick="openShareSheet({title:'Pottery Sunday · Memory Capsule',img:'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=200&q=70&auto=format&fit=crop',when:'Sun, 13 Apr · Gràcia · 6 friends',sheetTitle:'Share this Memory Capsule',sheetSub:'Send the capsule to someone who was there, or post to your feed.'})"><i data-lucide="share-2"></i></div></div>
@@ -3217,15 +3389,8 @@
             <div class="trust-item"><span class="tic"><i data-lucide="calendar-check"></i></span><div class="tx"><div class="tt">3 next bookings</div><div class="td">Circle re-booked together</div></div></div>
           </div>
 
-          <!-- Follow the host — so you don't miss her next Sunday -->
-          <div class="card" style="margin-top:14px;background:var(--forest-soft);border-color:rgba(46,69,49,0.22);display:flex;gap:10px;align-items:center;">
-            <div style="width:44px;height:44px;border-radius:50%;background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=70&auto=format&fit=crop');background-size:cover;background-position:center;flex-shrink:0;"></div>
-            <div style="flex:1;">
-              <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--forest);line-height:1.2;">Follow <em style="font-style:italic;color:var(--coral-ink);">Teresa</em></div>
-              <div style="font-size:11px;color:var(--text-2);margin-top:2px;">So you don't miss her next Sunday. You'll see her new events in Home.</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this,'Teresa')"><i data-lucide="plus"></i> Keep close</button>
-          </div>
+          <!-- Pass 40 · "Follow Teresa / Keep close" card removed (people-following retired with the Pass 40 simplification). -->
+
 
           <div class="row" style="gap:6px;margin-top:14px;">
             <button class="btn btn-primary" style="flex:1;" onclick="openShareSheet({title:'Pottery Sunday · Memory Capsule',img:'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=200&q=70&auto=format&fit=crop',when:'Sun, 13 Apr · Gràcia · 6 friends',sheetTitle:'Share this Memory Capsule',sheetSub:'Send the capsule to someone who was there, or post to your feed.'})"><i data-lucide="share-2"></i> Share capsule</button>
@@ -3340,51 +3505,10 @@
             <div class="pp-bio">Design-minded human. Sunday painter, weekday runner &mdash; always up for a coffee at Plaça del Sol.</div>
           </div>
 
-          <!-- ============ Pass 35 · "I'm here as…" identity declaration (4 chips after Pass 35.2 trim). Closes the data-model gap behind People filters — when a user appears in "New to Barcelona" / "Same vibe" / "Meeting neighbours" filter results, this is where they declared it. Multi-pick chips, editable any time. Maps to 4 of the canonical 5 filter values (Shared events is computed from event participation, not declared). Folds into onboarding intent screen as a mandatory question on first run. ============ -->
-          <div class="pp-section-t" style="display:flex;justify-content:space-between;align-items:baseline;"><span>I'm here <em style="font-style:italic;font-family:'Fraunces',Georgia,serif;text-transform:none;letter-spacing:-0.005em;font-weight:500;color:var(--coral-ink);">as</em>…</span><span style="color:var(--text-2);font-weight:500;text-transform:none;letter-spacing:0.01em;font-size:10px;font-style:italic;">how you show up · change any time</span></div>
-          <div class="pp-card">
-            <div class="pp-bio" style="font-size:11.5px;color:var(--text-2);margin-bottom:9px;line-height:1.4;">Pick as many as fit. These help other people find you in <em style="font-style:italic;color:var(--coral-ink);">New to Barcelona</em>, <em style="font-style:italic;color:var(--coral-ink);">Same vibe</em>, and the other People filters.</div>
-            <div class="pills" id="profile-identity-chips" style="gap:7px;flex-wrap:wrap;">
-              <span class="pill on" onclick="togIdentityChip(this)">Open to going together</span>
-              <span class="pill" onclick="togIdentityChip(this)">Same vibe</span>
-              <span class="pill" onclick="togIdentityChip(this)">New to Barcelona</span>
-              <span class="pill on" onclick="togIdentityChip(this)">Meeting neighbours</span>
-            </div>
-          </div>
-
-          <!-- 2026-04-22 v4 · "Your music vibe" label per Erik MVP directive (was "Your vibe"). Fraunces italic stays on "vibe". -->
-          <div class="pp-section-t">Your music <em style="font-style:italic;font-family:'Fraunces',Georgia,serif;text-transform:none;letter-spacing:-0.005em;font-weight:500;color:var(--coral-ink);">vibe</em></div>
-          <div class="pp-card pp-vibe-card-wrap">
-            <div class="pp-vibe-intro">On rotation this week</div>
-            <div class="pp-vibe-list">
-              <div class="pp-vibe-line">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1458560871784-56d23406c091?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">De momento abril</div><div class="pp-vibe-a">La Bien Querida</div></div>
-              </div>
-              <div class="pp-vibe-line">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">Holocene</div><div class="pp-vibe-a">Bon Iver</div></div>
-              </div>
-              <div class="pp-vibe-line pp-vibe-hidden">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">Yo invito</div><div class="pp-vibe-a">Amaia</div></div>
-              </div>
-              <div class="pp-vibe-line pp-vibe-hidden">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">Says</div><div class="pp-vibe-a">Nils Frahm</div></div>
-              </div>
-              <div class="pp-vibe-line pp-vibe-hidden">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1518972458649-9c82a6b3e0e5?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">Soledad y el mar</div><div class="pp-vibe-a">Natalia Lafourcade</div></div>
-              </div>
-            </div>
-            <div class="pp-vibe-toggle" onclick="toggleVibeList(this)"><span class="pp-vibe-toggle-lbl">Show 3 more</span><i data-lucide="chevron-down"></i></div>
-            <div class="pp-vibe-foot">
-              <span class="pp-vibe-foot-txt">Connect <span class="pp-vibe-foot-link" onclick="event.stopPropagation();toast('Connect your Spotify')">Spotify</span> · <span class="pp-vibe-foot-link" onclick="event.stopPropagation();toast('Connect Apple Music')">Apple Music</span> · <span class="pp-vibe-foot-link" onclick="event.stopPropagation();toast('Connect YouTube Music')">YouTube</span></span>
-            </div>
-          </div>
-
-          <!-- 2026-04-22 v5 · Edit profile + Share removed here (relocated to top of profile, above About) per Erik MVP directive. -->
+          <!-- ============ Pass 40 · 2026-06-10 · Profile cleanup per Alina directive ============
+            REMOVED: "I'm here as…" identity chips (Pass 35) · "Your music vibe" section · "Kept close" stat + scroll · "Invited to go together" strip.
+            Reason: app scope narrows to Events + Programs. Profile is now name + bio + neighbourhood + languages + Creator mode tile + Attended/Hosted stats + Reputation Passport. Cleaner, faster, less people-discovery flavour.
+          ============ -->
 
           <div class="cd-creator-tile" onclick="go('creator-dash')">
             <div class="cd-ct-ic"><i data-lucide="sparkles"></i></div>
@@ -3398,72 +3522,8 @@
           <div class="stats">
             <div class="stat"><div class="n">12</div><div class="l">Attended</div></div>
             <div class="stat"><div class="n">0</div><div class="l">Hosted</div></div>
-            <!-- 2026-04-22 pass 16 · "Saved" renamed to "Kept close" per Erik brand-voice directive. Warmer, more distinctive than Saved/Following. Three places: this stat, the button on people-profile, and the Connections section subtitle below. -->
-            <div class="stat" onclick="toast('Open the people you keep close')"><div class="n">7</div><div class="l">Kept close</div></div>
+            <div class="stat" onclick="go('bookings')"><div class="n">3</div><div class="l">Bookings</div></div>
           </div>
-
-          <!-- 2026-04-22 v4 · Reputation Passport moved to BOTTOM of profile per Erik MVP directive. See block below Details card. -->
-
-          <!-- 2026-04-22 pass 16 · "Connections / People you've met through events" renamed to "Kept close / People you want to see again" per Erik brand-voice directive. Section now represents explicit "keep close" list rather than auto-tracked event connections. -->
-          <div class="pp-section-t" style="display:flex;justify-content:space-between;align-items:baseline;"><span>Kept close</span><span style="color:var(--text-2);font-weight:500;text-transform:none;letter-spacing:0.01em;font-size:10px;font-style:italic;">People you want to see again</span></div>
-          <div class="card" style="padding:10px 12px;">
-            <div class="conn-scroll">
-              <div class="conn" onclick="openConnection(this)"><div class="av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=70&auto=format&fit=crop');"></div><div class="nm">María</div><div class="ctx">Pottery · Apr</div></div>
-              <div class="conn" onclick="openConnection(this)"><div class="av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=70&auto=format&fit=crop');"></div><div class="nm">Sofía</div><div class="ctx">Life drawing</div></div>
-              <div class="conn" onclick="openConnection(this)"><div class="av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=70&auto=format&fit=crop');"></div><div class="nm">David</div><div class="ctx">Hosts yoga</div></div>
-              <div class="conn" onclick="openConnection(this)"><div class="av" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=70&auto=format&fit=crop');"></div><div class="nm">Laura</div><div class="ctx">Sketching</div></div>
-              <div class="conn" onclick="openConnection(this)"><div class="av" style="background-image:url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&q=70&auto=format&fit=crop');"></div><div class="nm">Marco</div><div class="ctx">Indie night</div></div>
-              <div class="conn" onclick="openConnection(this)"><div class="av" style="background-image:url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=70&auto=format&fit=crop');"></div><div class="nm">Alex</div><div class="ctx">Yoga crew</div></div>
-              <div class="conn" onclick="openConnection(this)"><div class="av" style="background-image:url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=70&auto=format&fit=crop');"></div><div class="nm">Lena</div><div class="ctx">UX meetup</div></div>
-            </div>
-            <div style="font-size:10px;color:var(--text-2);margin-top:2px;">18 connections · Built from 12 events attended</div>
-          </div>
-
-          <!-- 2026-04-22 v5 · Invited to go together — people Marta has invited to events. Status chip per row (Accepted / Pending / Declined). Per Erik MVP directive. -->
-          <div class="pp-section-t" style="display:flex;justify-content:space-between;align-items:baseline;"><span>Invited to go <em style="font-style:italic;font-family:'Fraunces',Georgia,serif;text-transform:none;letter-spacing:-0.005em;font-weight:500;color:var(--coral-ink);">together</em></span><span style="color:var(--text-2);font-weight:500;text-transform:none;letter-spacing:0.01em;font-size:10px;font-style:italic;">People you've asked to join you</span></div>
-          <div class="card" style="padding:10px 12px;">
-            <div class="pp-inv-scroll">
-              <div class="pp-inv" onclick="openConnection(this)">
-                <div class="pp-inv-av" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=70&auto=format&fit=crop');"></div>
-                <div class="pp-inv-nm">Laura</div>
-                <div class="pp-inv-ctx">Pottery Sun · 27 Apr</div>
-                <div class="pp-inv-chip accepted"><i data-lucide="check"></i> Accepted</div>
-              </div>
-              <div class="pp-inv" onclick="openConnection(this)">
-                <div class="pp-inv-av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=70&auto=format&fit=crop');"></div>
-                <div class="pp-inv-nm">María</div>
-                <div class="pp-inv-ctx">Life drawing · 29 Apr</div>
-                <div class="pp-inv-chip pending"><i data-lucide="clock"></i> Pending</div>
-              </div>
-              <div class="pp-inv" onclick="openConnection(this)">
-                <div class="pp-inv-av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=70&auto=format&fit=crop');"></div>
-                <div class="pp-inv-nm">Sofía</div>
-                <div class="pp-inv-ctx">Sunset Yoga · 25 Apr</div>
-                <div class="pp-inv-chip accepted"><i data-lucide="check"></i> Accepted</div>
-              </div>
-              <div class="pp-inv" onclick="openConnection(this)">
-                <div class="pp-inv-av" style="background-image:url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&q=70&auto=format&fit=crop');"></div>
-                <div class="pp-inv-nm">Marco</div>
-                <div class="pp-inv-ctx">Indie night · 2 May</div>
-                <div class="pp-inv-chip pending"><i data-lucide="clock"></i> Pending</div>
-              </div>
-              <div class="pp-inv" onclick="openConnection(this)">
-                <div class="pp-inv-av" style="background-image:url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=70&auto=format&fit=crop');"></div>
-                <div class="pp-inv-nm">Lena</div>
-                <div class="pp-inv-ctx">Book circle · 3 May</div>
-                <div class="pp-inv-chip declined"><i data-lucide="x"></i> Declined</div>
-              </div>
-              <div class="pp-inv" onclick="toast('Open invite history')">
-                <div class="pp-inv-av pp-inv-av-plus"><i data-lucide="plus"></i></div>
-                <div class="pp-inv-nm" style="color:var(--coral-ink);">Invite</div>
-                <div class="pp-inv-ctx">Ask a friend</div>
-                <div class="pp-inv-chip" style="visibility:hidden;">-</div>
-              </div>
-            </div>
-            <div style="font-size:10px;color:var(--text-2);margin-top:6px;">5 invitations this month · 3 accepted</div>
-          </div>
-
-          <!-- 2026-04-22 v5 · Details card removed per Erik MVP directive — location & languages already shown as pills under the @handle (profile-meta-chip), so card was redundant. -->
 
           <!-- 2026-04-22 v4 · Reputation Passport relocated to bottom of profile per Erik MVP directive. -->
           <div class="pp-section-t">Reputation Passport</div>
@@ -3513,7 +3573,7 @@
               <!-- 2026-04-25 pass 30 · Public "23 keeping close" stat REMOVED. Trust-signal job is already done by Reputation Passport tier (Trusted/Pillar/Legend) + show-up rate + events hosted + ★ rating. Publishing the kept-close count rebuilt Follow-counter mechanics under a prettier name. The number stays as a private creator-side metric (own dashboard) but is no longer visible to other users. -->
               <div class="h-stats">★ 4.9 · 47 events hosted · 97% felt included</div>
             </div>
-            <button class="follow-btn sm" onclick="event.stopPropagation();toggleFollow(this,'David')"><i data-lucide="plus"></i> Keep close</button>
+            <!-- Pass 40 · host "Keep close" button removed. Tap the host row to see the full profile. -->
           </div>
 
           <!-- 2026-04-21 Trust moment — upgraded "Who's going" strip. Approved via propose-first workflow. -->
@@ -3915,15 +3975,7 @@
             <i data-lucide="chevron-right" class="chevron"></i>
           </div>
 
-          <!-- Pass 22 · Keep-close-host on review-thanks — per Sprint 42A retention loop #2. Pass 23 vocab fix: Follow → Keep close. -->
-          <div class="card" style="margin-top:10px;background:var(--forest-soft);border-color:rgba(46,69,49,0.22);display:flex;gap:10px;align-items:center;">
-            <div style="width:44px;height:44px;border-radius:50%;background-image:url('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=120&q=70&auto=format&fit=crop');background-size:cover;background-position:center;flex-shrink:0;"></div>
-            <div style="flex:1;">
-              <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--forest);line-height:1.2;">Keep <em style="font-style:italic;color:var(--coral-ink);">Mireia</em> close</div>
-              <div style="font-size:11px;color:var(--text-2);margin-top:2px;">So you don't miss her next night. You'll see her new events in Home.</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this,'Mireia')"><i data-lucide="plus"></i> Keep close</button>
-          </div>
+          <!-- Pass 40 · "Keep Mireia close" review-thanks card removed (people-following retired). -->
 
           <div class="section-title" style="margin-top:6px;">Events with a similar feel this week</div>
           <div class="similar-rail">
@@ -4339,14 +4391,7 @@
             </div>
           </div>
 
-          <div class="notif-row" data-ntype="people" onclick="go('people')">
-            <div class="nic people"><i data-lucide="user-plus"></i></div>
-            <div class="ntx">
-              <div class="nt"><b>Marc P.</b> is keeping you close</div>
-              <div class="ns"><i data-lucide="star"></i> Trusted · 95% · <em>met at Life Drawing</em></div>
-              <div class="nact">View profile <i data-lucide="chevron-right"></i></div>
-            </div>
-          </div>
+          <!-- Pass 40 · "Marc keeping you close" people-notification row removed (no keep-close mechanic anymore). -->
 
           <div class="notif-row" data-ntype="chat" onclick="go('messages')">
             <div class="nic chat"><i data-lucide="at-sign"></i></div>
@@ -4415,9 +4460,43 @@
             <div class="cd-quick" onclick="go('create1')"><i data-lucide="plus"></i><div class="cd-quick-t2">New event</div></div>
             <div class="cd-quick" onclick="go('creator-events')"><i data-lucide="calendar"></i><div class="cd-quick-t2">Manage events</div></div>
             <div class="cd-quick" onclick="openAttendees('Sunset Yoga')"><i data-lucide="users"></i><div class="cd-quick-t2">Attendees</div></div>
+            <div class="cd-quick" onclick="go('creator-business')"><i data-lucide="line-chart"></i><div class="cd-quick-t2">Business</div></div>
             <div class="cd-quick" onclick="go('creator-payouts')"><i data-lucide="trending-up"></i><div class="cd-quick-t2">Payouts</div></div>
             <div class="cd-quick" onclick="go('creator-stripe')"><i data-lucide="credit-card"></i><div class="cd-quick-t2">Stripe setup</div></div>
             <div class="cd-quick" onclick="go('checkin')"><i data-lucide="qr-code"></i><div class="cd-quick-t2">Check-in</div></div>
+          </div>
+
+          <!-- 2026-04-29 pass 37 · Creator Business view — compact at-a-glance card on the dashboard. Tap → standalone deep view with all 6 sections per Creator-Business-View-Spec-2026-04-27.md. Premium-tier mock state. -->
+          <div class="cb-card" onclick="go('creator-business')">
+            <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;">
+              <div style="flex:1;">
+                <div class="cb-eb">Your business · this quarter</div>
+                <div class="cb-h">A quiet quarter, <em>well kept</em>.</div>
+                <div class="cb-sub">12 rooms hosted · 8 Kept Circles · the highest Kept-Circle rate in pottery this quarter.</div>
+              </div>
+              <div class="cb-tier"><i data-lucide="award"></i> Premium</div>
+            </div>
+            <div class="cb-mini-row">
+              <div class="cb-mini">
+                <div class="n">€<em>4,820</em></div>
+                <div class="l">GMV Q2</div>
+                <div class="d">▲ 18% vs Q1</div>
+              </div>
+              <div class="cb-mini">
+                <div class="n">87<em>%</em></div>
+                <div class="l">Fill rate</div>
+                <div class="d">▲ 12 pts</div>
+              </div>
+              <div class="cb-mini">
+                <div class="n">4.8</div>
+                <div class="l">Avg rating</div>
+                <div class="d">28 reviews</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-size:11px;color:var(--text-2);font-style:italic;font-family:'Fraunces',serif;">Quarterly review ready · Q2 2026</div>
+              <button class="cb-cta" onclick="event.stopPropagation();go('creator-business')" type="button">Open full review <i data-lucide="arrow-right"></i></button>
+            </div>
           </div>
 
           <div class="cd-section-t">Next event · in 2 days <span class="link" onclick="go('creator-events')">See all</span></div>
@@ -4440,6 +4519,422 @@
             </div>
           </div>
           <div style="height:80px;"></div>
+        </div>
+      </section>
+
+      <!-- ============ Pass 38B · 2026-04-29 · PROGRAM DETAIL (verified Programs system)
+        Canonical example: Teresa's "Hands in Clay" — 6-week pottery foundation, Verified Program.
+        Surfaces the 4-gate verification trust mechanism + weekly schedule + certificate spec + cohort details + enrollment CTA.
+        Per Verified-Programs spec locked 2026-04-27. Other Programs strip cards toast for now (Sprint 47/48 builds).
+      ============ -->
+      <section class="screen" data-screen="program-detail">
+        <div class="brandbar"><div class="brand-name" onclick="go('home')">Incircle<span class="accent">Me</span></div><div class="iconbtn gold" onclick="openShareSheet({title:'Hands in Clay · 6-week pottery foundation',img:'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=200&q=70&auto=format&fit=crop',when:'May cohort · Sundays · €180 · Verified Program',sheetTitle:'Share this Program',sheetSub:'Send to a friend who’d show up six Sundays in a row.'})"><i data-lucide="share-2"></i></div></div>
+        <div class="appbar"><div class="left"><div class="iconbtn gold" onclick="go('home')"><i data-lucide="arrow-left"></i></div><div><div class="title-ed">Program <em>· detail</em></div><div class="sub-ed">Verified by IncircleMe Trust</div></div></div></div>
+        <div class="content scroll" style="padding:0 16px 14px;">
+
+          <!-- Hero -->
+          <div class="pd-hero" style="background-image:url('https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=900&q=80&auto=format&fit=crop');">
+            <span class="pd-badge"><i data-lucide="badge-check"></i> Verified Program</span>
+            <div class="pd-h">
+              <div class="pd-eb">6 weeks · Sundays · Sants studio</div>
+              <div class="pd-t">Hands in <em>Clay</em></div>
+            </div>
+          </div>
+
+          <!-- Editorial intro -->
+          <div style="font-family:'Fraunces',Georgia,serif;font-size:14px;color:var(--ink);line-height:1.5;margin-bottom:12px;letter-spacing:-0.005em;">
+            Six Sundays. The same six people. Wedging, throwing, trimming, glazing, firing, taking home. <em style="color:var(--coral-ink);">A finished bowl that didn't exist before you walked in.</em>
+          </div>
+
+          <!-- Host row -->
+          <div class="pd-host-row" onclick="go('passport')">
+            <div class="pd-host-av" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=200&q=70&auto=format&fit=crop');"></div>
+            <div style="flex:1;">
+              <div class="pd-host-nm">Teresa <em style="font-style:italic;color:var(--coral-ink);">Folch</em></div>
+              <div class="pd-host-meta">Hosting since 2024 · 24 rooms · 4.8 ★</div>
+            </div>
+            <span class="pd-host-tier"><i data-lucide="award"></i> Founding host</span>
+          </div>
+
+          <!-- Weekly schedule -->
+          <div class="pp-section-t" style="margin:16px 2px 9px;">Six weeks · what happens</div>
+          <div class="pd-week">
+            <div class="pd-week-n">1</div>
+            <div><div class="pd-week-t">Wedge &amp; centre</div><div class="pd-week-s">Hands meet clay. The wheel for the first time. We make four small bowls and keep one.</div></div>
+          </div>
+          <div class="pd-week">
+            <div class="pd-week-n">2</div>
+            <div><div class="pd-week-t">Throw a vessel</div><div class="pd-week-s">From cylinder to bowl, deliberately. We start your Sunday cup.</div></div>
+          </div>
+          <div class="pd-week">
+            <div class="pd-week-n">3</div>
+            <div><div class="pd-week-t">Trim &amp; finish</div><div class="pd-week-s">The cup gets a foot. The bowl gets a curve. The afternoon is quiet.</div></div>
+          </div>
+          <div class="pd-week">
+            <div class="pd-week-n">4</div>
+            <div><div class="pd-week-t">Glaze theory + dipping</div><div class="pd-week-s">Six glazes, six choices. Iron, copper, ash, salt. The piece picks itself.</div></div>
+          </div>
+          <div class="pd-week">
+            <div class="pd-week-n">5</div>
+            <div><div class="pd-week-t">Kiln day</div><div class="pd-week-s">We load together. We talk while it climbs. We come back next week to open it.</div></div>
+          </div>
+          <div class="pd-week" style="margin-bottom:0;">
+            <div class="pd-week-n">6</div>
+            <div><div class="pd-week-t">The opening</div><div class="pd-week-s">We unload the kiln. Each piece different from how it went in. You take yours home, and the certificate.</div></div>
+          </div>
+
+          <!-- Certificate card -->
+          <div class="pp-section-t" style="margin:18px 2px 9px;">The certificate</div>
+          <div class="pd-cert">
+            <div class="pd-cert-eb"><i data-lucide="badge-check"></i> Verified Program · Completion certificate</div>
+            <div class="pd-cert-h">A real credential — <em>not a participation sticker</em>.</div>
+            <div class="pd-cert-body">
+              You finish if you show up to <b>5 of 6 weeks</b>, throw a vessel that holds water, and glaze a piece. The certificate carries Teresa's signature, IncircleMe's verification seal, and a public verification page at <b>incircleme.com/v/{cert_id}</b>. It says: <em>this person spent six Sundays learning to make something with their hands</em>.
+            </div>
+            <div class="pd-cert-foot">
+              <span class="pd-cert-link" onclick="toast('Sample certificate · opens preview')">See sample →</span>
+              <span class="pd-cert-link" onclick="toast('How verification works · 4-gate review · IncircleMe Trust')">How verification works →</span>
+            </div>
+          </div>
+
+          <!-- Cohort + spots -->
+          <div class="pd-cohort">
+            <div class="pd-cohort-l"><b>May cohort</b> · starts Sun, 4 May · 11am</div>
+            <div class="pd-cohort-spots">3 of 6 spots left</div>
+          </div>
+
+          <!-- Includes block -->
+          <div class="pp-section-t" style="margin:18px 2px 9px;">What's included</div>
+          <div class="pp-card" style="font-size:13px;color:var(--ink);line-height:1.6;font-family:'Fraunces',Georgia,serif;">
+            <div>• All six Sunday sessions (10am–1pm)</div>
+            <div>• Clay, glazes, kiln firings — everything</div>
+            <div>• Take home everything you make (~6 pieces)</div>
+            <div>• Verified completion certificate</div>
+            <div>• A small Circle that often votes to keep going</div>
+          </div>
+
+          <!-- 2026-04-29 pass 39A · Voices from past cohorts (curated curly-quote testimonials).
+            Pulled editorially from each kept Circle's Memory Capsule. Trust-building, signal-only —
+            chosen over open comment thread per Alina to keep the small-rooms voice. -->
+          <div class="pp-section-t" style="margin:20px 2px 9px;display:flex;justify-content:space-between;align-items:baseline;"><span>Voices from past <em style="font-style:italic;font-family:'Fraunces',Georgia,serif;text-transform:none;letter-spacing:-0.005em;font-weight:500;color:var(--coral-ink);">cohorts</em></span><span style="color:var(--text-2);font-weight:500;text-transform:none;letter-spacing:0.01em;font-size:10px;font-style:italic;">From each kept Circle's Memory Capsule</span></div>
+
+          <div class="pd-voice">
+            <div class="pd-voice-q">I came in scared of the wheel. Six Sundays later I'm trimming foot rings on a saucer that <em>holds my morning coffee</em>. Not what I expected — and exactly what I wanted.</div>
+            <div class="pd-voice-foot">
+              <div class="pd-voice-av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=70&auto=format&fit=crop');"></div>
+              <div class="pd-voice-meta"><span class="pd-voice-nm">Sofía R.</span> <em>· February cohort</em><br/>Kept the Circle. Came back for round two.</div>
+            </div>
+          </div>
+
+          <div class="pd-voice">
+            <div class="pd-voice-q">Teresa makes the wheel feel like <em>the easiest thing in the room</em>. The rest of us were just learning to slow down enough to listen to the clay.</div>
+            <div class="pd-voice-foot">
+              <div class="pd-voice-av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=70&auto=format&fit=crop');"></div>
+              <div class="pd-voice-meta"><span class="pd-voice-nm">Joan M.</span> <em>· February cohort</em><br/>Bring a friend, share the wheel, eat after.</div>
+            </div>
+          </div>
+
+          <div class="pd-voice">
+            <div class="pd-voice-q">My partner gave me this as a birthday thing. I thought I'd hate it. <em>I now have a shelf of bowls and a Kept Circle</em> who text me about new glazes.</div>
+            <div class="pd-voice-foot">
+              <div class="pd-voice-av" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=70&auto=format&fit=crop');"></div>
+              <div class="pd-voice-meta"><span class="pd-voice-nm">Clara T.</span> <em>· November cohort</em><br/>Birthday gift turned hobby.</div>
+            </div>
+          </div>
+
+          <div class="pd-voice">
+            <div class="pd-voice-q">Half of us were complete beginners. <em>None of us felt like beginners by week three.</em></div>
+            <div class="pd-voice-foot">
+              <div class="pd-voice-av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=70&auto=format&fit=crop');"></div>
+              <div class="pd-voice-meta"><span class="pd-voice-nm">María L.</span> <em>· November cohort</em><br/>Now hosts her own pottery Sundays.</div>
+            </div>
+          </div>
+
+          <div class="pd-voice-foot-note">Four of six in each cohort kept their Circle. <em>That's the highest Kept-Circle rate of any pottery host in Barcelona.</em></div>
+
+          <!-- FAQ-lite -->
+          <div class="pp-section-t" style="margin:18px 2px 9px;">Quiet questions</div>
+          <div class="pp-card" style="font-size:12.5px;color:var(--ink);line-height:1.55;">
+            <div style="margin-bottom:8px;"><b>What if I miss a week?</b> One miss is fine. Two and we'll make up the session privately. Three and you'd defer to the next cohort.</div>
+            <div style="margin-bottom:8px;"><b>Have you ever taught beginners?</b> Half the Circle is always first-time. The other half came back for round two.</div>
+            <div><b>Refund?</b> Full refund up to 48 hours before week 1. After that, a partial refund and credit toward a future cohort.</div>
+          </div>
+
+          <!-- 2026-04-29 pass 39B · Public Q&A thread on Program detail.
+            Asked by neighbours · answered by Teresa. Each Q&A pair = question card + reply card.
+            Distinct from the static FAQ above — this is dynamic, public, attendee-asked.
+            Ends with inline composer (textarea + post button + suggestion chips + visibility hint).
+            Per Alina 2026-04-29: open public thread (option 2 of the AskUserQuestion fork). -->
+          <div class="pp-section-t" style="margin:18px 2px 9px;display:flex;justify-content:space-between;align-items:baseline;"><span>Questions <em style="font-style:italic;font-family:'Fraunces',Georgia,serif;text-transform:none;letter-spacing:-0.005em;font-weight:500;color:var(--coral-ink);">from neighbours</em></span><span style="color:var(--text-2);font-weight:500;text-transform:none;letter-spacing:0.01em;font-size:10px;font-style:italic;">Asked publicly · answered by Teresa</span></div>
+
+          <div class="pd-qa">
+
+            <div class="pd-qa-pair">
+              <div class="pd-qa-q">
+                <div class="pd-qa-q-av" style="background-image:url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=120&q=70&auto=format&fit=crop');"></div>
+                <div class="pd-qa-q-body">
+                  <div class="pd-qa-q-head"><span class="pd-qa-q-nm">Marc P.</span><span class="pd-qa-tm">2 days ago</span></div>
+                  <div class="pd-qa-q-text">I have weak wrists from a climbing injury — would the wheel work be too much? Hesitant to enrol if I'll only get to do half the weeks.</div>
+                </div>
+              </div>
+              <div class="pd-qa-r">
+                <div class="pd-qa-r-av" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=120&q=70&auto=format&fit=crop');"></div>
+                <div class="pd-qa-r-body">
+                  <div class="pd-qa-r-head"><span class="pd-qa-r-nm">Teresa</span><span class="pd-qa-r-badge"><i data-lucide="check"></i> Host</span><span class="pd-qa-tm">2 days ago</span></div>
+                  <div class="pd-qa-r-text">Honestly — yes, you'd be fine. <em>Centring needs grip more than strength.</em> I've taught people through carpal tunnel and a broken wrist. We'll trade weight for breathing. Come, try it; if week 1 hurts, full refund.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pd-qa-pair">
+              <div class="pd-qa-q">
+                <div class="pd-qa-q-av" style="background-image:url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=70&auto=format&fit=crop');"></div>
+                <div class="pd-qa-q-body">
+                  <div class="pd-qa-q-head"><span class="pd-qa-q-nm">Lena G.</span><span class="pd-qa-tm">5 days ago</span></div>
+                  <div class="pd-qa-q-text">Is the studio Catalan-speaking or do you switch to Spanish? I'm new to BCN and still learning Catalan.</div>
+                </div>
+              </div>
+              <div class="pd-qa-r">
+                <div class="pd-qa-r-av" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=120&q=70&auto=format&fit=crop');"></div>
+                <div class="pd-qa-r-body">
+                  <div class="pd-qa-r-head"><span class="pd-qa-r-nm">Teresa</span><span class="pd-qa-r-badge"><i data-lucide="check"></i> Host</span><span class="pd-qa-tm">5 days ago</span></div>
+                  <div class="pd-qa-r-text">Both. <em>I teach in Catalan and translate the technique words into Spanish or English as we go.</em> Most cohorts are mixed. The clay doesn't care which language you cursed it in. Welcome.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pd-qa-pair">
+              <div class="pd-qa-q">
+                <div class="pd-qa-q-av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=70&auto=format&fit=crop');"></div>
+                <div class="pd-qa-q-body">
+                  <div class="pd-qa-q-head"><span class="pd-qa-q-nm">David K.</span><span class="pd-qa-tm">1 week ago</span></div>
+                  <div class="pd-qa-q-text">Do we get to pick the glaze colours? My kitchen is all greens and sand and I'd want bowls that fit.</div>
+                </div>
+              </div>
+              <div class="pd-qa-r">
+                <div class="pd-qa-r-av" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=120&q=70&auto=format&fit=crop');"></div>
+                <div class="pd-qa-r-body">
+                  <div class="pd-qa-r-head"><span class="pd-qa-r-nm">Teresa</span><span class="pd-qa-r-badge"><i data-lucide="check"></i> Host</span><span class="pd-qa-tm">1 week ago</span></div>
+                  <div class="pd-qa-r-text">Yes — six glazes available, you pick yours. <em>I have an iron-green and a sand-ash that would live happily on a Gràcia kitchen shelf.</em> I'll bring sample tiles to week 4.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pd-qa-pair">
+              <div class="pd-qa-q">
+                <div class="pd-qa-q-av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=70&auto=format&fit=crop');"></div>
+                <div class="pd-qa-q-body">
+                  <div class="pd-qa-q-head"><span class="pd-qa-q-nm">Anya P.</span><span class="pd-qa-tm">2 weeks ago</span></div>
+                  <div class="pd-qa-q-text">Can I bring my 14-year-old daughter? She's curious. Or is this strictly adults?</div>
+                </div>
+              </div>
+              <div class="pd-qa-r">
+                <div class="pd-qa-r-av" style="background-image:url('https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=120&q=70&auto=format&fit=crop');"></div>
+                <div class="pd-qa-r-body">
+                  <div class="pd-qa-r-head"><span class="pd-qa-r-nm">Teresa</span><span class="pd-qa-r-badge"><i data-lucide="check"></i> Host</span><span class="pd-qa-tm">2 weeks ago</span></div>
+                  <div class="pd-qa-r-text">Yes, with a parent in the room. <em>I've had a few mother-daughter pairs and they always became the loudest part of the Circle.</em> She'd need her own seat though — half-price for under-16s, write me to set that up.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inline composer — "Ask Teresa" -->
+            <div class="pd-qa-composer">
+              <div class="pd-qa-composer-eb"><i data-lucide="message-circle-question"></i> Ask publicly</div>
+              <div class="pd-qa-composer-h">Got a question? <em>Ask Teresa.</em></div>
+              <textarea class="pd-qa-composer-input" id="pd-qa-input" placeholder="Type your question — Teresa replies within 24h…" rows="2"></textarea>
+              <div class="pd-qa-composer-foot">
+                <span class="pd-qa-composer-note">Visible to everyone · helps the next person too</span>
+                <button class="pd-qa-composer-btn" onclick="postProgramQuestion()" type="button"><i data-lucide="send"></i> Post question</button>
+              </div>
+              <div class="pd-qa-composer-suggestions">
+                <span class="pd-qa-suggest-chip" onclick="suggestQ(this)">Is it OK if I miss a week?</span>
+                <span class="pd-qa-suggest-chip" onclick="suggestQ(this)">Do I need to bring anything?</span>
+                <span class="pd-qa-suggest-chip" onclick="suggestQ(this)">Any beginners in the cohort?</span>
+                <span class="pd-qa-suggest-chip" onclick="suggestQ(this)">Will there be a next cohort?</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Sticky enroll bar -->
+          <div class="pd-cta-bar">
+            <div class="pd-cta-price">€180 <em>· 6 weeks</em></div>
+            <button class="pd-cta-btn" onclick="toast('Enrolling in Hands in Clay · May cohort')" type="button">Enrol <i data-lucide="arrow-right"></i></button>
+          </div>
+          <div style="height:18px;"></div>
+        </div>
+      </section>
+
+      <!-- ============ Pass 37 · 2026-04-29 · CREATOR BUSINESS VIEW (standalone deep view)
+        Sprint 46/47 design mock per 01-Product/Creator-Business-View-Spec-2026-04-27.md
+        Six sections (Premium tier · all gates open):
+          1. Your numbers — 6 stats + trajectory line
+          2. Tier check — editorial line + CTA
+          3. Founding-host bar — three progress rows
+          4. Recommendations — 3 concrete plays with "Plan this →"
+          5. Peer benchmarks (Premium) — anonymous percentile bars
+          6. Year-ahead projection (Premium) — quiet-briefing paragraph
+        Plus: quarterly "Your Quarter" PDF affordance + closing letter footer.
+      ============ -->
+      <section class="screen" data-screen="creator-business">
+        <div class="brandbar"><div class="brand-name" onclick="go('home')">Incircle<span class="accent">Me</span></div><div class="iconbtn gold" onclick="openShareSheet({title:'Teresa · Q2 2026 Business Review',img:'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=200&q=70&auto=format&fit=crop',when:'12 rooms · 8 Kept Circles · €4,820 GMV',sheetTitle:'Share your quarter',sheetSub:'Send the PDF to your accountant or save it for later.'})"><i data-lucide="share-2"></i></div></div>
+        <div class="appbar"><div class="left"><div class="iconbtn gold" onclick="go('creator-dash')"><i data-lucide="arrow-left"></i></div><div><div class="title-ed">Your <em>business</em></div><div class="sub-ed">Q2 2026 · April – June</div></div></div><span class="cb-tier" style="margin:0;"><i data-lucide="award"></i> Premium</span></div>
+        <div class="content scroll">
+
+          <!-- Editorial greeting (the "letter from someone who knows your craft" feel) -->
+          <div class="cb-greet">A quiet quarter, <em>well kept</em>.</div>
+          <div class="cb-greet-sub">This quarter, you ran twelve rooms. Eight of them voted to stay together — the highest Kept-Circle rate of any pottery host in Barcelona this quarter. Here's everything else.</div>
+          <div><span class="cb-quarter-chip"><i data-lucide="calendar"></i> Q2 2026 · 1 Apr – 30 Jun</span></div>
+
+          <!-- ===== Section 1 — Your numbers ===== -->
+          <div class="cb-sec-t"><span>1 · Your numbers</span></div>
+          <div class="cb-num-grid">
+            <div class="cb-num" onclick="toast('GMV trend · 90-day chart')">
+              <div class="n">€<em>4,820</em></div>
+              <div class="l">GMV</div>
+              <div class="d up"><i data-lucide="arrow-up-right"></i> 18% vs Q1</div>
+            </div>
+            <div class="cb-num" onclick="toast('Net earnings · €4,724 after 2% Pro fee · €4,820 on Premium 0%')">
+              <div class="n">€<em>4,820</em></div>
+              <div class="l">Net (Premium 0%)</div>
+              <div class="d up"><i data-lucide="arrow-up-right"></i> €96 saved vs Pro</div>
+            </div>
+            <div class="cb-num" onclick="toast('Events run · weekly chart')">
+              <div class="n">12</div>
+              <div class="l">Rooms hosted</div>
+              <div class="d up"><i data-lucide="arrow-up-right"></i> +3 vs Q1</div>
+            </div>
+            <div class="cb-num" onclick="toast('Attendees check-in chart')">
+              <div class="n">87</div>
+              <div class="l">Attendees</div>
+              <div class="d up"><i data-lucide="arrow-up-right"></i> 81% repeat</div>
+            </div>
+            <div class="cb-num" onclick="toast('Fill rate · per-event breakdown')">
+              <div class="n">87<em>%</em></div>
+              <div class="l">Fill rate</div>
+              <div class="d up"><i data-lucide="arrow-up-right"></i> +12 pts</div>
+            </div>
+            <div class="cb-num" onclick="toast('Kept Circles · the rooms that voted to stay')">
+              <div class="n">8</div>
+              <div class="l">Kept Circles</div>
+              <div class="d up"><i data-lucide="arrow-up-right"></i> 67% of rooms</div>
+            </div>
+          </div>
+          <div class="cb-traj"><em>Rooms are filling 12% more than last quarter</em>. The Sunday slot you opened in May is your strongest — three of those four became Kept Circles.</div>
+
+          <!-- ===== Section 2 — Tier check ===== -->
+          <div class="cb-sec-t"><span>2 · Tier check</span></div>
+          <div class="cb-tier-card">
+            <div class="cb-tier-ic"><i data-lucide="check-circle"></i></div>
+            <div class="cb-tier-msg"><b>Premium is the right tier for you right now.</b> At your current pace (€4,820/quarter), you save €578 a year on the fee discount alone — plus your free verified Program is worth €150. Pro would cost you €578 in fees against a €540 subscription saving. You're net up €188/year on Premium.</div>
+          </div>
+
+          <!-- ===== Section 3 — Founding-host bar ===== -->
+          <div class="cb-sec-t"><span>3 · Founding-host bar</span></div>
+          <div class="cb-fh-card">
+            <div class="cb-fh-eb"><i data-lucide="award"></i> Founding host · renews 14 August</div>
+            <div class="cb-fh-h">Your free Program for the next year is <em>three rooms away</em>.</div>
+            <div class="cb-fh-sub">300 checked-in attendees · 6 Kept Circles · 4.5 average rating, all in the prior 12 months. Pause-don't-revoke: existing Programs stay valid forever no matter what.</div>
+
+            <div class="cb-fh-row">
+              <div class="cb-fh-row-top"><span class="lbl">Checked-in attendees</span><span class="val">240 / 300</span></div>
+              <div class="cb-fh-bar"><div class="cb-fh-bar-fill" style="width:80%;"></div></div>
+              <div class="cb-fh-line">Two more rooms with 30 attendees each gets you over the line.</div>
+            </div>
+
+            <div class="cb-fh-row">
+              <div class="cb-fh-row-top"><span class="lbl">Kept Circles</span><span class="val">4 / 6</span></div>
+              <div class="cb-fh-bar"><div class="cb-fh-bar-fill" style="width:67%;"></div></div>
+              <div class="cb-fh-line">Two more Circles voting to keep going. You've had four Kept Circles already this year — the craft is doing what it should.</div>
+            </div>
+
+            <div class="cb-fh-row">
+              <div class="cb-fh-row-top"><span class="lbl">Average rating</span><span class="val"><span class="ok">4.7 / 4.5 ✓</span></span></div>
+              <div class="cb-fh-bar"><div class="cb-fh-bar-fill met" style="width:100%;"></div></div>
+              <div class="cb-fh-line">Holding above the bar. The craft is steady.</div>
+            </div>
+          </div>
+
+          <!-- ===== Section 4 — Recommendations ===== -->
+          <div class="cb-sec-t"><span>4 · Three plays for next quarter</span></div>
+
+          <div class="cb-rec">
+            <div class="cb-rec-eb"><i data-lucide="calendar-clock"></i> Schedule shift</div>
+            <div class="cb-rec-msg"><em>Sunday rooms fill 87%</em> — your weekday rooms fill 42%. Move two weekday events to the Sunday slot.</div>
+            <div class="cb-rec-foot">
+              <span class="cb-rec-lift">Projected lift: +€380 · two events</span>
+              <button class="cb-rec-cta" onclick="toast('Drafting two Sunday events…')" type="button">Plan this <i data-lucide="arrow-right"></i></button>
+            </div>
+          </div>
+
+          <div class="cb-rec">
+            <div class="cb-rec-eb"><i data-lucide="repeat"></i> Series suggestion</div>
+            <div class="cb-rec-msg">Pottery hosts in Barcelona who add a <em>6-week series</em> have 40% higher repeat attendance. Your 1:1 fundamentals format is ready for it.</div>
+            <div class="cb-rec-foot">
+              <span class="cb-rec-lift">Projected lift: 5 → 8 repeat attendees per cohort</span>
+              <button class="cb-rec-cta" onclick="go('create1')" type="button">Plan this <i data-lucide="arrow-right"></i></button>
+            </div>
+          </div>
+
+          <div class="cb-rec">
+            <div class="cb-rec-eb"><i data-lucide="trending-up"></i> Pricing</div>
+            <div class="cb-rec-msg">You haven't raised your prices in <em>9 months</em>. Pottery hosts in your category have raised by 12% on average. Your fill rate gives you room.</div>
+            <div class="cb-rec-foot">
+              <span class="cb-rec-lift">€18 → €20 · projected GMV +€280/quarter</span>
+              <button class="cb-rec-cta" onclick="toast('Opening pricing draft for next month…')" type="button">Plan this <i data-lucide="arrow-right"></i></button>
+            </div>
+          </div>
+
+          <!-- ===== Section 5 — Peer benchmarks (Premium) ===== -->
+          <div class="cb-sec-t"><span>5 · How you stack up</span><span class="lock">Premium</span></div>
+
+          <div class="cb-peer">
+            <div class="cb-peer-h"><span class="lbl">GMV — Pottery in Barcelona</span><span class="pos">Top 25%</span></div>
+            <div class="cb-peer-track"><div class="cb-peer-marker" style="left:78%;"></div></div>
+            <div class="cb-peer-axis"><span>Bottom</span><span>Median</span><span>Top 10%</span></div>
+            <div class="cb-peer-line"><b>You: €1,607/month avg.</b> Pottery hosts in Barcelona average: €1,180/month. You're in the top 25%.</div>
+          </div>
+
+          <div class="cb-peer">
+            <div class="cb-peer-h"><span class="lbl">Average rating</span><span class="pos">Top 30%</span></div>
+            <div class="cb-peer-track"><div class="cb-peer-marker" style="left:71%;"></div></div>
+            <div class="cb-peer-axis"><span>Bottom</span><span>Median</span><span>Top decile</span></div>
+            <div class="cb-peer-line"><b>You: 4.7.</b> Pottery hosts top decile: 4.85. Closest gap: response time on bookings (you average 9h, top decile is 2h).</div>
+          </div>
+
+          <div class="cb-peer">
+            <div class="cb-peer-h"><span class="lbl">Kept-Circle rate</span><span class="pos">Top 10%</span></div>
+            <div class="cb-peer-track"><div class="cb-peer-marker" style="left:92%;"></div></div>
+            <div class="cb-peer-axis"><span>Bottom</span><span>Median</span><span>Top 10%</span></div>
+            <div class="cb-peer-line"><b>You: 67%.</b> Pottery hosts in Barcelona average: 31%. <em>This is your superpower.</em></div>
+          </div>
+
+          <!-- ===== Section 6 — Year-ahead projection (Premium) ===== -->
+          <div class="cb-sec-t"><span>6 · Year ahead</span><span class="lock">Premium</span></div>
+
+          <div class="cb-proj-card">
+            <div class="cb-proj-eb">If you maintain pace</div>
+            <div class="cb-proj-h">€19,280 GMV · <em>your free Program included</em>.</div>
+            <div class="cb-proj-body">At your current 90-day trend you'll close 2026 at <em>€19,280 GMV across ~48 rooms</em>, with ~32 Kept Circles and an average rating around 4.75. On Premium that's €19,280 net. On Pro that would be €18,894 net but with a €540 subscription instead of €960 — so Premium pays for itself plus your free verified Program (€150 value). The fee crossover hit in March; you've been net-positive on Premium since.</div>
+            <div class="cb-proj-foot" onclick="toast('Projection method · rolling 90-day GMV trend, smoothed over the prior 6 months')"><i data-lucide="info"></i> See how this is calculated</div>
+          </div>
+
+          <!-- Quarterly PDF affordance -->
+          <div class="cb-pdf-card" onclick="toast('Generating Your Quarter PDF for Q2 2026…')">
+            <div class="cb-pdf-ic"><i data-lucide="file-text"></i></div>
+            <div style="flex:1;">
+              <div class="cb-pdf-t"><em>Your Quarter</em> · Q2 2026 PDF is ready</div>
+              <div class="cb-pdf-s">A printable letter-format review · cream paper, the same warmth as the rest of the platform. Save it, email your accountant, plan against it.</div>
+            </div>
+            <button class="cb-pdf-cta" onclick="event.stopPropagation();toast('Downloading Q2 2026 PDF…')" type="button"><i data-lucide="download"></i> Get it</button>
+          </div>
+
+          <!-- Closing letter footer -->
+          <div class="cb-letter">
+            <em>What we'd love to see in Q3</em> · two more Sunday rooms voted Kept · one 6-week series drafted · one slow price step-up.<br/>
+            <em>What we're shipping for you</em> · the new Arriving prompts in your Circle chat · a host-side check-in dashboard with Kept-Circle alerts · Catalan-first event copy templates.
+          </div>
+          <div style="height:32px;"></div>
         </div>
       </section>
 
@@ -5215,7 +5710,7 @@
       <!-- ============ v22.6 PEOPLE PROFILE ============ -->
       <section class="screen" data-screen="people-profile">
         <div class="brandbar"><div class="brand-name" onclick="go('home')">Incircle<span class="accent">Me</span></div></div>
-        <div class="appbar"><div class="left"><div class="iconbtn gold" onclick="go('people')"><i data-lucide="arrow-left"></i></div><div><div class="title-ed">María's <em>profile</em></div><div class="sub-ed">Gràcia · 24 events · since August</div></div></div><div style="display:flex;gap:6px;"><div class="iconbtn" onclick="openShareSheet({title:'María · IncircleMe',img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=70&auto=format&fit=crop',when:'Gràcia · Silver tier · 24 events',sheetTitle:'Share María\u2019s profile',sheetSub:'Only public info is shared: name, tier, and events she hosts.'})"><i data-lucide="send"></i></div><div class="iconbtn" onclick="openReport('Report María','Your note stays private between you and us.')"><i data-lucide="more-vertical"></i></div></div></div>
+        <div class="appbar"><div class="left"><div class="iconbtn gold" onclick="go('home')"><i data-lucide="arrow-left"></i></div><div><div class="title-ed">María's <em>profile</em></div><div class="sub-ed">Gràcia · 24 events · since August</div></div></div><div style="display:flex;gap:6px;"><div class="iconbtn" onclick="openShareSheet({title:'María · IncircleMe',img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=70&auto=format&fit=crop',when:'Gràcia · Silver tier · 24 events',sheetTitle:'Share María\u2019s profile',sheetSub:'Only public info is shared: name, tier, and events she hosts.'})"><i data-lucide="send"></i></div><div class="iconbtn" onclick="openReport('Report María','Your note stays private between you and us.')"><i data-lucide="more-vertical"></i></div></div></div>
         <div class="content scroll">
           <div class="pp-banner"></div>
           <div class="pp-avatar-wrap">
@@ -5232,61 +5727,14 @@
             </div>
           </div>
 
-          <!-- 2026-04-22 consolidation — the hero button under María's name IS the single Go-together entry. Opens the "Which one?" sheet below. -->
-          <!-- 2026-04-22 pass-17 · Go together + Keep close are now twin side-by-side buttons (pp-actions-row). Shared caption beneath. -->
-          <div class="pp-actions">
-            <div class="pp-actions-row">
-              <button class="ta-btn" id="ta-btn-pp" onclick="openGoTogether()" type="button">
-                <i data-lucide="footprints" class="ta-ic"></i>
-                <span class="ta-lbl">Go together</span>
-              </button>
-              <button class="pp-save-btn" id="pp-save-btn" onclick="toggleSave(this,'María')" type="button">
-                <i data-lucide="bookmark" class="pp-save-ic"></i>
-                <span class="pp-save-lbl">Keep close</span>
-              </button>
-            </div>
-            <!-- 2026-04-25 pass 30 · Keep close caption rewritten. Was "private bookmark — only you see it" (truthful but no payoff). Now states the actual reward: their public rooms surface in your Home Keep-close strip. They never know you kept them close. -->
-            <div class="ta-note">Go together asks María if she'll join one of your <em>public events</em>. Keep close brings <em>her public rooms</em> to your Home — quietly, without telling her.</div>
-          </div>
+          <!-- Pass 40 · 2026-06-10 · Go-together + Keep-close action row REMOVED per Alina directive. People-discovery flavour out; profiles still exist for context (host bio, reputation, shared rooms) but no people-search affordances. -->
 
           <div class="pp-section-t">About</div>
           <div class="pp-card">
             <div class="pp-bio" id="pp-bio">Pottery and slow mornings. New to Gràcia after 4 years in Lisbon &mdash; always up for a picnic or a quiet coffee before the noise.</div>
           </div>
 
-          <!-- 2026-04-22 v4 · "María's music vibe" label per Erik MVP directive (was "María's vibe"). Fraunces italic stays on "vibe". -->
-          <div class="pp-section-t">María's music <em style="font-style:italic;font-family:'Fraunces',Georgia,serif;text-transform:none;letter-spacing:-0.005em;font-weight:500;color:var(--coral-ink);">vibe</em></div>
-          <div class="pp-card pp-vibe-card-wrap">
-            <div class="pp-vibe-intro">On rotation this week</div>
-            <div class="pp-vibe-list">
-              <div class="pp-vibe-line">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1518972458649-9c82a6b3e0e5?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">MALAMENTE</div><div class="pp-vibe-a">Rosalía</div></div>
-              </div>
-              <div class="pp-vibe-line">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">Tú que vienes a rondarme</div><div class="pp-vibe-a">Maria Arnal &amp; Marcel Bagés</div></div>
-              </div>
-              <div class="pp-vibe-line pp-vibe-hidden">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">Chuva</div><div class="pp-vibe-a">Carminho</div></div>
-              </div>
-              <div class="pp-vibe-line pp-vibe-hidden">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">So We Won&rsquo;t Forget</div><div class="pp-vibe-a">Khruangbin</div></div>
-              </div>
-              <div class="pp-vibe-line pp-vibe-hidden">
-                <span class="pp-vibe-thumb" style="background-image:url('https://images.unsplash.com/photo-1470219556762-1771e7f9427d?w=180&q=70&auto=format&fit=crop');"></span>
-                <div class="pp-vibe-text"><div class="pp-vibe-t">Feeling Good</div><div class="pp-vibe-a">Nina Simone</div></div>
-              </div>
-            </div>
-            <div class="pp-vibe-toggle" onclick="toggleVibeList(this)"><span class="pp-vibe-toggle-lbl">Show 3 more</span><i data-lucide="chevron-down"></i></div>
-            <div class="pp-vibe-foot">
-              <span class="pp-vibe-foot-txt">Hear it on <span class="pp-vibe-foot-link" onclick="event.stopPropagation();toast('Opening Spotify · María&apos;s full rotation')">Spotify</span> · <span class="pp-vibe-foot-link" onclick="event.stopPropagation();toast('Opening Apple Music · María&apos;s full rotation')">Apple Music</span> · <span class="pp-vibe-foot-link" onclick="event.stopPropagation();toast('Opening YouTube Music · María&apos;s full rotation')">YouTube</span></span>
-            </div>
-          </div>
-
-          <!-- 2026-04-22 v4 · Reputation moved to BOTTOM (after Shared rooms) per Erik MVP directive. See block below. -->
+          <!-- Pass 40 · Music vibe section REMOVED per Alina directive. -->
 
           <div class="pp-section-t">Shared <em style="font-style:italic;font-family:'Fraunces',Georgia,serif;text-transform:none;letter-spacing:-0.005em;font-weight:500;">rooms</em></div>
           <div class="pp-card">
@@ -5317,7 +5765,8 @@
             </div>
           </div>
 
-          <!-- 2026-04-22 v4 · Reputation relocated to bottom (below Shared rooms) per Erik MVP directive — quiet trust anchor closing the profile. -->
+          <!-- Pass 40 · Kept-close 3-up grid REMOVED per Alina directive. People-discovery surface gone; profiles end at Shared rooms + Reputation. -->
+
           <div class="pp-section-t">Reputation</div>
           <div class="tier-card">
             <div class="tc-head">
@@ -5557,7 +6006,7 @@
     'review-prompt': 'nav-bookings', 'review-rate': 'nav-bookings', 'review-thanks': 'nav-home',
     'edit-profile': 'nav-profile', search: 'nav-home', help: 'nav-profile', 'empty-demo': 'nav-home',
     'people-profile': 'nav-home',
-    'creator-dash': 'nav-profile', 'creator-events': 'nav-profile', 'creator-attendees': 'nav-profile', 'creator-payouts': 'nav-profile', 'creator-stripe': 'nav-profile',
+    'creator-dash': 'nav-profile', 'creator-events': 'nav-profile', 'creator-attendees': 'nav-profile', 'creator-business': 'nav-profile', 'creator-payouts': 'nav-profile', 'creator-stripe': 'nav-profile', 'program-detail': 'nav-home',
     create1: null, create4: null, published: 'nav-profile', checkin: 'nav-profile',
     notif: 'nav-home',
     // 2026-04-24 pass 25 · Lapsed-user intercept lights Home in bottom nav (it IS Home, for dormant users).
@@ -6584,7 +7033,22 @@
   function sendGoTogether(title){
     const s = document.getElementById('gt-sheet');
     if(s) s.classList.remove('on');
-    toast('Invite sent to María · ' + title);
+    // 2026-04-29 pass 36 · Toast now hints at the permanent unlock — the chat opens once she says yes, and stays.
+    toast('Sent to María · ' + title + ' — chat opens when she says yes');
+  }
+
+  // 2026-04-29 pass 39 · Program detail Q&A — suggestion chip fills the composer textarea.
+  function suggestQ(el){
+    const t = document.getElementById('pd-qa-input');
+    if(t){ t.value = el.textContent.trim(); t.focus(); }
+  }
+  // 2026-04-29 pass 39 · Program detail Q&A — submit handler. Visual demo only; production would POST /programs/{id}/questions and append a fresh card to the thread.
+  function postProgramQuestion(){
+    const t = document.getElementById('pd-qa-input');
+    const q = (t && t.value || '').trim();
+    if(!q){ toast('Type a question first'); if(t) t.focus(); return; }
+    if(t) t.value = '';
+    toast('Posted — Teresa replies within 24h');
   }
 
   if(window.lucide) lucide.createIcons();
