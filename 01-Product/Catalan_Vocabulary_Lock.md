@@ -363,4 +363,26 @@ Sprint 42B is closed. Sprint 42C (Catalan-first welcome surface, Memory Capsule 
 
 ---
 
+## 15. Auth — magic-link email (locked 2026-06-11)
+
+The passwordless sign-in email. Locked verbatim by Alina; mirrored in `incircleme-mvp/packages/i18n`. Never paraphrase. Reading order CA → ES → EN.
+
+### Subject
+
+| EN | CA | ES |
+|----|----|----|
+| Your link — open the room | El teu enllaç — entra a la sala | Tu enlace — entra a la sala |
+
+### Body
+
+> **EN** — Tap this link to walk in. It opens once, lasts 15 minutes. If you didn't ask for this, ignore it — nothing happens until you tap.
+
+> **CA** — Toca aquest enllaç per entrar. S'obre una vegada i dura 15 minuts. Si no l'has demanat, ignora'l — no passa res fins que el toquis.
+
+> **ES** — Toca este enlace para entrar. Se abre una vez y dura 15 minutos. Si no lo has pedido, ignóralo — no pasa nada hasta que lo toques.
+
+Voice notes: "walk in" / "entra" / "entra" keeps the room-as-real-place metaphor (consistent with §13b "walking in"). Never "log in" / "sign in" / "verify your email" — those are transaction-tone.
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
