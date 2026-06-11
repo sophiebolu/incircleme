@@ -419,4 +419,28 @@ The three rotating eyebrow labels on the Home "Tonight" ad-slot. Mirrored in `in
 
 ---
 
+## 18. Home greeting + sub-line (locked 2026-06-11)
+
+The personalized Home hero (prototype `.hh-greet` + `.hh-sub`). `{name}` and `{count}` interpolate at render. The italic always lands on the *name* (greeting) and on *"{count} small rooms"* (sub) — the meaning-bearers, per §13b italic rule. Mirrored in `incircleme-mvp/packages/i18n`.
+
+### Greeting (Fraunces 26px · em = italic coral-ink on the name)
+
+| EN | CA | ES |
+|----|----|----|
+| Hello, *{name}*. | Hola, *{name}*. | Hola, *{name}*. |
+
+Canonical example: "Hello, *Marta*."
+
+### Sub-line (Fraunces 14px · em = italic coral-ink on "{count} small rooms")
+
+> **EN** — *{count} small rooms* opening in your barrio this week.
+
+> **CA** — *{count} sales petites* obrint-se al teu barri aquesta setmana.
+
+> **ES** — *{count} salas pequeñas* abriendo en tu barrio esta semana.
+
+Canonical example: "*23 small rooms* opening in your barrio this week."
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
