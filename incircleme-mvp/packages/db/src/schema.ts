@@ -1,11 +1,29 @@
-import { pgTable, uuid, text, boolean, integer, timestamp } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  text,
+  boolean,
+  integer,
+  timestamp,
+  customType,
+} from 'drizzle-orm/pg-core';
+import { uuidv7 } from 'uuidv7';
+
+// Case-insensitive text. Requires the `citext` extension (created in migration 0001).
+const citext = customType<{ data: string }>({
+  dataType() {
+    return 'citext';
+  },
+});
 
 // MVP table 1 of N — `users`. Soft-delete everywhere; timestamps are timestamptz.
-// TODO (Auth slice): switch id to app-generated UUIDv7; make email case-insensitive
-// (citext or a lower() unique index).
+// id: sortable UUIDv7, generated app-side (Postgres 16 has no native uuidv7()).
+// email: citext, so the unique constraint is case-insensitive.
 export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  email: text('email').notNull().unique(),
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  email: citext('email').notNull().unique(),
   phone: text('phone'),
   displayName: text('display_name'),
   handle: text('handle').unique(),
