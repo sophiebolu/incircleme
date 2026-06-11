@@ -1,6 +1,8 @@
 // Shared domain types — derived from the Codex-Brief Pass-40 data model.
 // Grows per slice. People-discovery types are intentionally absent (Pass 40 cut).
 
+export * from './auth';
+
 export type Locale = 'ca' | 'es' | 'en';
 
 export type TrustTier = 'newcomer' | 'regular' | 'trusted' | 'pillar' | 'legend';
