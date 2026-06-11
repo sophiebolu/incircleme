@@ -443,4 +443,14 @@ Canonical example: "*23 small rooms* opening in your barrio this week."
 
 ---
 
+## 19. Search placeholder (locked 2026-06-11)
+
+The Home search bar placeholder. Replaces the Pass 40 holdover ("people" removed — people-discovery cut). Mirrored in `incircleme-mvp/packages/i18n`.
+
+| EN | CA | ES |
+|----|----|----|
+| Browse events, programs, places… | Cerca esdeveniments, programes, llocs… | Busca eventos, programas, lugares… |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
