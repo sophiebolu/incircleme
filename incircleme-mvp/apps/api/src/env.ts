@@ -3,9 +3,11 @@ import { dirname, resolve } from 'node:path';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-// Load the monorepo-root .env regardless of cwd (apps/api/src -> root is ../../..).
+// Load the monorepo-root .env regardless of cwd (apps/api/src -> root is ../../..),
+// then layer apps/api/.env on top for API-local secrets (e.g. STRIPE_SECRET_KEY).
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 dotenv.config({ path: resolve(root, '.env') });
+dotenv.config({ path: resolve(root, 'apps/api/.env'), override: true });
 
 const schema = z.object({
   NODE_ENV: z.string().default('development'),
