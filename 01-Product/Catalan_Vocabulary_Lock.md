@@ -385,4 +385,38 @@ Voice notes: "walk in" / "entra" / "entra" keeps the room-as-real-place metaphor
 
 ---
 
+## 16. Booking confirmation email (locked 2026-06-11)
+
+Sent when a seat is held/confirmed. `{braces}` are interpolated at send time. Mirrored in `incircleme-mvp/packages/i18n`. Never paraphrase. Reading order CA → ES → EN.
+
+### Subject
+
+| EN | CA | ES |
+|----|----|----|
+| The room is yours — {event_title}, {date} | La sala és teva — {event_title}, {date} | La sala es tuya — {event_title}, {date} |
+
+### Body
+
+> **EN** — Your seat is held. {host} is hosting in {neighbourhood} on {day} {date} at {time}. The address opens here the day before. We'll add you to the Circle tomorrow — that's where everyone gathers before.
+
+> **CA** — La teva plaça està reservada. {host} acull a {neighbourhood} {day} {date} a les {time}. L'adreça s'obre aquí el dia abans. Demà t'afegim al Cercle — és on tothom es troba abans.
+
+> **ES** — Tu plaza está reservada. {host} recibe en {neighbourhood} el {day} {date} a las {time}. La dirección se abre aquí el día antes. Mañana te añadimos al Círculo — es donde todos se encuentran antes.
+
+Voice notes: "seat is held" / "plaça està reservada" — never "ticket purchased". The Circle line carries the "the after begins before" promise; keep it.
+
+---
+
+## 17. Home ad-slot eyebrows (locked 2026-06-11)
+
+The three rotating eyebrow labels on the Home "Tonight" ad-slot. Mirrored in `incircleme-mvp/packages/i18n`.
+
+| EN | CA | ES |
+|----|----|----|
+| Tonight's pick | Aquesta nit | Esta noche |
+| Booked by neighbours | Reservat pels veïns | Reservado por vecinos |
+| 6-week ritual | Ritual de 6 setmanes | Ritual de 6 semanas |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
