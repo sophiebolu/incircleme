@@ -4,6 +4,8 @@ export {
   magicLinkTokens,
   sessions,
   oauthAccounts,
+  events,
+  bookings,
 } from './schema';
 export type {
   UserRow,
@@ -11,6 +13,10 @@ export type {
   MagicLinkTokenRow,
   SessionRow,
   OAuthAccountRow,
+  EventRow,
+  NewEventRow,
+  BookingRow,
+  NewBookingRow,
 } from './schema';
 export { db, pool } from './client';
 export type { DB } from './client';

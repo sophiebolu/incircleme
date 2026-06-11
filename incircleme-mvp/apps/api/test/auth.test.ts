@@ -10,6 +10,9 @@ const testMailer: Mailer = {
   async sendMagicLink({ to, link }) {
     links[to] = link;
   },
+  async sendBookingConfirmation() {
+    // not exercised in the auth suite
+  },
 };
 
 let app: Awaited<ReturnType<typeof buildApp>>;

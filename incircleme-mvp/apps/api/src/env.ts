@@ -24,6 +24,10 @@ const schema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   APPLE_CLIENT_ID: z.string().optional(),
 
+  // Payments (Stripe TEST mode for this slice; Connect in Phase 2)
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+
   // Email (Phase 2 — stub mailer used until a key is present)
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default('IncircleMe <hola@incircleme.com>'),
