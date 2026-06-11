@@ -30,8 +30,8 @@ export const strings = {
     homeGreetingPrefix: 'Hola, ',
     homeSubEm: '{count} sales petites',
     homeSubRest: ' obrint-se al teu barri aquesta setmana.',
-    // Search placeholder — prototype-verbatim EN in all locales (CA/ES rows pending Alina)
-    searchPlaceholder: 'Browse events, people, places…',
+    // Search placeholder (vocab lock §19 — Pass 40: no "people")
+    searchPlaceholder: 'Cerca esdeveniments, programes, llocs…',
     // Home sections + booking surfaces (vocab lock §13b, §4, §5)
     typesOfEvents: "Tipus d'esdeveniments",
     seatsLeft: 'Places lliures',
@@ -66,7 +66,7 @@ export const strings = {
     homeGreetingPrefix: 'Hola, ',
     homeSubEm: '{count} salas pequeñas',
     homeSubRest: ' abriendo en tu barrio esta semana.',
-    searchPlaceholder: 'Browse events, people, places…',
+    searchPlaceholder: 'Busca eventos, programas, lugares…',
     typesOfEvents: 'Tipos de eventos',
     seatsLeft: 'Plazas libres',
     bookThisRoom: 'Reservar esta sala',
@@ -100,7 +100,7 @@ export const strings = {
     homeGreetingPrefix: 'Hello, ',
     homeSubEm: '{count} small rooms',
     homeSubRest: ' opening in your barrio this week.',
-    searchPlaceholder: 'Browse events, people, places…',
+    searchPlaceholder: 'Browse events, programs, places…',
     typesOfEvents: 'Types of events',
     seatsLeft: 'Seats left',
     bookThisRoom: 'Book this room',
