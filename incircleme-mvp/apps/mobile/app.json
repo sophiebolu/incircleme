@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "IncircleMe",
+    "slug": "incircleme",
+    "scheme": "incircleme",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.incircleme.app",
+      "supportsTablet": false
+    },
+    "plugins": ["expo-router", "expo-font"]
+  }
+}
