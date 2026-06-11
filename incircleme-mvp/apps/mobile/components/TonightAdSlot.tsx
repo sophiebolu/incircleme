@@ -121,7 +121,9 @@ const styles = StyleSheet.create({
     aspectRatio: 21 / 9,
     borderRadius: 16,
     overflow: 'hidden',
-    marginVertical: 6,
+    // Prototype home-scoped .ad-slot margin: 6px 0 4px
+    marginTop: 6,
+    marginBottom: 4,
     backgroundColor: tokens.color.border,
   },
   bg: { flex: 1, justifyContent: 'flex-end' },

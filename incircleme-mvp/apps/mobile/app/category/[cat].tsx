@@ -11,6 +11,7 @@ import { fonts } from '../../theme/fonts';
 
 const LABEL: Record<string, StringKey> = {
   food_drink: 'catFoodDrink',
+  all: 'catAll',
   wellness: 'catWellness',
   art_craft: 'catArtCraft',
   music: 'catMusic',
@@ -25,7 +26,7 @@ export default function Category() {
 
   useEffect(() => {
     api
-      .listEvents({ category: cat })
+      .listEvents(cat === 'all' ? {} : { category: cat })
       .then(setEvents)
       .catch(() => setEvents([]));
   }, [cat]);
