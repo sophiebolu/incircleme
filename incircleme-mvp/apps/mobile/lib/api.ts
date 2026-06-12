@@ -13,7 +13,7 @@ import type {
   MeResponse,
   MessageAttachment,
 } from '@incircleme/types';
-import { getAccessToken } from './auth';
+import { clearSession, getAccessToken, getRefreshToken, saveSession } from './auth';
 
 const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -26,7 +26,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function rawRequest<T>(path: string, init: RequestInit): Promise<T> {
   const token = await getAccessToken();
   const res = await fetch(`${BASE}${path}`, {
     ...init,
@@ -47,6 +47,47 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
+}
+
+// Single-flight refresh: concurrent 401s share one rotation (refresh tokens are
+// single-use — parallel refreshes would revoke each other).
+let refreshing: Promise<boolean> | null = null;
+
+async function tryRefresh(): Promise<boolean> {
+  refreshing ??= (async () => {
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) return false;
+      const res = await fetch(`${BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!res.ok) {
+        await clearSession();
+        return false;
+      }
+      await saveSession((await res.json()) as AuthTokens);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshing = null;
+    }
+  })();
+  return refreshing;
+}
+
+/** Authed request with one transparent refresh-and-retry on 401. */
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  try {
+    return await rawRequest<T>(path, init);
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401 && !path.startsWith('/auth/')) {
+      if (await tryRefresh()) return rawRequest<T>(path, init);
+    }
+    throw err;
+  }
 }
 
 export const api = {
