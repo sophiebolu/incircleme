@@ -29,6 +29,27 @@
       "when": 1781181055036,
       "tag": "0003_neat_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781275540923,
+      "tag": "0004_strange_inhumans",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781276140468,
+      "tag": "0005_brainy_jack_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781280332404,
+      "tag": "0006_yellow_karen_page",
+      "breakpoints": true
     }
   ]
 }

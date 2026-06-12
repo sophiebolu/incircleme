@@ -7,6 +7,8 @@ import {
   timestamp,
   customType,
   unique,
+  primaryKey,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from 'uuidv7';
 
@@ -106,6 +108,15 @@ export const events = pgTable('events', {
     .references(() => users.id),
   title: text('title').notNull(),
   description: text('description'),
+  // UGC translation strategy (Brief Addendum A): original language, creator-set.
+  language: text('language').notNull().default('ca'), // 'ca' | 'es' | 'en'
+  // Optional creator-provided translations (UI surfaces in Slice 5).
+  titleCa: text('title_ca'),
+  titleEs: text('title_es'),
+  titleEn: text('title_en'),
+  descriptionCa: text('description_ca'),
+  descriptionEs: text('description_es'),
+  descriptionEn: text('description_en'),
   category: text('category').notNull(), // food_drink | wellness | art_craft | music | nature | learning
   neighbourhood: text('neighbourhood'),
   address: text('address'),
@@ -151,3 +162,116 @@ export type EventRow = typeof events.$inferSelect;
 export type NewEventRow = typeof events.$inferInsert;
 export type BookingRow = typeof bookings.$inferSelect;
 export type NewBookingRow = typeof bookings.$inferInsert;
+
+// --- Circle chat slice ---
+
+// One Circle per event, auto-created on the first confirmed booking.
+export const circles = pgTable('circles', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  eventId: uuid('event_id')
+    .notNull()
+    .unique()
+    .references(() => events.id),
+  opensAt: timestamp('opens_at', { withTimezone: true }).notNull(), // 48h before event
+  closesAt: timestamp('closes_at', { withTimezone: true }).notNull(), // 48h after, unless kept
+  keptAt: timestamp('kept_at', { withTimezone: true }), // set when afterlife vote passes
+  memberCount: integer('member_count').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const circleMembers = pgTable(
+  'circle_members',
+  {
+    circleId: uuid('circle_id')
+      .notNull()
+      .references(() => circles.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    role: text('role').notNull().default('attendee'), // host | attendee
+    joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
+    leftAt: timestamp('left_at', { withTimezone: true }),
+  },
+  (t) => [primaryKey({ columns: [t.circleId, t.userId] })],
+);
+
+export const circleMessages = pgTable('circle_messages', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  circleId: uuid('circle_id')
+    .notNull()
+    .references(() => circles.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  body: text('body').notNull(),
+  // Addendum A: original language of the message. NULL until detection lands (Phase 2)
+  // — never silently auto-translated; display is always original-first.
+  language: text('language'), // 'ca' | 'es' | 'en' | null
+  attachments: jsonb('attachments'), // {type:'photo'|'arriving'|'leaving', url, expiresAt}
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+// Arriving feature — before/after mood photos. Chat-side copy expires at T+48h.
+export const arrivingMoments = pgTable(
+  'arriving_moments',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => events.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    state: text('state').notNull(), // 'before' | 'after'
+    photoUrl: text('photo_url').notNull(),
+    chatExpiresAt: timestamp('chat_expires_at', { withTimezone: true }).notNull(),
+    takenAt: timestamp('taken_at', { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  },
+  (t) => [unique('arriving_event_user_state_unique').on(t.eventId, t.userId, t.state)],
+);
+
+// Afterlife vote ledger (approved Brief addendum 2026-06-12) — threshold 4 yes → kept.
+export const circleKeepVotes = pgTable(
+  'circle_keep_votes',
+  {
+    circleId: uuid('circle_id')
+      .notNull()
+      .references(() => circles.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    vote: boolean('vote').notNull(),
+    votedAt: timestamp('voted_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.circleId, t.userId] })],
+);
+
+// Notification ledger (Brief MVP table). Push delivery is stubbed until Phase 2 —
+// rows are the durable record the jobs write and the UI can read.
+export const notifications = pgTable('notifications', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  type: text('type').notNull(), // arriving_pre | arriving_post | address_unlock | circle_msg | booking_confirm
+  payload: jsonb('payload'),
+  readAt: timestamp('read_at', { withTimezone: true }),
+  sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type NotificationRow = typeof notifications.$inferSelect;
+export type CircleRow = typeof circles.$inferSelect;
+export type CircleMemberRow = typeof circleMembers.$inferSelect;
+export type CircleMessageRow = typeof circleMessages.$inferSelect;
+export type ArrivingMomentRow = typeof arrivingMoments.$inferSelect;
+export type CircleKeepVoteRow = typeof circleKeepVotes.$inferSelect;

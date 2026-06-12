@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { EventListItem } from '@incircleme/types';
-import { t } from '@incircleme/i18n';
+import { t, formatPrice } from '@incircleme/i18n';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 
@@ -65,7 +65,7 @@ export function TonightAdSlot({ slides }: { slides: AdSlide[] }) {
     hour: '2-digit',
     minute: '2-digit',
   });
-  const price = e.priceCents === 0 ? '—' : `${(e.priceCents / 100).toFixed(0)} €`;
+  const price = e.priceCents === 0 ? '—' : formatPrice(e.priceCents, e.currency);
 
   const onDot = (i: number) => {
     setIndex(i); // manual nav resets the cadence

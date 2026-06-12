@@ -5,6 +5,7 @@ import type { Locale } from '@incircleme/types';
 import type { Payments } from '../lib/payments';
 import type { Mailer } from '../lib/mailer';
 import { confirmByPaymentIntent, releaseByPaymentIntent } from '../services/booking/booking';
+import { ensureCircleAndMembership } from '../services/circles/circles';
 
 export async function webhookRoutes(
   app: FastifyInstance,
@@ -28,6 +29,12 @@ export async function webhookRoutes(
     if (event.type === 'payment_intent.succeeded') {
       const ctx = await confirmByPaymentIntent(event.paymentIntentId);
       if (ctx) {
+        // One Circle per event, auto-created on first confirmed booking (host + attendee join).
+        try {
+          await ensureCircleAndMembership(ctx.event.id, ctx.booking.userId);
+        } catch (err) {
+          req.log.error({ err }, 'circle auto-create failed');
+        }
         const [user] = await db.select().from(users).where(eq(users.id, ctx.booking.userId)).limit(1);
         const [host] = await db.select().from(users).where(eq(users.id, ctx.event.hostUserId)).limit(1);
         if (user) {

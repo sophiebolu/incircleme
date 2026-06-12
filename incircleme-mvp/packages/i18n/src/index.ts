@@ -45,6 +45,36 @@ export const strings = {
     catMusic: 'Música',
     catNature: 'Natura',
     catLearning: 'Aprenentatge',
+    // Circle chat — locked §6 + §10b
+    circle: 'Cercle',
+    keepThisCircle: 'Manté aquest Cercle',
+    circleKept: 'Cercle mantingut', // short badge surfaces only (§20 note)
+    memoryCapsule: 'Càpsula de records',
+    arrivingBefore: 'Com hi vens?',
+    arrivingAfter: 'Com en surts?',
+    skipForNow: 'Salta de moment',
+    theDifference: 'La diferència',
+    // Circle chat surfaces (vocab lock §20, locked 2026-06-12)
+    composerPlaceholder: 'Escriu al Cercle…',
+    membersLine: '{circle} · {count} membres · {barri}',
+    addressUnlocksPrefix: "L'adreça s'obre ",
+    addressUnlocksEm: 'el dia abans',
+    addressUnlockedNote: "L'adreça s'obre demà al matí. La veuràs aquí.",
+    roomOpensIn: "La sala s'obre en {hours}h",
+    afterlifeEyebrow: 'El després',
+    keepGoingEm: 'viu',
+    votesProgress: '{yes} de {total} han votat · en calen 4',
+    voteYes: 'Sí, mantén-lo',
+    voteNo: 'Deixa que es tanqui',
+    votedWaiting: 'Has votat — esperant el grup.',
+    keptByGroup: 'Mantingut pel grup · des del {date}',
+    keptNote: 'Sense compte enrere, sense adreça — només el grup.',
+    arrivingHelper: 'Una foto — cel, cafè, mà, la teva cara. Qualsevol cosa. O salta-ho.',
+    arrivingFade:
+      "S'esvaeix del xat en 48h, guardada per sempre a la teva Càpsula de records.",
+    addYours: 'Afegeix la teva',
+    verifyFailed: 'Aquest codi no ha funcionat — demana’n un de nou',
+    requestFailed: "No s'ha pogut enviar l'enllaç — torna-ho a provar.",
   },
   es: {
     home: 'Inicio',
@@ -79,6 +109,34 @@ export const strings = {
     catMusic: 'Música',
     catNature: 'Naturaleza',
     catLearning: 'Aprendizaje',
+    circle: 'Círculo',
+    keepThisCircle: 'Mantén este Círculo',
+    circleKept: 'Círculo mantenido',
+    memoryCapsule: 'Cápsula de recuerdos',
+    arrivingBefore: '¿Cómo vienes?',
+    arrivingAfter: '¿Cómo te vas?',
+    skipForNow: 'Omitir por ahora',
+    theDifference: 'La diferencia',
+    composerPlaceholder: 'Escribe al Círculo…',
+    membersLine: '{circle} · {count} miembros · {barri}',
+    addressUnlocksPrefix: 'La dirección se abre ',
+    addressUnlocksEm: 'el día antes',
+    addressUnlockedNote: 'La dirección se abre mañana por la mañana. La verás aquí.',
+    roomOpensIn: 'La sala se abre en {hours}h',
+    afterlifeEyebrow: 'El después',
+    keepGoingEm: 'vivo',
+    votesProgress: '{yes} de {total} han votado · faltan 4',
+    voteYes: 'Sí, mantenlo',
+    voteNo: 'Deja que se cierre',
+    votedWaiting: 'Has votado — esperando al grupo.',
+    keptByGroup: 'Mantenido por el grupo · desde el {date}',
+    keptNote: 'Sin cuenta atrás, sin dirección — solo el grupo.',
+    arrivingHelper: 'Una foto — cielo, café, mano, tu cara. Cualquier cosa. O sáltalo.',
+    arrivingFade:
+      'Se desvanece del chat en 48h, guardada para siempre en tu Cápsula de recuerdos.',
+    addYours: 'Añade la tuya',
+    verifyFailed: 'Ese código no ha funcionado — pide uno nuevo',
+    requestFailed: 'No se ha podido enviar el enlace — inténtalo de nuevo.',
   },
   en: {
     home: 'Home',
@@ -113,6 +171,33 @@ export const strings = {
     catMusic: 'Music',
     catNature: 'Nature',
     catLearning: 'Learning',
+    circle: 'Circle',
+    keepThisCircle: 'Keep this Circle',
+    circleKept: 'Circle kept',
+    memoryCapsule: 'Memory Capsule',
+    arrivingBefore: 'How are you arriving tonight?',
+    arrivingAfter: 'How are you leaving?',
+    skipForNow: 'Skip for now',
+    theDifference: 'The difference',
+    composerPlaceholder: 'Message the Circle…',
+    membersLine: '{circle} · {count} members · {barri}',
+    addressUnlocksPrefix: 'Address unlocks ',
+    addressUnlocksEm: 'the day before',
+    addressUnlockedNote: "Address unlocks tomorrow morning. You'll see it here.",
+    roomOpensIn: 'The room opens in {hours}h',
+    afterlifeEyebrow: 'The afterlife',
+    keepGoingEm: 'going',
+    votesProgress: '{yes} of {total} have voted · 4 needed',
+    voteYes: 'Yes, keep it',
+    voteNo: 'Let it close',
+    votedWaiting: 'You voted — waiting on the group.',
+    keptByGroup: 'Kept by the group · since {date}',
+    keptNote: 'No countdown, no address — just the group.',
+    arrivingHelper: 'A photo — sky, coffee, hand, your face. Anything. Or skip.',
+    arrivingFade: 'Auto-fades in chat after 48h, kept forever in your Memory Capsule.',
+    addYours: 'Add yours',
+    verifyFailed: "That code didn't work — request a new one",
+    requestFailed: "Couldn't send the link — try again.",
   },
 } as const;
 
@@ -126,5 +211,21 @@ export function t(key: StringKey, locale: Locale = defaultLocale): string {
 export function interpolate(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, key: string) =>
     key in vars ? vars[key]! : `{${key}}`,
+  );
+}
+
+/**
+ * Locale-aware price formatting (Addendum/§20 review note): ca/es "15,00 €",
+ * en "€15.00". Always via Intl — never hand-rolled decimals.
+ */
+const PRICE_LOCALE: Record<Locale, string> = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' };
+
+export function formatPrice(
+  cents: number,
+  currency = 'EUR',
+  locale: Locale = defaultLocale,
+): string {
+  return new Intl.NumberFormat(PRICE_LOCALE[locale], { style: 'currency', currency }).format(
+    cents / 100,
   );
 }

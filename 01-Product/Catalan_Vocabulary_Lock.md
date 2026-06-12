@@ -453,4 +453,38 @@ The Home search bar placeholder. Replaces the Pass 40 holdover ("people" removed
 
 ---
 
+## 20. Circle chat surfaces (locked 2026-06-12)
+
+The chat screen strings (prototype chat screen, Slice 3). `{braces}` interpolate at render. Mirrored in `incircleme-mvp/packages/i18n`. Notes: §6 "Circle kept / Cercle mantingut" stays for **short badge surfaces only** — the kept banner uses the full §20 line. "The afterlife" reuses §1's *El després / El después*. The italic em lands on *the day before* (banner) and *going/viu/vivo* (vote title).
+
+| EN | CA | ES |
+|----|----|----|
+| Message the Circle… | Escriu al Cercle… | Escribe al Círculo… |
+| {circle} · {count} members · {barri} | {circle} · {count} membres · {barri} | {circle} · {count} miembros · {barri} |
+| Address unlocks *the day before* | L'adreça s'obre *el dia abans* | La dirección se abre *el día antes* |
+| Address unlocks tomorrow morning. You'll see it here. | L'adreça s'obre demà al matí. La veuràs aquí. | La dirección se abre mañana por la mañana. La verás aquí. |
+| The room opens in {hours}h | La sala s'obre en {hours}h | La sala se abre en {hours}h |
+| The afterlife | El després | El después |
+| Keep this Circle *going* | Manté aquest Cercle *viu* | Mantén este Círculo *vivo* |
+| {yes} of {total} have voted · 4 needed | {yes} de {total} han votat · en calen 4 | {yes} de {total} han votado · faltan 4 |
+| Yes, keep it | Sí, mantén-lo | Sí, mantenlo |
+| Let it close | Deixa que es tanqui | Deja que se cierre |
+| You voted — waiting on the group. | Has votat — esperant el grup. | Has votado — esperando al grupo. |
+| Kept by the group · since {date} | Mantingut pel grup · des del {date} | Mantenido por el grupo · desde el {date} |
+| No countdown, no address — just the group. | Sense compte enrere, sense adreça — només el grup. | Sin cuenta atrás, sin dirección — solo el grupo. |
+| A photo — sky, coffee, hand, your face. Anything. Or skip. | Una foto — cel, cafè, mà, la teva cara. Qualsevol cosa. O salta-ho. | Una foto — cielo, café, mano, tu cara. Cualquier cosa. O sáltalo. |
+| Auto-fades in chat after 48h, kept forever in your Memory Capsule. | S'esvaeix del xat en 48h, guardada per sempre a la teva Càpsula de records. | Se desvanece del chat en 48h, guardada para siempre en tu Cápsula de recuerdos. |
+| Add yours | Afegeix la teva | Añade la tuya |
+
+Canonical CA/ES names for Memory Capsule: *Càpsula de records* / *Cápsula de recuerdos* (§6) — Slice 4 reuses them exactly.
+
+### Sign-in feedback (same lock date)
+
+| EN | CA | ES |
+|----|----|----|
+| That code didn't work — request a new one | Aquest codi no ha funcionat — demana'n un de nou | Ese código no ha funcionado — pide uno nuevo |
+| Couldn't send the link — try again. | No s'ha pogut enviar l'enllaç — torna-ho a provar. | No se ha podido enviar el enlace — inténtalo de nuevo. |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

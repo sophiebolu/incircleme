@@ -20,6 +20,7 @@ export const createEventSchema = z
   .object({
     title: z.string().min(1).max(160),
     description: z.string().max(4000).optional(),
+    language: z.enum(['ca', 'es', 'en']).optional(),
     category: categorySchema,
     neighbourhood: z.string().optional(),
     address: z.string().optional(),

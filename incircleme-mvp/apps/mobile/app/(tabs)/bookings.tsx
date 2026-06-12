@@ -7,6 +7,7 @@ import { t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { EventCard } from '../../components/EventCard';
+import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -47,6 +48,7 @@ export default function Bookings() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar />
       <Text style={styles.heading}>{t('bookings')}</Text>
       {!signedIn ? (
         <Text style={styles.empty}>{t('signIn')} — Perfil</Text>

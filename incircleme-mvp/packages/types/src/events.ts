@@ -46,6 +46,8 @@ export interface EventsQuery {
 export interface CreateEventRequest {
   title: string;
   description?: string;
+  /** Original language of the listing (Addendum A) — creator-set, defaults 'ca'. */
+  language?: 'ca' | 'es' | 'en';
   category: EventCategory;
   neighbourhood?: string;
   address?: string;

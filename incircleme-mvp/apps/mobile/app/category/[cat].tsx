@@ -6,6 +6,7 @@ import type { EventListItem } from '@incircleme/types';
 import { t, type StringKey } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { EventCard } from '../../components/EventCard';
+import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -35,6 +36,7 @@ export default function Category() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar />
       <Pressable onPress={() => router.back()} hitSlop={10}>
         <Text style={styles.back}>←</Text>
       </Pressable>

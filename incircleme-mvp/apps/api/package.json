@@ -8,20 +8,25 @@
     "start": "tsx src/server.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "worker": "tsx src/jobs/worker.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.0",
+    "@fastify/multipart": "^10.0.0",
     "@fastify/rate-limit": "^10.2.0",
     "@fastify/sensible": "^6.0.0",
+    "@fastify/static": "^9.1.3",
     "@incircleme/db": "workspace:*",
     "@incircleme/i18n": "workspace:*",
     "@incircleme/types": "workspace:*",
+    "bullmq": "^5.78.0",
     "dotenv": "^16.4.0",
     "drizzle-orm": "^0.38.0",
     "fastify": "^5.2.0",
     "ioredis": "^5.4.0",
     "jose": "^5.9.0",
+    "socket.io": "^4.8.3",
     "stripe": "^17.5.0",
     "zod": "^3.24.0"
   },
