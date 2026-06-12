@@ -1,6 +1,8 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+# Metro (Expo) does not support pnpm's isolated/symlinked layout — hoist like npm/yarn.
+nodeLinker: hoisted
 allowBuilds:
   esbuild: true
   sharp: true

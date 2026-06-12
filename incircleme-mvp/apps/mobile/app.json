@@ -11,6 +11,17 @@
       "bundleIdentifier": "com.incircleme.app",
       "supportsTablet": false
     },
-    "plugins": ["expo-router", "expo-font"]
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.incircleme.app",
+          "enableGooglePay": false
+        }
+      ],
+      "expo-secure-store"
+    ]
   }
 }

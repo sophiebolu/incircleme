@@ -3,9 +3,11 @@ import { dirname, resolve } from 'node:path';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-// Load the monorepo-root .env regardless of cwd (apps/api/src -> root is ../../..).
+// Load the monorepo-root .env regardless of cwd (apps/api/src -> root is ../../..),
+// then layer apps/api/.env on top for API-local secrets (e.g. STRIPE_SECRET_KEY).
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 dotenv.config({ path: resolve(root, '.env') });
+dotenv.config({ path: resolve(root, 'apps/api/.env'), override: true });
 
 const schema = z.object({
   NODE_ENV: z.string().default('development'),
@@ -23,6 +25,10 @@ const schema = z.object({
   // OAuth (Phase 2 — paths exist, IDs wired later)
   GOOGLE_CLIENT_ID: z.string().optional(),
   APPLE_CLIENT_ID: z.string().optional(),
+
+  // Payments (Stripe TEST mode for this slice; Connect in Phase 2)
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
   // Email (Phase 2 — stub mailer used until a key is present)
   RESEND_API_KEY: z.string().optional(),

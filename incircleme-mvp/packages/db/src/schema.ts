@@ -93,3 +93,61 @@ export const oauthAccounts = pgTable(
 export type MagicLinkTokenRow = typeof magicLinkTokens.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
 export type OAuthAccountRow = typeof oauthAccounts.$inferSelect;
+
+// --- Browse + Book slice ---
+
+// Single events ("small rooms"). `address` stays hidden until address_locked=false (T-1 day).
+export const events = pgTable('events', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  hostUserId: uuid('host_user_id')
+    .notNull()
+    .references(() => users.id),
+  title: text('title').notNull(),
+  description: text('description'),
+  category: text('category').notNull(), // food_drink | wellness | art_craft | music | nature | learning
+  neighbourhood: text('neighbourhood'),
+  address: text('address'),
+  addressLocked: boolean('address_locked').notNull().default(true),
+  startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
+  endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
+  durationMinutes: integer('duration_minutes'),
+  seatCount: integer('seat_count').notNull(),
+  seatsHeld: integer('seats_held').notNull().default(0),
+  seatsBooked: integer('seats_booked').notNull().default(0),
+  priceCents: integer('price_cents').notNull().default(0),
+  currency: text('currency').notNull().default('EUR'),
+  photoUrls: text('photo_urls').array().notNull().default([]),
+  arrivingEnabled: boolean('arriving_enabled').notNull().default(true),
+  depositRequired: boolean('deposit_required').notNull().default(false),
+  boostUntil: timestamp('boost_until', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+export const bookings = pgTable('bookings', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  eventId: uuid('event_id')
+    .notNull()
+    .references(() => events.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  status: text('status').notNull().default('held'), // held | confirmed | cancelled | refunded
+  seatCount: integer('seat_count').notNull().default(1),
+  amountCents: integer('amount_cents').notNull(),
+  depositCents: integer('deposit_cents').notNull().default(0),
+  stripePiId: text('stripe_pi_id'),
+  heldUntil: timestamp('held_until', { withTimezone: true }),
+  bookedAt: timestamp('booked_at', { withTimezone: true }).notNull().defaultNow(),
+  checkedInAt: timestamp('checked_in_at', { withTimezone: true }),
+  cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+});
+
+export type EventRow = typeof events.$inferSelect;
+export type NewEventRow = typeof events.$inferInsert;
+export type BookingRow = typeof bookings.$inferSelect;
+export type NewBookingRow = typeof bookings.$inferInsert;

@@ -1,0 +1,80 @@
+import type { EventCategory, TrustTier } from './index';
+
+export interface HostSummary {
+  id: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  neighbourhood: string | null;
+  trustTier: TrustTier;
+}
+
+export interface EventListItem {
+  id: string;
+  title: string;
+  category: EventCategory;
+  neighbourhood: string | null;
+  startsAt: string;
+  endsAt: string;
+  seatCount: number;
+  seatsBooked: number;
+  seatsHeld: number;
+  seatsLeft: number;
+  roomFull: boolean;
+  priceCents: number;
+  currency: string;
+  photoUrls: string[];
+}
+
+export interface EventDetail extends EventListItem {
+  description: string | null;
+  /** Present only once the address is unlocked (T-1 day); otherwise null. */
+  address: string | null;
+  addressLocked: boolean;
+  durationMinutes: number | null;
+  arrivingEnabled: boolean;
+  host: HostSummary;
+}
+
+export interface EventsQuery {
+  category?: EventCategory;
+  neighbourhood?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface CreateEventRequest {
+  title: string;
+  description?: string;
+  category: EventCategory;
+  neighbourhood?: string;
+  address?: string;
+  startsAt: string;
+  endsAt: string;
+  seatCount: number;
+  priceCents: number;
+  photoUrls?: string[];
+}
+
+export interface BookRequest {
+  seatCount?: number;
+}
+
+export interface BookResult {
+  bookingId: string;
+  clientSecret: string;
+  amountCents: number;
+  currency: string;
+  status: BookingStatus;
+}
+
+export type BookingStatus = 'held' | 'confirmed' | 'cancelled' | 'refunded';
+
+export interface BookingListItem {
+  id: string;
+  status: BookingStatus;
+  seatCount: number;
+  amountCents: number;
+  bookedAt: string;
+  event: EventListItem;
+}

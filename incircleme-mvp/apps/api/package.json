@@ -7,7 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.0",
@@ -21,6 +22,7 @@
     "fastify": "^5.2.0",
     "ioredis": "^5.4.0",
     "jose": "^5.9.0",
+    "stripe": "^17.5.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {

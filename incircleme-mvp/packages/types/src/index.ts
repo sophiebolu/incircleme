@@ -2,6 +2,7 @@
 // Grows per slice. People-discovery types are intentionally absent (Pass 40 cut).
 
 export * from './auth';
+export * from './events';
 
 export type Locale = 'ca' | 'es' | 'en';
 
