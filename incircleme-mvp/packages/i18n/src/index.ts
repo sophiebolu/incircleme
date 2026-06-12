@@ -178,4 +178,7 @@ export const pendingS20 = {
   arrivingHelper: 'A photo — sky, coffee, hand, your face. Anything. Or skip.',
   arrivingFade: 'Auto-fades in chat after 48h, kept forever in your Memory Capsule.',
   addYours: 'Add yours',
+  // Sign-in feedback (EN dictated by Alina 2026-06-12; CA/ES pending §20)
+  verifyFailed: "That code didn't work — request a new one",
+  requestFailed: "Couldn't send the link — try again.",
 } as const;

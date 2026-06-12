@@ -6,6 +6,7 @@ import type { CircleSummary } from '@incircleme/types';
 import { t, interpolate, pendingS20 } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
+import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -40,6 +41,7 @@ export default function Chats() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar />
       <Text style={styles.heading}>{t('chats')}</Text>
       {!signedIn ? (
         <Text style={styles.empty}>

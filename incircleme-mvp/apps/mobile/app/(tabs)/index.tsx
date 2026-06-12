@@ -5,6 +5,7 @@ import type { EventListItem } from '@incircleme/types';
 import { t, interpolate } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
+import { BrandBar } from '../../components/BrandBar';
 import { TonightAdSlot, pickSlides } from '../../components/TonightAdSlot';
 import { SearchBar } from '../../components/SearchBar';
 import { SectionEyebrow } from '../../components/SectionEyebrow';
@@ -52,6 +53,7 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar bell />
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}

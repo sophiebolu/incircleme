@@ -17,6 +17,7 @@ import type { ArrivingMoment, CircleDetail, CircleMessage } from '@incircleme/ty
 import { t, interpolate, pendingS20 } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { joinCircle } from '../../lib/socket';
+import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -183,6 +184,7 @@ export default function CircleScreen() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        <BrandBar />
         {/* Header */}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={10}>

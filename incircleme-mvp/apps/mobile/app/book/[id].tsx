@@ -7,6 +7,7 @@ import { t } from '@incircleme/i18n';
 import { api, ApiError } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { presentPayment } from '../../lib/stripePay';
+import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -57,6 +58,7 @@ export default function Book() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar />
       <Pressable onPress={() => router.back()} hitSlop={10}>
         <Text style={styles.back}>←</Text>
       </Pressable>

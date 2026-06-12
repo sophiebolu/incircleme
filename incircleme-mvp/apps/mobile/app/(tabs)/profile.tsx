@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { MeResponse } from '@incircleme/types';
-import { t } from '@incircleme/i18n';
+import { t, pendingS20 } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { clearSession, isSignedIn, saveSession } from '../../lib/auth';
+import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -14,7 +15,8 @@ export default function Profile() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
-  const [phase, setPhase] = useState<'idle' | 'sent' | 'error'>('idle');
+  // 'error-verify' keeps the token field visible so a fresh code can be pasted.
+  const [phase, setPhase] = useState<'idle' | 'sent' | 'error-request' | 'error-verify'>('idle');
 
   useEffect(() => {
     (async () => {
@@ -32,8 +34,9 @@ export default function Profile() {
     try {
       await api.requestMagicLink(email.trim());
       setPhase('sent');
+      setToken('');
     } catch {
-      setPhase('error');
+      setPhase('error-request');
     }
   };
 
@@ -42,8 +45,10 @@ export default function Profile() {
       const result = await api.verifyMagicLink(token.trim());
       await saveSession(result);
       setMe(result.user);
+      setPhase('idle');
     } catch {
-      setPhase('error');
+      // Promise-Delivery rule: a failed verify must say so, visibly.
+      setPhase('error-verify');
     }
   };
 
@@ -56,6 +61,7 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar />
       <Text style={styles.heading}>{t('profile')}</Text>
       {me ? (
         <View style={styles.card}>
@@ -82,7 +88,7 @@ export default function Profile() {
           <Pressable style={styles.button} onPress={requestLink}>
             <Text style={styles.buttonText}>{t('continueLabel')}</Text>
           </Pressable>
-          {phase === 'sent' ? (
+          {phase === 'sent' || phase === 'error-verify' ? (
             <>
               <Text style={styles.hint}>Token (vegeu el registre del servidor en dev):</Text>
               <TextInput
@@ -98,7 +104,12 @@ export default function Profile() {
               </Pressable>
             </>
           ) : null}
-          {phase === 'error' ? <Text style={styles.error}>···</Text> : null}
+          {phase === 'error-verify' ? (
+            <Text style={styles.error}>{pendingS20.verifyFailed}</Text>
+          ) : null}
+          {phase === 'error-request' ? (
+            <Text style={styles.error}>{pendingS20.requestFailed}</Text>
+          ) : null}
         </View>
       )}
     </SafeAreaView>
@@ -153,5 +164,13 @@ const styles = StyleSheet.create({
   },
   buttonGhostText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.ink },
   hint: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.gray },
-  error: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.coralInk },
+  error: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 13,
+    color: tokens.color.coralInk,
+    backgroundColor: 'rgba(166,86,58,0.08)',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
 });

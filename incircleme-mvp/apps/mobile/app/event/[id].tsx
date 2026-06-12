@@ -6,6 +6,7 @@ import type { EventDetail } from '@incircleme/types';
 import { t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { HostRow } from '../../components/HostRow';
+import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -35,6 +36,7 @@ export default function Event() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar />
       <ScrollView contentContainerStyle={styles.content}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Text style={styles.back}>←</Text>
