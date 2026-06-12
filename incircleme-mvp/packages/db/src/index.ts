@@ -6,6 +6,11 @@ export {
   oauthAccounts,
   events,
   bookings,
+  circles,
+  circleMembers,
+  circleMessages,
+  arrivingMoments,
+  circleKeepVotes,
 } from './schema';
 export type {
   UserRow,
@@ -17,6 +22,11 @@ export type {
   NewEventRow,
   BookingRow,
   NewBookingRow,
+  CircleRow,
+  CircleMemberRow,
+  CircleMessageRow,
+  ArrivingMomentRow,
+  CircleKeepVoteRow,
 } from './schema';
 export { db, pool } from './client';
 export type { DB } from './client';
