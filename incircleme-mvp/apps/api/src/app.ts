@@ -1,21 +1,32 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
 import { registerRateLimit } from './plugins/rateLimit';
 import { healthRoutes } from './routes/health';
 import { authRoutes } from './routes/auth';
 import { meRoutes } from './routes/me';
 import { eventRoutes } from './routes/events';
 import { webhookRoutes } from './routes/webhooks';
+import { circleRoutes } from './routes/circles';
+import { arrivingRoutes } from './routes/arriving';
 import { createMailer } from './lib/mailer';
 import { createPayments } from './lib/payments';
+import { createRealtime, nullRealtime } from './lib/realtime';
+import { createLocalStorage, uploadsDir } from './lib/storage';
 import type { Mailer } from './lib/mailer';
 import type { Payments } from './lib/payments';
+import type { Realtime } from './lib/realtime';
+import type { PhotoStorage } from './lib/storage';
 
 export interface BuildAppOptions {
-  /** Inject a mailer / payments port (tests). Default to env-selected implementations. */
+  /** Inject ports (tests). Default to env-selected implementations. */
   mailer?: Mailer;
   payments?: Payments;
+  storage?: PhotoStorage;
+  /** Socket.io rides the HTTP server; tests pass nullRealtime implicitly via `realtime: false`. */
+  realtime?: boolean;
   logger?: boolean;
 }
 
@@ -23,14 +34,20 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   const app = Fastify({ logger: opts.logger ?? true });
   const mailer = opts.mailer ?? createMailer(app.log);
   const payments = opts.payments ?? createPayments(app.log);
+  const storage = opts.storage ?? createLocalStorage();
+  const realtime: Realtime = opts.realtime === false ? nullRealtime : createRealtime(app);
 
   await app.register(cors, { origin: true });
   await app.register(sensible);
+  await app.register(multipart);
+  await app.register(fastifyStatic, { root: uploadsDir, prefix: '/uploads/' });
   await registerRateLimit(app);
   await app.register(healthRoutes);
   await app.register(authRoutes, { mailer });
   await app.register(meRoutes);
   await app.register(eventRoutes, { payments });
   await app.register(webhookRoutes, { payments, mailer });
+  await app.register(circleRoutes, { realtime });
+  await app.register(arrivingRoutes, { storage });
   return app;
 }

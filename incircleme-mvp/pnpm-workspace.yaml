@@ -5,6 +5,7 @@ packages:
 nodeLinker: hoisted
 allowBuilds:
   esbuild: true
+  msgpackr-extract: true
   sharp: true
 # Keep a single @types/react major across the workspace (web + mobile both on React 19
 # types) so expo-router and react-native don't resolve clashing ReactNode definitions.

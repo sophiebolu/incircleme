@@ -242,6 +242,22 @@ export const circleKeepVotes = pgTable(
   (t) => [primaryKey({ columns: [t.circleId, t.userId] })],
 );
 
+// Notification ledger (Brief MVP table). Push delivery is stubbed until Phase 2 —
+// rows are the durable record the jobs write and the UI can read.
+export const notifications = pgTable('notifications', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  type: text('type').notNull(), // arriving_pre | arriving_post | address_unlock | circle_msg | booking_confirm
+  payload: jsonb('payload'),
+  readAt: timestamp('read_at', { withTimezone: true }),
+  sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type NotificationRow = typeof notifications.$inferSelect;
 export type CircleRow = typeof circles.$inferSelect;
 export type CircleMemberRow = typeof circleMembers.$inferSelect;
 export type CircleMessageRow = typeof circleMessages.$inferSelect;
