@@ -1,0 +1,19 @@
+{
+  "name": "incircleme-mvp",
+  "private": true,
+  "packageManager": "pnpm@11.5.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:api": "pnpm --filter @incircleme/api dev",
+    "dev:web": "pnpm --filter @incircleme/web dev",
+    "dev:mobile": "pnpm --filter @incircleme/mobile start",
+    "db:generate": "pnpm --filter @incircleme/db generate",
+    "db:migrate": "pnpm --filter @incircleme/db migrate",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
