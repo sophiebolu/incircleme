@@ -363,4 +363,94 @@ Sprint 42B is closed. Sprint 42C (Catalan-first welcome surface, Memory Capsule 
 
 ---
 
+## 15. Auth — magic-link email (locked 2026-06-11)
+
+The passwordless sign-in email. Locked verbatim by Alina; mirrored in `incircleme-mvp/packages/i18n`. Never paraphrase. Reading order CA → ES → EN.
+
+### Subject
+
+| EN | CA | ES |
+|----|----|----|
+| Your link — open the room | El teu enllaç — entra a la sala | Tu enlace — entra a la sala |
+
+### Body
+
+> **EN** — Tap this link to walk in. It opens once, lasts 15 minutes. If you didn't ask for this, ignore it — nothing happens until you tap.
+
+> **CA** — Toca aquest enllaç per entrar. S'obre una vegada i dura 15 minuts. Si no l'has demanat, ignora'l — no passa res fins que el toquis.
+
+> **ES** — Toca este enlace para entrar. Se abre una vez y dura 15 minutos. Si no lo has pedido, ignóralo — no pasa nada hasta que lo toques.
+
+Voice notes: "walk in" / "entra" / "entra" keeps the room-as-real-place metaphor (consistent with §13b "walking in"). Never "log in" / "sign in" / "verify your email" — those are transaction-tone.
+
+---
+
+## 16. Booking confirmation email (locked 2026-06-11)
+
+Sent when a seat is held/confirmed. `{braces}` are interpolated at send time. Mirrored in `incircleme-mvp/packages/i18n`. Never paraphrase. Reading order CA → ES → EN.
+
+### Subject
+
+| EN | CA | ES |
+|----|----|----|
+| The room is yours — {event_title}, {date} | La sala és teva — {event_title}, {date} | La sala es tuya — {event_title}, {date} |
+
+### Body
+
+> **EN** — Your seat is held. {host} is hosting in {neighbourhood} on {day} {date} at {time}. The address opens here the day before. We'll add you to the Circle tomorrow — that's where everyone gathers before.
+
+> **CA** — La teva plaça està reservada. {host} acull a {neighbourhood} {day} {date} a les {time}. L'adreça s'obre aquí el dia abans. Demà t'afegim al Cercle — és on tothom es troba abans.
+
+> **ES** — Tu plaza está reservada. {host} recibe en {neighbourhood} el {day} {date} a las {time}. La dirección se abre aquí el día antes. Mañana te añadimos al Círculo — es donde todos se encuentran antes.
+
+Voice notes: "seat is held" / "plaça està reservada" — never "ticket purchased". The Circle line carries the "the after begins before" promise; keep it.
+
+---
+
+## 17. Home ad-slot eyebrows (locked 2026-06-11)
+
+The three rotating eyebrow labels on the Home "Tonight" ad-slot. Mirrored in `incircleme-mvp/packages/i18n`.
+
+| EN | CA | ES |
+|----|----|----|
+| Tonight's pick | Aquesta nit | Esta noche |
+| Booked by neighbours | Reservat pels veïns | Reservado por vecinos |
+| 6-week ritual | Ritual de 6 setmanes | Ritual de 6 semanas |
+
+---
+
+## 18. Home greeting + sub-line (locked 2026-06-11)
+
+The personalized Home hero (prototype `.hh-greet` + `.hh-sub`). `{name}` and `{count}` interpolate at render. The italic always lands on the *name* (greeting) and on *"{count} small rooms"* (sub) — the meaning-bearers, per §13b italic rule. Mirrored in `incircleme-mvp/packages/i18n`.
+
+### Greeting (Fraunces 26px · em = italic coral-ink on the name)
+
+| EN | CA | ES |
+|----|----|----|
+| Hello, *{name}*. | Hola, *{name}*. | Hola, *{name}*. |
+
+Canonical example: "Hello, *Marta*."
+
+### Sub-line (Fraunces 14px · em = italic coral-ink on "{count} small rooms")
+
+> **EN** — *{count} small rooms* opening in your barrio this week.
+
+> **CA** — *{count} sales petites* obrint-se al teu barri aquesta setmana.
+
+> **ES** — *{count} salas pequeñas* abriendo en tu barrio esta semana.
+
+Canonical example: "*23 small rooms* opening in your barrio this week."
+
+---
+
+## 19. Search placeholder (locked 2026-06-11)
+
+The Home search bar placeholder. Replaces the Pass 40 holdover ("people" removed — people-discovery cut). Mirrored in `incircleme-mvp/packages/i18n`.
+
+| EN | CA | ES |
+|----|----|----|
+| Browse events, programs, places… | Cerca esdeveniments, programes, llocs… | Busca eventos, programas, lugares… |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
