@@ -14,6 +14,8 @@ export interface CircleMessage {
   circleId: string;
   userId: string;
   body: string;
+  /** Original language (Addendum A); null until detection lands in Phase 2. */
+  language: 'ca' | 'es' | 'en' | null;
   attachments: MessageAttachment[] | null;
   createdAt: string;
 }

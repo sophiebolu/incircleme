@@ -234,4 +234,15 @@ Same as above, plus: ask Alina to walk you through the prototype on a video call
 
 ---
 
+## Addendum A — UGC translation strategy (locked by Alina, 2026-06-12)
+
+1. **UI strings: unchanged.** Vocabulary Lock only. No machine translation, ever.
+2. **User-generated content** (event titles/descriptions, chat messages, reviews) is stored in its **original language** and always **displayed original-first**. No silent auto-translation anywhere.
+3. **Schema prep now:** a `language` column (`ca|es|en`, detected or creator-set) on `events`, `circle_messages`, and `reviews`. (`events` + `circle_messages` landed with Slice 3; `reviews` gets it when that table is created. Message-language detection is Phase 2 — the column stores NULL until then; event language is creator-set, default `ca`.)
+4. **Creator-provided translations:** optional `title_ca/es/en` + `description_ca/es/en` columns on events — columns wired now, creator UI surfaces in Slice 5.
+5. **Tap-to-translate** (DeepL, cached per-text in DB) is **Phase 2** — not built now, not blocked.
+6. **Reviews are never auto-translated by default.** Neighbourhood names stay Catalan in every locale (*Gràcia*, never *Gracia*).
+
+---
+
 *Brief written 2026-06-10 after Pass 40 (Great Simplification). The prototype is the source of truth. This brief is the bridge. Build cleanly.*

@@ -43,6 +43,13 @@
       "when": 1781276140468,
       "tag": "0005_brainy_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781280332404,
+      "tag": "0006_yellow_karen_page",
+      "breakpoints": true
     }
   ]
 }

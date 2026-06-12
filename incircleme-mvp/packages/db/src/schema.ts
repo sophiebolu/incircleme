@@ -108,6 +108,15 @@ export const events = pgTable('events', {
     .references(() => users.id),
   title: text('title').notNull(),
   description: text('description'),
+  // UGC translation strategy (Brief Addendum A): original language, creator-set.
+  language: text('language').notNull().default('ca'), // 'ca' | 'es' | 'en'
+  // Optional creator-provided translations (UI surfaces in Slice 5).
+  titleCa: text('title_ca'),
+  titleEs: text('title_es'),
+  titleEn: text('title_en'),
+  descriptionCa: text('description_ca'),
+  descriptionEs: text('description_es'),
+  descriptionEn: text('description_en'),
   category: text('category').notNull(), // food_drink | wellness | art_craft | music | nature | learning
   neighbourhood: text('neighbourhood'),
   address: text('address'),
@@ -199,6 +208,9 @@ export const circleMessages = pgTable('circle_messages', {
     .notNull()
     .references(() => users.id),
   body: text('body').notNull(),
+  // Addendum A: original language of the message. NULL until detection lands (Phase 2)
+  // — never silently auto-translated; display is always original-first.
+  language: text('language'), // 'ca' | 'es' | 'en' | null
   attachments: jsonb('attachments'), // {type:'photo'|'arriving'|'leaving', url, expiresAt}
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),

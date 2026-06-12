@@ -33,6 +33,7 @@ function toMessage(row: CircleMessageRow): CircleMessage {
     circleId: row.circleId,
     userId: row.userId,
     body: row.body,
+    language: row.language as CircleMessage['language'],
     attachments: (row.attachments as MessageAttachment[] | null) ?? null,
     createdAt: row.createdAt.toISOString(),
   };

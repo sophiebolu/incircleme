@@ -94,6 +94,7 @@ export async function createEvent(
       hostUserId,
       title: input.title,
       description: input.description ?? null,
+      language: input.language ?? 'ca',
       category: input.category,
       neighbourhood: input.neighbourhood ?? null,
       address: input.address ?? null,
