@@ -54,6 +54,7 @@ export default function CircleScreen() {
     mine: null,
   });
   const [arrivingDismissed, setArrivingDismissed] = useState(false);
+  const [hasCapsule, setHasCapsule] = useState(false);
   const listRef = useRef<FlatList<CircleMessage>>(null);
 
   const load = useCallback(async () => {
@@ -65,6 +66,10 @@ export default function CircleScreen() {
       setVoteState({ yes: detail.keepYesCount, mine: detail.myKeepVote });
       setMe(profile.id);
       api.listArriving(detail.event.id).then(setMoments).catch(() => {});
+      api
+        .getCapsule(id)
+        .then(() => setHasCapsule(true))
+        .catch(() => setHasCapsule(false));
     } catch {
       setCircle(null);
     }
@@ -246,6 +251,20 @@ export default function CircleScreen() {
             ) : null}
           </View>
         )}
+
+        {/* Capsule-ready banner (§21 + §6 locked) */}
+        {hasCapsule ? (
+          <Pressable
+            style={[styles.bar, styles.barKept]}
+            onPress={() => router.push(`/capsule/${id}`)}
+            accessibilityRole="button"
+          >
+            <View style={styles.barBody}>
+              <Text style={styles.barTitleKept}>{t('capsuleReady')}</Text>
+              <Text style={styles.barSub}>{t('openCapsule')} →</Text>
+            </View>
+          </Pressable>
+        ) : null}
 
         {/* Arriving prompt card (T-6h / T..+48h windows, §10b locked titles) */}
         {window && !arrivingDismissed ? (

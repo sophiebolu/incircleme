@@ -75,7 +75,8 @@ export const strings = {
     addYours: 'Afegeix la teva',
     verifyFailed: 'Aquest codi no ha funcionat — demana’n un de nou',
     requestFailed: "No s'ha pogut enviar l'enllaç — torna-ho a provar.",
-    // Memory Capsule (vocab lock §21, locked 2026-06-13)
+    // Memory Capsule (vocab lock §6 + §21, locked 2026-06-13)
+    openCapsule: 'Obre la càpsula',
     capsuleReady: 'La teva Càpsula de records està a punt',
     capsuleSubtitle: 'Fotos, moments i frases del {date}',
     photoRoll: 'El rodet de fotos',
@@ -156,6 +157,7 @@ export const strings = {
     addYours: 'Añade la tuya',
     verifyFailed: 'Ese código no ha funcionado — pide uno nuevo',
     requestFailed: 'No se ha podido enviar el enlace — inténtalo de nuevo.',
+    openCapsule: 'Abre la cápsula',
     capsuleReady: 'Tu Cápsula de recuerdos está lista',
     capsuleSubtitle: 'Fotos, momentos y frases del {date}',
     photoRoll: 'El carrete de fotos',
@@ -235,6 +237,7 @@ export const strings = {
     addYours: 'Add yours',
     verifyFailed: "That code didn't work — request a new one",
     requestFailed: "Couldn't send the link — try again.",
+    openCapsule: 'Open the Capsule',
     capsuleReady: 'Your Memory Capsule is ready',
     capsuleSubtitle: 'Photos, highlights & quotes from {date}',
     photoRoll: 'The photo roll',

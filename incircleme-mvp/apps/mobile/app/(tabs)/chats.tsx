@@ -74,7 +74,10 @@ export default function Chats() {
                   })}
                 </Text>
               </View>
-              {item.keptAt ? <Text style={styles.kept}>{t('circleKept')}</Text> : null}
+              <View style={styles.badges}>
+                {item.keptAt ? <Text style={styles.kept}>{t('circleKept')}</Text> : null}
+                {item.hasCapsule ? <Text style={styles.capsule}>{t('memoryCapsule')}</Text> : null}
+              </View>
             </Pressable>
           )}
         />
@@ -117,7 +120,9 @@ const styles = StyleSheet.create({
   info: { flex: 1, gap: 2 },
   title: { fontFamily: fonts.bodySemi, fontSize: 14.5, color: tokens.color.ink },
   meta: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.gray },
+  badges: { alignItems: 'flex-end', gap: 2 },
   kept: { fontFamily: fonts.bodySemi, fontSize: 10.5, color: tokens.color.forest },
+  capsule: { fontFamily: fonts.bodySemi, fontSize: 10.5, color: tokens.color.coralInk },
   empty: {
     fontFamily: fonts.body,
     fontSize: 13,
