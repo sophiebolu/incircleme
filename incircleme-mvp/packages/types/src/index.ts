@@ -3,6 +3,7 @@
 
 export * from './auth';
 export * from './events';
+export * from './capsules';
 export * from './circles';
 
 export type Locale = 'ca' | 'es' | 'en';

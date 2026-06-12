@@ -275,3 +275,42 @@ export type CircleMemberRow = typeof circleMembers.$inferSelect;
 export type CircleMessageRow = typeof circleMessages.$inferSelect;
 export type ArrivingMomentRow = typeof arrivingMoments.$inferSelect;
 export type CircleKeepVoteRow = typeof circleKeepVotes.$inferSelect;
+
+// --- Memory Capsule slice ---
+
+// Auto-generated 12h after event end (Brief cadence). Circle-only, permanent.
+export const capsules = pgTable('capsules', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  circleId: uuid('circle_id')
+    .notNull()
+    .unique()
+    .references(() => circles.id),
+  eventId: uuid('event_id')
+    .notNull()
+    .references(() => events.id),
+  heroPhotoUrl: text('hero_photo_url'),
+  // {members, sharedBoth, photos, messages, keptAt?} — snapshot at generation
+  stats: jsonb('stats').notNull(),
+  generatedAt: timestamp('generated_at', { withTimezone: true }).notNull().defaultNow(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+// Items snapshot their payloads at generation (photo URLs survive the 48h chat strip).
+// kind 'quote' stays empty until reviews land (Slice 6) — wired, not faked.
+export const capsuleItems = pgTable('capsule_items', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  capsuleId: uuid('capsule_id')
+    .notNull()
+    .references(() => capsules.id),
+  kind: text('kind').notNull(), // photo | arriving_pair | quote
+  // photo: {url, userId} · arriving_pair: {userId, beforeUrl, afterUrl, beforeAt, afterAt}
+  payload: jsonb('payload').notNull(),
+  position: integer('position').notNull().default(0),
+});
+
+export type CapsuleRow = typeof capsules.$inferSelect;
+export type CapsuleItemRow = typeof capsuleItems.$inferSelect;

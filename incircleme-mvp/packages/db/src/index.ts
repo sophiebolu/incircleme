@@ -12,6 +12,8 @@ export {
   arrivingMoments,
   circleKeepVotes,
   notifications,
+  capsules,
+  capsuleItems,
 } from './schema';
 export type {
   UserRow,
@@ -29,6 +31,8 @@ export type {
   ArrivingMomentRow,
   CircleKeepVoteRow,
   NotificationRow,
+  CapsuleRow,
+  CapsuleItemRow,
 } from './schema';
 export { db, pool } from './client';
 export type { DB } from './client';
