@@ -9,6 +9,7 @@ import {
   NotMemberError,
   postMessage,
 } from '../services/circles/circles';
+import { getCapsule } from '../services/capsules/capsules';
 import type { Realtime } from '../lib/realtime';
 
 const postMessageSchema = z.object({
@@ -52,6 +53,16 @@ export async function circleRoutes(
       const detail = await getCircleDetail(id, req.userId!);
       if (!detail) return reply.code(404).send({ error: 'not_found' });
       return detail;
+    }, reply),
+  );
+
+  // Memory Capsule — member-gated; 404 until the T+12h job has generated it.
+  app.get('/circles/:id/capsule', { preHandler: requireAuth }, async (req, reply) =>
+    guard(async () => {
+      const { id } = req.params as { id: string };
+      const capsule = await getCapsule(id, req.userId!);
+      if (!capsule) return reply.code(404).send({ error: 'not_found' });
+      return capsule;
     }, reply),
   );
 
