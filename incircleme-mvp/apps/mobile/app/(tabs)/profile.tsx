@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { MeResponse } from '@incircleme/types';
-import { t, pendingS20 } from '@incircleme/i18n';
+import { t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { clearSession, isSignedIn, saveSession } from '../../lib/auth';
 import { BrandBar } from '../../components/BrandBar';
@@ -105,10 +105,10 @@ export default function Profile() {
             </>
           ) : null}
           {phase === 'error-verify' ? (
-            <Text style={styles.error}>{pendingS20.verifyFailed}</Text>
+            <Text style={styles.error}>{t('verifyFailed')}</Text>
           ) : null}
           {phase === 'error-request' ? (
-            <Text style={styles.error}>{pendingS20.requestFailed}</Text>
+            <Text style={styles.error}>{t('requestFailed')}</Text>
           ) : null}
         </View>
       )}

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { EventDetail } from '@incircleme/types';
-import { t } from '@incircleme/i18n';
+import { t, formatPrice } from '@incircleme/i18n';
 import { api, ApiError } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { presentPayment } from '../../lib/stripePay';
@@ -54,7 +54,7 @@ export default function Book() {
     }
   };
 
-  const price = event ? `${(event.priceCents / 100).toFixed(2)} €` : '';
+  const price = event ? formatPrice(event.priceCents, event.currency) : '';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

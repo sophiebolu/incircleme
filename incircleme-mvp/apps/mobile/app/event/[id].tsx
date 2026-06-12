@@ -3,7 +3,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { EventDetail } from '@incircleme/types';
-import { t } from '@incircleme/i18n';
+import { t, formatPrice } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { HostRow } from '../../components/HostRow';
 import { BrandBar } from '../../components/BrandBar';
@@ -32,7 +32,7 @@ export default function Event() {
     hour: '2-digit',
     minute: '2-digit',
   });
-  const price = event.priceCents === 0 ? '—' : `${(event.priceCents / 100).toFixed(2)} €`;
+  const price = event.priceCents === 0 ? '—' : formatPrice(event.priceCents, event.currency);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

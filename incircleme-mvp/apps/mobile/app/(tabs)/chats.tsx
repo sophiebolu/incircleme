@@ -3,7 +3,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import type { CircleSummary } from '@incircleme/types';
-import { t, interpolate, pendingS20 } from '@incircleme/i18n';
+import { t, interpolate } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { BrandBar } from '../../components/BrandBar';
@@ -67,7 +67,7 @@ export default function Chats() {
                   {item.eventTitle}
                 </Text>
                 <Text style={styles.meta} numberOfLines={1}>
-                  {interpolate(pendingS20.membersLine, {
+                  {interpolate(t('membersLine'), {
                     circle: t('circle'),
                     count: String(item.memberCount),
                     barri: 'Gràcia',

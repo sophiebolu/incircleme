@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import type { ArrivingMoment, CircleDetail, CircleMessage } from '@incircleme/types';
-import { t, interpolate, pendingS20 } from '@incircleme/i18n';
+import { t, interpolate } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { joinCircle } from '../../lib/socket';
 import { BrandBar } from '../../components/BrandBar';
@@ -47,6 +47,7 @@ export default function CircleScreen() {
   const [messages, setMessages] = useState<CircleMessage[]>([]);
   const [moments, setMoments] = useState<ArrivingMoment[]>([]);
   const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
   const [me, setMe] = useState<string | null>(null);
   const [voteState, setVoteState] = useState<{ yes: number; mine: boolean | null }>({
     yes: 0,
@@ -87,7 +88,8 @@ export default function CircleScreen() {
 
   const send = async () => {
     const body = draft.trim();
-    if (!body || !id) return;
+    if (!body || !id || sending) return; // in-flight guard — double-tap posts once
+    setSending(true);
     setDraft('');
     try {
       const msg = await api.postCircleMessage(id, body);
@@ -95,6 +97,8 @@ export default function CircleScreen() {
       listRef.current?.scrollToEnd({ animated: true });
     } catch {
       setDraft(body); // restore on failure
+    } finally {
+      setSending(false);
     }
   };
 
@@ -195,7 +199,7 @@ export default function CircleScreen() {
               {circle.event.title}
             </Text>
             <Text style={styles.headerMeta} numberOfLines={1}>
-              {interpolate(pendingS20.membersLine, {
+              {interpolate(t('membersLine'), {
                 circle: t('circle'),
                 count: String(circle.members.length),
                 barri: circle.event.neighbourhood ?? 'Barcelona',
@@ -208,18 +212,16 @@ export default function CircleScreen() {
         {kept ? (
           <View style={[styles.bar, styles.barKept]}>
             <View style={styles.barBody}>
+              {/* §20 locked: "Kept by the group · since {date}" (§6 'Circle kept' = badges only) */}
               <Text style={styles.barTitleKept}>
-                {t('circleKept')}{' '}
-                <Text style={styles.barEm}>
-                  {interpolate(pendingS20.keptSince, {
-                    date: new Date(circle.keptAt!).toLocaleDateString('ca-ES', {
-                      day: 'numeric',
-                      month: 'short',
-                    }),
-                  })}
-                </Text>
+                {interpolate(t('keptByGroup'), {
+                  date: new Date(circle.keptAt!).toLocaleDateString('ca-ES', {
+                    day: 'numeric',
+                    month: 'short',
+                  }),
+                })}
               </Text>
-              <Text style={styles.barSub}>{pendingS20.keptNote}</Text>
+              <Text style={styles.barSub}>{t('keptNote')}</Text>
             </View>
           </View>
         ) : (
@@ -228,8 +230,8 @@ export default function CircleScreen() {
               <Text style={styles.barTitle}>
                 {circle.event.addressLocked ? (
                   <>
-                    {pendingS20.addressUnlocksPrefix}
-                    <Text style={styles.barEm}>{pendingS20.addressUnlocksEm}</Text>
+                    {t('addressUnlocksPrefix')}
+                    <Text style={styles.barEm}>{t('addressUnlocksEm')}</Text>
                   </>
                 ) : (
                   (circle.event.address ?? '')
@@ -251,7 +253,14 @@ export default function CircleScreen() {
             <Text style={styles.cardTitle}>
               {window === 'before' ? t('arrivingBefore') : t('arrivingAfter')}
             </Text>
-            <Text style={styles.cardSub}>{pendingS20.arrivingHelper}</Text>
+            {window === 'before' ? (
+              <Text style={styles.cardEyebrow}>
+                {interpolate(t('roomOpensIn'), {
+                  hours: String(Math.max(1, Math.ceil((startMs - now) / HOUR))),
+                })}
+              </Text>
+            ) : null}
+            <Text style={styles.cardSub}>{t('arrivingHelper')}</Text>
             {moments.length > 0 ? (
               <View style={styles.momentsRow}>
                 {moments.slice(0, 5).map((m) => (
@@ -269,25 +278,25 @@ export default function CircleScreen() {
             ) : null}
             <View style={styles.cardActions}>
               <Pressable style={styles.cardCta} onPress={() => addArrivingPhoto(window)}>
-                <Text style={styles.cardCtaText}>{pendingS20.addYours}</Text>
+                <Text style={styles.cardCtaText}>{t('addYours')}</Text>
               </Pressable>
               <Pressable onPress={() => setArrivingDismissed(true)} hitSlop={8}>
                 <Text style={styles.cardSkip}>{t('skipForNow')}</Text>
               </Pressable>
             </View>
-            <Text style={styles.cardNote}>{pendingS20.arrivingFade}</Text>
+            <Text style={styles.cardNote}>{t('arrivingFade')}</Text>
           </View>
         ) : null}
 
         {/* Afterlife vote card (D+2 → D+7) */}
         {showVote ? (
           <View style={styles.card}>
-            <Text style={styles.cardEyebrow}>{pendingS20.afterlifeEyebrow.toUpperCase()}</Text>
+            <Text style={styles.cardEyebrow}>{t('afterlifeEyebrow').toUpperCase()}</Text>
             <Text style={styles.cardTitle}>
-              {t('keepThisCircle')} <Text style={styles.cardTitleEm}>{pendingS20.keepGoingEm}</Text>
+              {t('keepThisCircle')} <Text style={styles.cardTitleEm}>{t('keepGoingEm')}</Text>
             </Text>
             <Text style={styles.cardSub}>
-              {interpolate(pendingS20.votesProgress, {
+              {interpolate(t('votesProgress'), {
                 yes: String(voteState.yes),
                 total: String(circle.members.length),
               })}
@@ -295,16 +304,21 @@ export default function CircleScreen() {
             {voteState.mine === null ? (
               <View style={styles.cardActions}>
                 <Pressable style={styles.cardCta} onPress={() => castVote(true)}>
-                  <Text style={styles.cardCtaText}>{pendingS20.voteYes}</Text>
+                  <Text style={styles.cardCtaText}>{t('voteYes')}</Text>
                 </Pressable>
                 <Pressable style={styles.cardGhost} onPress={() => castVote(false)}>
-                  <Text style={styles.cardGhostText}>{pendingS20.voteNo}</Text>
+                  <Text style={styles.cardGhostText}>{t('voteNo')}</Text>
                 </Pressable>
               </View>
             ) : (
-              <Text style={styles.cardNote}>{pendingS20.votedWaiting}</Text>
+              <Text style={styles.cardNote}>{t('votedWaiting')}</Text>
             )}
           </View>
+        ) : null}
+
+        {/* In-chat system line while the address is still locked (§20) */}
+        {!kept && circle.event.addressLocked ? (
+          <Text style={styles.systemLine}>{t('addressUnlockedNote')}</Text>
         ) : null}
 
         {/* Messages */}
@@ -321,14 +335,19 @@ export default function CircleScreen() {
         <View style={styles.composer}>
           <TextInput
             style={styles.input}
-            placeholder={pendingS20.composerPlaceholder}
+            placeholder={t('composerPlaceholder')}
             placeholderTextColor={tokens.color.gray}
             value={draft}
             onChangeText={setDraft}
             onSubmitEditing={send}
             returnKeyType="send"
           />
-          <Pressable style={styles.send} onPress={send} accessibilityRole="button">
+          <Pressable
+            style={[styles.send, sending && styles.sendDisabled]}
+            onPress={send}
+            disabled={sending}
+            accessibilityRole="button"
+          >
             <Text style={styles.sendText}>↑</Text>
           </Pressable>
         </View>
@@ -470,5 +489,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sendDisabled: { opacity: 0.45 },
   sendText: { color: tokens.color.cream, fontSize: 17 },
+  systemLine: {
+    fontFamily: fonts.body,
+    fontSize: 11.5,
+    color: tokens.color.gray,
+    textAlign: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+  },
 });
