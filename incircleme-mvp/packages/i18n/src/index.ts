@@ -45,6 +45,15 @@ export const strings = {
     catMusic: 'Música',
     catNature: 'Natura',
     catLearning: 'Aprenentatge',
+    // Circle chat — locked §6 + §10b
+    circle: 'Cercle',
+    keepThisCircle: 'Manté aquest Cercle',
+    circleKept: 'Cercle mantingut',
+    memoryCapsule: 'Càpsula de records',
+    arrivingBefore: 'Com hi vens?',
+    arrivingAfter: 'Com en surts?',
+    skipForNow: 'Salta de moment',
+    theDifference: 'La diferència',
   },
   es: {
     home: 'Inicio',
@@ -72,6 +81,14 @@ export const strings = {
     bookThisRoom: 'Reservar esta sala',
     signIn: 'Entrar',
     continueLabel: 'Continuar',
+    circle: 'Círculo',
+    keepThisCircle: 'Mantén este Círculo',
+    circleKept: 'Círculo mantenido',
+    memoryCapsule: 'Cápsula de recuerdos',
+    arrivingBefore: '¿Cómo vienes?',
+    arrivingAfter: '¿Cómo te vas?',
+    skipForNow: 'Omitir por ahora',
+    theDifference: 'La diferencia',
     catAll: 'Eventos',
     catFoodDrink: 'Comida y bebida',
     catWellness: 'Bienestar',
@@ -106,6 +123,14 @@ export const strings = {
     bookThisRoom: 'Book this room',
     signIn: 'Sign in',
     continueLabel: 'Continue',
+    circle: 'Circle',
+    keepThisCircle: 'Keep this Circle',
+    circleKept: 'Circle kept',
+    memoryCapsule: 'Memory Capsule',
+    arrivingBefore: 'How are you arriving tonight?',
+    arrivingAfter: 'How are you leaving?',
+    skipForNow: 'Skip for now',
+    theDifference: 'The difference',
     catAll: 'Events',
     catFoodDrink: 'Food & Drink',
     catWellness: 'Wellness',
@@ -128,3 +153,29 @@ export function interpolate(template: string, vars: Record<string, string>): str
     key in vars ? vars[key]! : `{${key}}`,
   );
 }
+
+// ============================================================================
+// PENDING §20 — Circle-chat strings lifted VERBATIM from the v3 prototype chat
+// screen. NOT yet in the Vocabulary Lock: EN-only, awaiting Alina's sign-off
+// (proposed as §20). Once locked, these move into `strings` with CA/ES rows.
+// Do not edit wording here — edit the lock, then mirror.
+// ============================================================================
+export const pendingS20 = {
+  composerPlaceholder: 'Message the Circle…',
+  membersLine: '{circle} · {count} members · {barri}',
+  addressUnlocksPrefix: 'Address unlocks ',
+  addressUnlocksEm: 'the day before',
+  addressUnlockedNote: "Address unlocks tomorrow morning. You'll see it here.",
+  roomOpensIn: 'The room opens in {hours}h',
+  afterlifeEyebrow: 'The afterlife',
+  keepGoingEm: 'going', // renders after locked "Keep this Circle"
+  votesProgress: '{yes} of {total} have voted · 4 needed',
+  voteYes: 'Yes, keep it',
+  voteNo: 'Let it close',
+  votedWaiting: 'You voted — waiting on the group.',
+  keptSince: 'since {date}', // renders after locked "Circle kept"
+  keptNote: 'No countdown, no address — just the group.',
+  arrivingHelper: 'A photo — sky, coffee, hand, your face. Anything. Or skip.',
+  arrivingFade: 'Auto-fades in chat after 48h, kept forever in your Memory Capsule.',
+  addYours: 'Add yours',
+} as const;

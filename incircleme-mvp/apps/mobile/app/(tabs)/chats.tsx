@@ -1,25 +1,125 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect, useRouter } from 'expo-router';
+import type { CircleSummary } from '@incircleme/types';
+import { t, interpolate, pendingS20 } from '@incircleme/i18n';
+import { api } from '../../lib/api';
+import { isSignedIn } from '../../lib/auth';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
-// Circles land in Slice 3.
 export default function Chats() {
+  const router = useRouter();
+  const [circles, setCircles] = useState<CircleSummary[] | null>(null);
+  const [signedIn, setSignedIn] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      let live = true;
+      (async () => {
+        if (!(await isSignedIn())) {
+          if (live) setSignedIn(false);
+          return;
+        }
+        try {
+          const data = await api.myCircles();
+          if (live) {
+            setSignedIn(true);
+            setCircles(data);
+          }
+        } catch {
+          if (live) setCircles([]);
+        }
+      })();
+      return () => {
+        live = false;
+      };
+    }, []),
+  );
+
   return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Xats</Text>
-      <Text style={styles.sub}>Els Cercles arriben aviat.</Text>
-    </View>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <Text style={styles.heading}>{t('chats')}</Text>
+      {!signedIn ? (
+        <Text style={styles.empty}>
+          {t('signIn')} — {t('profile')}
+        </Text>
+      ) : (
+        <FlatList
+          data={circles ?? []}
+          keyExtractor={(c) => c.id}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={<Text style={styles.empty}>—</Text>}
+          renderItem={({ item }) => (
+            <Pressable
+              style={styles.row}
+              onPress={() => router.push(`/circle/${item.id}`)}
+              accessibilityRole="button"
+            >
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{item.eventTitle.charAt(0)}</Text>
+              </View>
+              <View style={styles.info}>
+                <Text style={styles.title} numberOfLines={1}>
+                  {item.eventTitle}
+                </Text>
+                <Text style={styles.meta} numberOfLines={1}>
+                  {interpolate(pendingS20.membersLine, {
+                    circle: t('circle'),
+                    count: String(item.memberCount),
+                    barri: 'Gràcia',
+                  })}
+                </Text>
+              </View>
+              {item.keptAt ? <Text style={styles.kept}>{t('circleKept')}</Text> : null}
+            </Pressable>
+          )}
+        />
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: tokens.color.cream,
+  safe: { flex: 1, backgroundColor: tokens.color.cream },
+  heading: {
+    fontFamily: fonts.display,
+    fontSize: 24,
+    color: tokens.color.ink,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  list: { paddingHorizontal: 16, paddingBottom: 24 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FFFFFF',
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 10,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: tokens.color.forest,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
   },
-  title: { fontFamily: fonts.display, fontSize: 22, color: tokens.color.forest },
-  sub: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.gray },
+  avatarText: { fontFamily: fonts.displaySemi, fontSize: 18, color: tokens.color.cream },
+  info: { flex: 1, gap: 2 },
+  title: { fontFamily: fonts.bodySemi, fontSize: 14.5, color: tokens.color.ink },
+  meta: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.gray },
+  kept: { fontFamily: fonts.bodySemi, fontSize: 10.5, color: tokens.color.forest },
+  empty: {
+    fontFamily: fonts.body,
+    fontSize: 13,
+    color: tokens.color.gray,
+    paddingHorizontal: 16,
+  },
 });
