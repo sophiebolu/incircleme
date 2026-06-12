@@ -6,6 +6,7 @@ import {
   integer,
   timestamp,
   customType,
+  unique,
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from 'uuidv7';
 
@@ -41,3 +42,54 @@ export const users = pgTable('users', {
 
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
+
+// --- Auth slice ---
+
+// Single-use, short-lived passwordless sign-in tokens. Only the hash is stored.
+export const magicLinkTokens = pgTable('magic_link_tokens', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  email: citext('email').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  consumedAt: timestamp('consumed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Refresh-token-backed sessions. Rotated on refresh, revoked on logout. Only the hash is stored.
+export const sessions = pgTable('sessions', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  refreshTokenHash: text('refresh_token_hash').notNull().unique(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  revokedAt: timestamp('revoked_at', { withTimezone: true }),
+  userAgent: text('user_agent'),
+  ip: text('ip'),
+});
+
+// Links a provider identity (google | apple) to a user.
+export const oauthAccounts = pgTable(
+  'oauth_accounts',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    provider: text('provider').notNull(), // 'google' | 'apple'
+    providerUserId: text('provider_user_id').notNull(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique('oauth_accounts_provider_user_unique').on(t.provider, t.providerUserId)],
+);
+
+export type MagicLinkTokenRow = typeof magicLinkTokens.$inferSelect;
+export type SessionRow = typeof sessions.$inferSelect;
+export type OAuthAccountRow = typeof oauthAccounts.$inferSelect;
