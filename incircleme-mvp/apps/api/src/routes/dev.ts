@@ -9,12 +9,21 @@ import { createSession } from '../services/auth/session';
 // a review host so a plain URL can land already authenticated.
 export async function devRoutes(app: FastifyInstance): Promise<void> {
   app.post('/dev/login', async (req, reply) => {
-    const body = (req.body ?? {}) as { email?: string; tier?: string; credits?: number };
+    const body = (req.body ?? {}) as {
+      email?: string;
+      tier?: string;
+      credits?: number;
+      role?: string;
+    };
     const email = body.email ?? 'live-review@incircleme.dev';
     const user = await findOrCreateByEmail(email);
     const [updated] = await db
       .update(users)
-      .set({ hostTier: body.tier ?? 'premium', freeProgramCredits: body.credits ?? 0 })
+      .set({
+        hostTier: body.tier ?? 'premium',
+        freeProgramCredits: body.credits ?? 0,
+        ...(body.role ? { role: body.role } : {}),
+      })
       .where(eq(users.id, user.id))
       .returning();
     const tokens = await createSession(user.id, { userAgent: 'dev-login', ip: req.ip });
