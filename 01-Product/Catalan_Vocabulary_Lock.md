@@ -487,4 +487,34 @@ Canonical CA/ES names for Memory Capsule: *Càpsula de records* / *Cápsula de r
 
 ---
 
+## 21. Memory Capsule screen (locked 2026-06-13)
+
+The Capsule surfaces (prototype capsule screen, Slice 4). Canonical names per §6: *Memory Capsule / Càpsula de records / Cápsula de recuerdos*; the two-pane title reuses §10b *The difference / La diferència / La diferencia*. "frases" chosen over "cites/citas" — in a social-events app *citas* reads as romantic dates. Mirrored in `incircleme-mvp/packages/i18n`.
+
+| EN | CA | ES |
+|----|----|----|
+| Your Memory Capsule is ready | La teva Càpsula de records està a punt | Tu Cápsula de recuerdos está lista |
+| Photos, highlights & quotes from {date} | Fotos, moments i frases del {date} | Fotos, momentos y frases del {date} |
+| The photo roll | El rodet de fotos | El carrete de fotos |
+| See all ({n}) → | Mostra-les totes ({n}) → | Ver todas ({n}) → |
+| Your Circle | El teu Cercle | Tu Círculo |
+| {n} people — still chatting | {n} persones — encara xerrant | {n} personas — aún charlando |
+| Arriving *(pane label)* | Arribant | Llegando |
+| Leaving *(pane label)* | Marxant | Saliendo |
+| Highlights | Moments destacats | Momentos destacados |
+| {n} photos | {n} fotos | {n} fotos |
+| Shared by {x} of {y} people | Compartides per {x} de {y} persones | Compartidas por {x} de {y} personas |
+| {n} Circle messages | {n} missatges del Cercle | {n} mensajes del Círculo |
+| Since the event ended | Des que va acabar l'esdeveniment | Desde que terminó el evento |
+| Share capsule | Comparteix la càpsula | Comparte la cápsula |
+| Save | Desa | Guardar |
+| Memory Capsules are auto-generated from your Circle's photos & reviews. Only your Circle can see them. | Les Càpsules de records es generen automàticament amb les fotos i ressenyes del teu Cercle. Només el teu Cercle les pot veure. | Las Cápsulas de recuerdos se generan automáticamente con las fotos y reseñas de tu Círculo. Solo tu Círculo puede verlas. |
+| Privacy → | Privacitat → | Privacidad → |
+
+**Deferred (not wired):** the prototype's *"Circle stays active · next event together: {event}"* line waits for co-booking detection. When that feature lands, the line comes back **through this lock process** — it is not to be rebuilt from memory.
+
+Behavior note (not copy): the difference view is *silent, not stigmatised* — members who skipped Arriving simply don't appear. No empty slots, no callouts.
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

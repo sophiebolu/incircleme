@@ -6,8 +6,10 @@ import {
   circleMessages,
   circleKeepVotes,
   notifications,
+  capsules,
 } from '@incircleme/db';
 import { and, eq, gte, isNotNull, isNull, lt, lte } from 'drizzle-orm';
+import { generateCapsule } from '../services/capsules/capsules';
 
 // Pure, idempotent tick handlers — BullMQ schedules them; tests call them directly
 // with a fixed `now`. Each returns how many rows it touched.
@@ -132,4 +134,23 @@ export async function afterlifeEvaluateTick(now: Date): Promise<number> {
     }
   }
   return flipped;
+}
+
+/** Hourly: events ended ≥12h ago with a Circle and no Capsule → generate + notify. */
+export async function capsuleGenerationTick(now: Date): Promise<number> {
+  const rows = await db
+    .select({ eventId: circles.eventId })
+    .from(circles)
+    .innerJoin(events, eq(circles.eventId, events.id))
+    .leftJoin(capsules, eq(capsules.circleId, circles.id))
+    .where(and(lt(events.endsAt, new Date(now.getTime() - 12 * HOUR)), isNull(capsules.id)));
+  let generated = 0;
+  for (const { eventId } of rows) {
+    const capsule = await generateCapsule(eventId);
+    if (capsule) {
+      generated++;
+      await notifyBookedAttendees(eventId, 'capsule_ready', {});
+    }
+  }
+  return generated;
 }

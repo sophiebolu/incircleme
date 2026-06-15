@@ -35,6 +35,7 @@ export interface CircleSummary {
   keptAt: string | null;
   memberCount: number;
   lastMessageAt: string | null;
+  hasCapsule: boolean;
 }
 
 export interface CircleDetail {

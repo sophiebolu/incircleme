@@ -4,6 +4,7 @@ import {
   circleMembers,
   circleMessages,
   circleKeepVotes,
+  capsules,
   events,
   users,
 } from '@incircleme/db';
@@ -98,14 +99,15 @@ export async function requireMembership(circleId: string, userId: string): Promi
 
 export async function listMyCircles(userId: string): Promise<CircleSummary[]> {
   const rows = await db
-    .select({ circle: circles, eventTitle: events.title })
+    .select({ circle: circles, eventTitle: events.title, capsuleId: capsules.id })
     .from(circleMembers)
     .innerJoin(circles, eq(circleMembers.circleId, circles.id))
     .innerJoin(events, eq(circles.eventId, events.id))
+    .leftJoin(capsules, eq(capsules.circleId, circles.id))
     .where(and(eq(circleMembers.userId, userId), isNull(circleMembers.leftAt)))
     .orderBy(desc(circles.createdAt));
   const summaries: CircleSummary[] = [];
-  for (const { circle, eventTitle } of rows) {
+  for (const { circle, eventTitle, capsuleId } of rows) {
     const [last] = await db
       .select({ createdAt: circleMessages.createdAt })
       .from(circleMessages)
@@ -121,6 +123,7 @@ export async function listMyCircles(userId: string): Promise<CircleSummary[]> {
       keptAt: circle.keptAt ? circle.keptAt.toISOString() : null,
       memberCount: circle.memberCount,
       lastMessageAt: last ? last.createdAt.toISOString() : null,
+      hasCapsule: capsuleId !== null,
     });
   }
   return summaries;

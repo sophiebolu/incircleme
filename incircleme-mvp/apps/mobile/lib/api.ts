@@ -5,6 +5,7 @@ import type {
   AuthTokens,
   BookingListItem,
   BookResult,
+  Capsule,
   CircleDetail,
   CircleMessage,
   CircleSummary,
@@ -133,6 +134,7 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ body, attachments }),
     }),
+  getCapsule: (circleId: string) => request<Capsule>(`/circles/${circleId}/capsule`),
   keepVote: (id: string, vote: boolean) =>
     request<{ keepYesCount: number; kept: boolean }>(`/circles/${id}/keep`, {
       method: 'POST',
