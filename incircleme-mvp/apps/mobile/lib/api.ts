@@ -9,10 +9,15 @@ import type {
   CircleDetail,
   CircleMessage,
   CircleSummary,
+  CreateProgramRequest,
+  CredentialKind,
   EventDetail,
   EventListItem,
   MeResponse,
   MessageAttachment,
+  Program,
+  SubmitProgramResult,
+  UpdateProgramRequest,
 } from '@incircleme/types';
 import { clearSession, getAccessToken, getRefreshToken, saveSession } from './auth';
 
@@ -158,5 +163,28 @@ export const api = {
     });
     if (!res.ok) throw new ApiError(res.status, `http_${res.status}`);
     return (await res.json()) as ArrivingMoment;
+  },
+
+  // --- Programs (creator/Premium) ---
+  listMyPrograms: () => request<Program[]>('/me/programs'),
+  getMyProgram: (id: string) => request<Program>(`/me/programs/${id}`),
+  createProgram: (body: CreateProgramRequest) =>
+    request<Program>('/me/programs', { method: 'POST', body: JSON.stringify(body) }),
+  updateProgram: (id: string, body: UpdateProgramRequest) =>
+    request<Program>(`/me/programs/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  submitProgram: (id: string) =>
+    request<SubmitProgramResult>(`/me/programs/${id}/submit`, { method: 'POST' }),
+  uploadCredential: async (id: string, kind: CredentialKind, uri: string) => {
+    const token = await getAccessToken();
+    const form = new FormData();
+    form.append('fileKind', kind);
+    form.append('file', { uri, name: 'credential.jpg', type: 'image/jpeg' } as unknown as Blob);
+    const res = await fetch(`${BASE}/me/programs/${id}/credentials`, {
+      method: 'POST',
+      headers: token ? { authorization: `Bearer ${token}` } : undefined,
+      body: form,
+    });
+    if (!res.ok) throw new ApiError(res.status, `http_${res.status}`);
+    return (await res.json()) as Program;
   },
 };

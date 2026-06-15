@@ -123,6 +123,15 @@ export const strings = {
     prog_ctaSubmitForReview: 'Envia per revisar',
     prog_ctaPaySubmit: 'Paga i envia (150 €)',
     prog_ctaAddCredential: 'Afegeix credencial',
+    // §22-addendum — PROVISIONAL, pending Alina's verdict (NOT yet locked)
+    prog_entry: 'Els teus Programes',
+    prog_submitNew: 'Envia un Programa',
+    prog_empty: 'Encara cap Programa.',
+    prog_premiumOnly: 'Els Programes són una funció Premium.',
+    prog_kindDiploma: 'Diploma',
+    prog_kindLicense: 'Llicència',
+    prog_kindAccreditation: 'Acreditació',
+    prog_kindReferenceLetter: 'Carta de referència',
   },
   es: {
     home: 'Inicio',
@@ -232,6 +241,15 @@ export const strings = {
     prog_ctaSubmitForReview: 'Enviar a revisión',
     prog_ctaPaySubmit: 'Pagar y enviar (150 €)',
     prog_ctaAddCredential: 'Añadir credencial',
+    // §22-addendum — PROVISIONAL, pending Alina's verdict (NOT yet locked)
+    prog_entry: 'Tus Programas',
+    prog_submitNew: 'Envía un Programa',
+    prog_empty: 'Aún ningún Programa.',
+    prog_premiumOnly: 'Los Programas son una función Premium.',
+    prog_kindDiploma: 'Diploma',
+    prog_kindLicense: 'Licencia',
+    prog_kindAccreditation: 'Acreditación',
+    prog_kindReferenceLetter: 'Carta de referencia',
   },
   en: {
     home: 'Home',
@@ -340,6 +358,15 @@ export const strings = {
     prog_ctaSubmitForReview: 'Submit for review',
     prog_ctaPaySubmit: 'Pay & submit (€150)',
     prog_ctaAddCredential: 'Add credential',
+    // §22-addendum — PROVISIONAL, pending Alina's verdict (NOT yet locked)
+    prog_entry: 'Your Programs',
+    prog_submitNew: 'Submit a Program',
+    prog_empty: 'No Programs yet.',
+    prog_premiumOnly: 'Programs are a Premium feature.',
+    prog_kindDiploma: 'Diploma',
+    prog_kindLicense: 'License',
+    prog_kindAccreditation: 'Accreditation',
+    prog_kindReferenceLetter: 'Reference letter',
   },
 } as const;
 
