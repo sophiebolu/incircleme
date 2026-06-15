@@ -1,4 +1,5 @@
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { getActiveLocale, setActiveLocale, type Locale } from '@incircleme/i18n';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
@@ -8,19 +9,23 @@ import { fonts } from '../theme/fonts';
 const OPTIONS: Locale[] = ['en', 'ca', 'es'];
 
 export function DevLocaleSwitcher() {
+  const router = useRouter();
   if (!__DEV__) return null;
   const current = getActiveLocale();
 
   const pick = (locale: Locale) => {
-    if (Platform.OS === 'web' && globalThis.location) {
-      // Reload the SAME route with ?lang= — expo-router web is URL-driven, so you
-      // stay on the screen and the whole tree re-reads the locale before paint.
-      const url = new URL(globalThis.location.href);
-      url.searchParams.set('lang', locale);
-      globalThis.location.href = url.toString();
-      return;
+    // Flip the locale in-memory — _layout subscribes via useSyncExternalStore and
+    // re-keys the Stack, so the whole tree re-reads it with NO reload. A hard
+    // location.href reload was fragile: a stopped/restarting dev server turned a
+    // language tap into "can't reach the site", and it needlessly re-downloaded
+    // the bundle and risked the session.
+    setActiveLocale(locale);
+    if (Platform.OS === 'web') {
+      // Sync ?lang= through expo-router (NOT raw history — the router owns the web
+      // URL and would strip a replaceState). Stays on the same route; a manual
+      // refresh (which re-runs applyDevLocale) then preserves the choice.
+      router.setParams({ lang: locale });
     }
-    setActiveLocale(locale); // native: the Stack key in _layout remounts the screen
   };
 
   return (
