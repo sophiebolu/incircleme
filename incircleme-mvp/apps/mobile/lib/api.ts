@@ -173,7 +173,12 @@ export const api = {
   updateProgram: (id: string, body: UpdateProgramRequest) =>
     request<Program>(`/me/programs/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   submitProgram: (id: string) =>
-    request<SubmitProgramResult>(`/me/programs/${id}/submit`, { method: 'POST' }),
+    // Body must be a non-empty JSON value: the client always sends content-type
+    // application/json, and Fastify rejects an empty body for that content-type.
+    request<SubmitProgramResult>(`/me/programs/${id}/submit`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
   uploadCredential: async (id: string, kind: CredentialKind, uri: string) => {
     const token = await getAccessToken();
     const form = new FormData();
