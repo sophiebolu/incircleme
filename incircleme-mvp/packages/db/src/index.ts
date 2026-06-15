@@ -14,6 +14,8 @@ export {
   notifications,
   capsules,
   capsuleItems,
+  programs,
+  programCredentials,
 } from './schema';
 export type {
   UserRow,
@@ -33,6 +35,9 @@ export type {
   NotificationRow,
   CapsuleRow,
   CapsuleItemRow,
+  ProgramRow,
+  NewProgramRow,
+  ProgramCredentialRow,
 } from './schema';
 export { db, pool } from './client';
 export type { DB } from './client';

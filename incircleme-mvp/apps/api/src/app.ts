@@ -11,6 +11,8 @@ import { eventRoutes } from './routes/events';
 import { webhookRoutes } from './routes/webhooks';
 import { circleRoutes } from './routes/circles';
 import { arrivingRoutes } from './routes/arriving';
+import { programRoutes } from './routes/programs';
+import { devRoutes } from './routes/dev';
 import { createMailer } from './lib/mailer';
 import { createPayments } from './lib/payments';
 import { createRealtime, nullRealtime } from './lib/realtime';
@@ -49,5 +51,8 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   await app.register(webhookRoutes, { payments, mailer });
   await app.register(circleRoutes, { realtime });
   await app.register(arrivingRoutes, { storage });
+  await app.register(programRoutes, { payments, storage });
+  // DEV-ONLY quick sign-in — never registered in production.
+  if (process.env.NODE_ENV !== 'production') await app.register(devRoutes);
   return app;
 }

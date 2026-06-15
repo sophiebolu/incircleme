@@ -5,6 +5,7 @@ export * from './auth';
 export * from './events';
 export * from './capsules';
 export * from './circles';
+export * from './programs';
 
 export type Locale = 'ca' | 'es' | 'en';
 
@@ -32,6 +33,8 @@ export interface User {
   verified: boolean;
   trustTier: TrustTier;
   trustScore: number;
+  hostTier: HostTier;
+  freeProgramCredits: number;
   joinedAt: string;
   lastSeenAt: string | null;
 }

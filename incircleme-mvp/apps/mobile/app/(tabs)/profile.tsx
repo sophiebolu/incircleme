@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import type { MeResponse } from '@incircleme/types';
 import { t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
@@ -12,6 +13,7 @@ import { fonts } from '../../theme/fonts';
 // Dev sign-in: request the magic link (the API stub logs it), paste the token here.
 // The real deep-link flow (incircleme://auth/verify) replaces the paste box in Phase 2.
 export default function Profile() {
+  const router = useRouter();
   const [me, setMe] = useState<MeResponse | null>(null);
   const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
@@ -69,6 +71,9 @@ export default function Profile() {
           <Text style={styles.meta}>
             {me.neighbourhood ?? 'Barcelona'} · {me.trustTier}
           </Text>
+          <Pressable style={styles.buttonGhost} onPress={() => router.push('/programs')}>
+            <Text style={styles.buttonGhostText}>{t('prog_entry')} →</Text>
+          </Pressable>
           <Pressable style={styles.buttonGhost} onPress={signOut}>
             <Text style={styles.buttonGhostText}>Surt</Text>
           </Pressable>

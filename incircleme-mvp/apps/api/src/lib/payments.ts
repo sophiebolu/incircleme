@@ -22,6 +22,8 @@ export type WebhookEvent =
 export interface Payments {
   createPaymentIntent(input: CreatePaymentIntentInput): Promise<PaymentIntentResult>;
   constructWebhookEvent(rawBody: Buffer, signature: string): WebhookEvent;
+  /** Refund a captured PaymentIntent (used for the refundable Program submission fee on rejection). */
+  refund(paymentIntentId: string): Promise<void>;
 }
 
 class StripePayments implements Payments {
@@ -50,6 +52,10 @@ class StripePayments implements Payments {
       return { type: 'payment_intent.payment_failed', paymentIntentId: pi.id };
     return { type: 'other' };
   }
+
+  async refund(paymentIntentId: string): Promise<void> {
+    await this.stripe.refunds.create({ payment_intent: paymentIntentId });
+  }
 }
 
 /** Used in tests and in dev when no Stripe key is set. Webhook body is plain JSON. */
@@ -69,6 +75,12 @@ export class FakePayments implements Payments {
     if (parsed.type === 'payment_intent.payment_failed' && parsed.paymentIntentId)
       return { type: 'payment_intent.payment_failed', paymentIntentId: parsed.paymentIntentId };
     return { type: 'other' };
+  }
+
+  /** Records the refund call so tests can assert it; no external effect. */
+  public readonly refunded: string[] = [];
+  async refund(paymentIntentId: string): Promise<void> {
+    this.refunded.push(paymentIntentId);
   }
 }
 

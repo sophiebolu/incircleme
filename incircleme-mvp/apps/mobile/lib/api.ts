@@ -9,10 +9,15 @@ import type {
   CircleDetail,
   CircleMessage,
   CircleSummary,
+  CreateProgramRequest,
+  CredentialKind,
   EventDetail,
   EventListItem,
   MeResponse,
   MessageAttachment,
+  Program,
+  SubmitProgramResult,
+  UpdateProgramRequest,
 } from '@incircleme/types';
 import { clearSession, getAccessToken, getRefreshToken, saveSession } from './auth';
 
@@ -113,6 +118,9 @@ export const api = {
     }),
   verifyMagicLink: (token: string) =>
     request<AuthResult>('/auth/verify', { method: 'POST', body: JSON.stringify({ token }) }),
+  // DEV-ONLY: the API route exists only when NODE_ENV !== 'production'.
+  devLogin: (email?: string) =>
+    request<AuthResult>('/dev/login', { method: 'POST', body: JSON.stringify({ email }) }),
   refresh: (refreshToken: string) =>
     request<AuthTokens>('/auth/refresh', {
       method: 'POST',
@@ -158,5 +166,33 @@ export const api = {
     });
     if (!res.ok) throw new ApiError(res.status, `http_${res.status}`);
     return (await res.json()) as ArrivingMoment;
+  },
+
+  // --- Programs (creator/Premium) ---
+  listMyPrograms: () => request<Program[]>('/me/programs'),
+  getMyProgram: (id: string) => request<Program>(`/me/programs/${id}`),
+  createProgram: (body: CreateProgramRequest) =>
+    request<Program>('/me/programs', { method: 'POST', body: JSON.stringify(body) }),
+  updateProgram: (id: string, body: UpdateProgramRequest) =>
+    request<Program>(`/me/programs/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  submitProgram: (id: string) =>
+    // Body must be a non-empty JSON value: the client always sends content-type
+    // application/json, and Fastify rejects an empty body for that content-type.
+    request<SubmitProgramResult>(`/me/programs/${id}/submit`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
+  uploadCredential: async (id: string, kind: CredentialKind, uri: string) => {
+    const token = await getAccessToken();
+    const form = new FormData();
+    form.append('fileKind', kind);
+    form.append('file', { uri, name: 'credential.jpg', type: 'image/jpeg' } as unknown as Blob);
+    const res = await fetch(`${BASE}/me/programs/${id}/credentials`, {
+      method: 'POST',
+      headers: token ? { authorization: `Bearer ${token}` } : undefined,
+      body: form,
+    });
+    if (!res.ok) throw new ApiError(res.status, `http_${res.status}`);
+    return (await res.json()) as Program;
   },
 };
