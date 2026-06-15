@@ -6,6 +6,7 @@ import type { Payments } from '../lib/payments';
 import type { Mailer } from '../lib/mailer';
 import { confirmByPaymentIntent, releaseByPaymentIntent } from '../services/booking/booking';
 import { ensureCircleAndMembership } from '../services/circles/circles';
+import { confirmProgramSubmission } from '../services/programs/programs';
 
 export async function webhookRoutes(
   app: FastifyInstance,
@@ -27,7 +28,11 @@ export async function webhookRoutes(
     }
 
     if (event.type === 'payment_intent.succeeded') {
+      // A PI is either a booking or a Program-submission fee — try booking first.
       const ctx = await confirmByPaymentIntent(event.paymentIntentId);
+      if (!ctx) {
+        await confirmProgramSubmission(event.paymentIntentId); // no-op if not a program PI
+      }
       if (ctx) {
         // One Circle per event, auto-created on first confirmed booking (host + attendee join).
         try {

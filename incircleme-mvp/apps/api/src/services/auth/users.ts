@@ -1,6 +1,7 @@
 import { db, users, oauthAccounts } from '@incircleme/db';
 import type { UserRow } from '@incircleme/db';
 import type {
+  HostTier,
   Locale,
   OAuthProvider,
   TrustTier,
@@ -22,6 +23,8 @@ export function toUser(row: UserRow): User {
     verified: row.verified,
     trustTier: row.trustTier as TrustTier,
     trustScore: row.trustScore,
+    hostTier: row.hostTier as HostTier,
+    freeProgramCredits: row.freeProgramCredits,
     joinedAt: row.joinedAt.toISOString(),
     lastSeenAt: row.lastSeenAt ? row.lastSeenAt.toISOString() : null,
   };

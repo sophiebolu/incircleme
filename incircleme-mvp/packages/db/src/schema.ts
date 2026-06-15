@@ -9,6 +9,7 @@ import {
   unique,
   primaryKey,
   jsonb,
+  numeric,
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from 'uuidv7';
 
@@ -37,6 +38,10 @@ export const users = pgTable('users', {
   language: text('language').notNull().default('ca'), // 'ca' | 'es' | 'en'
   trustTier: text('trust_tier').notNull().default('newcomer'),
   trustScore: integer('trust_score').notNull().default(0),
+  // Host pricing tier (Pricing v2) — gates Program submission. Default basic; dev sets premium by hand.
+  hostTier: text('host_tier').notNull().default('basic'), // 'basic' | 'pro' | 'premium'
+  // Free Program credits (Premium includes 1). Consumed on submission before any fee.
+  freeProgramCredits: integer('free_program_credits').notNull().default(0),
   joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -314,3 +319,56 @@ export const capsuleItems = pgTable('capsule_items', {
 
 export type CapsuleRow = typeof capsules.$inferSelect;
 export type CapsuleItemRow = typeof capsuleItems.$inferSelect;
+
+// --- Programs + certificates slice (Premium credentialling) ---
+
+// The verifiable unit behind every certificate. Premium-host only (gated in app).
+export const programs = pgTable('programs', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  hostUserId: uuid('host_user_id')
+    .notNull()
+    .references(() => users.id),
+  title: text('title').notNull(),
+  description: text('description'),
+  language: text('language').notNull().default('ca'), // Addendum A — original language
+  curriculum: jsonb('curriculum'), // [{week, title, skills, hours}]
+  timeFrameSessions: integer('time_frame_sessions'),
+  timeFrameTotalHours: numeric('time_frame_total_hours'),
+  assessmentMethod: text('assessment_method'),
+  // Internal-Trust-only (kickoff decision): free-text label + the host's own id with that body.
+  accreditationBody: text('accreditation_body'),
+  accreditationId: text('accreditation_id'),
+  references: jsonb('references'), // [{name, role, contact, verifiedAt}]
+  status: text('status').notNull().default('draft'),
+  // draft | submitted | pending_review | verified | under_review | rejected
+  submissionFeeCents: integer('submission_fee_cents').notNull().default(15000),
+  stripePiId: text('stripe_pi_id'), // the €150 submission PI (null when a free credit was used)
+  feeRefunded: boolean('fee_refunded').notNull().default(false),
+  submittedAt: timestamp('submitted_at', { withTimezone: true }),
+  verifiedAt: timestamp('verified_at', { withTimezone: true }),
+  verifiedBy: uuid('verified_by').references(() => users.id),
+  rejectionReason: text('rejection_reason'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+// Uploaded credential files (diploma, license, accreditation, reference letter).
+export const programCredentials = pgTable('program_credentials', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  programId: uuid('program_id')
+    .notNull()
+    .references(() => programs.id),
+  fileUrl: text('file_url').notNull(),
+  fileKind: text('file_kind').notNull(), // diploma | license | accreditation | reference_letter
+  notes: text('notes'),
+  verifiedAt: timestamp('verified_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ProgramRow = typeof programs.$inferSelect;
+export type NewProgramRow = typeof programs.$inferInsert;
+export type ProgramCredentialRow = typeof programCredentials.$inferSelect;
