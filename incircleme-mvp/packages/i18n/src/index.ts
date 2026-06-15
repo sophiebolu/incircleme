@@ -132,7 +132,7 @@ export const strings = {
     prog_kindLicense: 'Llicència',
     prog_kindAccreditation: 'Acreditació',
     prog_kindReferenceLetter: 'Carta de referència',
-    // PROVISIONAL — review-summary empty value (e.g. blank accreditation). Pending Alina's verdict.
+    // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'Cap',
   },
   es: {
@@ -252,7 +252,7 @@ export const strings = {
     prog_kindLicense: 'Licencia',
     prog_kindAccreditation: 'Acreditación',
     prog_kindReferenceLetter: 'Carta de referencia',
-    // PROVISIONAL — review-summary empty value (e.g. blank accreditation). Pending Alina's verdict.
+    // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'Ninguna',
   },
   en: {
@@ -371,7 +371,7 @@ export const strings = {
     prog_kindLicense: 'License',
     prog_kindAccreditation: 'Accreditation',
     prog_kindReferenceLetter: 'Reference letter',
-    // PROVISIONAL — review-summary empty value (e.g. blank accreditation). Pending Alina's verdict.
+    // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'None',
   },
 } as const;

@@ -588,6 +588,14 @@ The creator Programs list + entry, drafted during the checkpoint-2 build (the pr
 | Accreditation | Acreditació | Acreditación |
 | Reference letter | Carta de referència | Carta de referencia |
 
+### Review summary (addendum — added 2026-06-15)
+
+The "Revisa i envia" step lists the locked field labels (Setmanes · sessions, Hores totals, Acreditació, Credencials, Referències) with their values. Empty values render:
+
+| EN | CA | ES |
+|---|---|---|
+| None | Cap | Ninguna |
+
 ---
 
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
