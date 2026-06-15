@@ -14,6 +14,9 @@ export const tokens = {
     goldGlow: 'rgba(229,183,61,0.12)',
     goldBorder: 'rgba(229,183,61,0.30)',
     goldLine: 'rgba(229,183,61,0.32)',
+    // AA-legible gold for status-chip text/border — decorative `gold` (#E5B73D)
+    // is only 1.88:1 on white. 5.65:1 on white, 5.11:1 on cream.
+    goldDeep: '#7E6410',
     ink: '#1C1C1E',
     text2: '#6B6762',
     gray: '#A09B92',

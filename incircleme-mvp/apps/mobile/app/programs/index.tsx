@@ -96,8 +96,9 @@ const styles = StyleSheet.create({
   back: { fontSize: 22, color: tokens.color.ink, paddingHorizontal: 16, paddingTop: 8 },
   body: { padding: 16, gap: 12 },
   heading: { fontFamily: fonts.display, fontSize: 24, color: tokens.color.ink, marginBottom: 2 },
-  empty: { fontFamily: fonts.body, fontSize: 14, color: tokens.color.gray, paddingVertical: 8 },
-  note: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.gray },
+  // text2 (not gray): empty/premium notes must clear WCAG AA — gray was ~2.5:1 on cream.
+  empty: { fontFamily: fonts.body, fontSize: 14, color: tokens.color.text2, paddingVertical: 8 },
+  note: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.text2 },
   card: {
     backgroundColor: '#FFFFFF',
     borderColor: tokens.color.border,

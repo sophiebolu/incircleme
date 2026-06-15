@@ -249,6 +249,7 @@ export default function ProgramForm() {
   const sessionCount = num(sessions) ?? weeks.length;
   const willPayFee = (me?.freeProgramCredits ?? 0) <= 0;
   const canAdvance = step !== 0 || title.trim().length > 0;
+  const summaryVal = (s: string) => (s.trim() ? s.trim() : t('prog_valueNone'));
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -366,9 +367,28 @@ export default function ProgramForm() {
             </Pressable>
           </>
         ) : (
-          /* Review & submit */
+          /* Review & submit — a quiet confirmation of what's being submitted */
           <>
             <Text style={styles.reviewTitle}>{title}</Text>
+            <View style={styles.summary}>
+              {(
+                [
+                  [t('prog_fldWeeksSessions'), summaryVal(sessions)],
+                  [t('prog_fldTotalHours'), summaryVal(hours)],
+                  [t('prog_secAccreditation'), summaryVal(body)],
+                  [t('prog_secCredentials'), String(credentials.length)],
+                  [t('prog_secReferences'), String(refs.filter((r) => r.trim()).length)],
+                ] as [string, string][]
+              ).map(([label, value], i, arr) => (
+                <View
+                  key={label}
+                  style={[styles.summaryRow, i < arr.length - 1 && styles.summaryDivider]}
+                >
+                  <Text style={styles.summaryLabel}>{label}</Text>
+                  <Text style={styles.summaryValue}>{value}</Text>
+                </View>
+              ))}
+            </View>
             <Text style={styles.note}>
               {willPayFee ? t('prog_feeExplainer') : t('prog_includedPremium')}
             </Text>
@@ -538,5 +558,29 @@ const styles = StyleSheet.create({
   },
   ghostText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: tokens.color.ink },
   confirmTitle: { fontFamily: fonts.display, fontSize: 22, color: tokens.color.forest },
-  note: { fontFamily: fonts.body, fontSize: 13.5, color: tokens.color.gray },
+  // text2 (not gray): the fee/credit line must clear WCAG AA — gray was 2.5:1 on cream.
+  note: { fontFamily: fonts.body, fontSize: 13.5, color: tokens.color.text2 },
+  summary: {
+    backgroundColor: '#FFFFFF',
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 9,
+    gap: 12,
+  },
+  summaryDivider: { borderBottomColor: tokens.color.border, borderBottomWidth: 1 },
+  summaryLabel: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.text2 },
+  summaryValue: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 13,
+    color: tokens.color.ink,
+    flexShrink: 1,
+    textAlign: 'right',
+  },
 });

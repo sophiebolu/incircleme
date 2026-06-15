@@ -23,9 +23,10 @@ export const statusColor = (s: ProgramStatus): string => {
       return tokens.color.coralInk;
     case 'submitted':
     case 'pending_review':
-      return tokens.color.gold;
+      return tokens.color.goldDeep;
     default:
-      return tokens.color.gray;
+      // draft / under_review — muted but AA-legible (plain `gray` is ~2.76:1 on white).
+      return tokens.color.text2;
   }
 };
 
