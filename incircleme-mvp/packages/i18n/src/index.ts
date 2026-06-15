@@ -135,11 +135,11 @@ export const strings = {
     prog_kindReferenceLetter: 'Carta de referència',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'Cap',
-    // §23 localization sweep — booking/checkout/profile (PROVISIONAL, pending verdict)
+    // §23 localization sweep — booking/checkout/profile (locked 2026-06-15)
     bookStatusHeld: 'Pendent',
     bookStatusConfirmed: 'Confirmat',
     bookStatusCancelled: 'Cancel·lat',
-    bookStatusRefunded: 'Retornat',
+    bookStatusRefunded: 'Reemborsat',
     bookRoomYours: 'La sala és teva.',
     bookPay: 'Paga',
     bookTotal: 'Total',
@@ -266,13 +266,13 @@ export const strings = {
     prog_kindReferenceLetter: 'Carta de referencia',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'Ninguna',
-    // §23 localization sweep — PROVISIONAL, pending verdict
+    // §23 localization sweep — booking/checkout/profile (locked 2026-06-15)
     bookStatusHeld: 'Pendiente',
     bookStatusConfirmed: 'Confirmado',
     bookStatusCancelled: 'Cancelado',
     bookStatusRefunded: 'Reembolsado',
     bookRoomYours: 'La sala es tuya.',
-    bookPay: 'Paga',
+    bookPay: 'Pagar',
     bookTotal: 'Total',
     bookUnavailable: 'Esta sala ya no está.',
     signOut: 'Salir',
@@ -396,7 +396,7 @@ export const strings = {
     prog_kindReferenceLetter: 'Reference letter',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'None',
-    // §23 localization sweep — PROVISIONAL, pending verdict
+    // §23 localization sweep — booking/checkout/profile (locked 2026-06-15)
     bookStatusHeld: 'Pending',
     bookStatusConfirmed: 'Confirmed',
     bookStatusCancelled: 'Cancelled',
