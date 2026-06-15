@@ -40,7 +40,7 @@ export class ProgramNotFoundError extends Error {
   }
 }
 
-async function toProgram(row: ProgramRow): Promise<Program> {
+export async function toProgram(row: ProgramRow): Promise<Program> {
   const creds = await db
     .select()
     .from(programCredentials)
@@ -71,6 +71,8 @@ async function toProgram(row: ProgramRow): Promise<Program> {
     ),
     submittedAt: row.submittedAt ? row.submittedAt.toISOString() : null,
     verifiedAt: row.verifiedAt ? row.verifiedAt.toISOString() : null,
+    verifiedTier: (row.verifiedTier as Program['verifiedTier']) ?? null,
+    governingBodyUrl: row.governingBodyUrl,
     rejectionReason: row.rejectionReason,
     createdAt: row.createdAt.toISOString(),
   };

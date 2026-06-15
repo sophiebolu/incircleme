@@ -16,6 +16,8 @@ export {
   capsuleItems,
   programs,
   programCredentials,
+  programVoices,
+  programQuestions,
 } from './schema';
 export type {
   UserRow,
@@ -38,6 +40,8 @@ export type {
   ProgramRow,
   NewProgramRow,
   ProgramCredentialRow,
+  ProgramVoiceRow,
+  ProgramQuestionRow,
 } from './schema';
 export { db, pool } from './client';
 export type { DB } from './client';

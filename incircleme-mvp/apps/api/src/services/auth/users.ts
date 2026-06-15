@@ -7,6 +7,7 @@ import type {
   TrustTier,
   UpdateMeRequest,
   User,
+  UserRole,
 } from '@incircleme/types';
 import { and, eq } from 'drizzle-orm';
 
@@ -25,6 +26,7 @@ export function toUser(row: UserRow): User {
     trustScore: row.trustScore,
     hostTier: row.hostTier as HostTier,
     freeProgramCredits: row.freeProgramCredits,
+    role: row.role as UserRole,
     joinedAt: row.joinedAt.toISOString(),
     lastSeenAt: row.lastSeenAt ? row.lastSeenAt.toISOString() : null,
   };

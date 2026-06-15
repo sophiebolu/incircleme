@@ -11,7 +11,7 @@
 
 // HostTier is the canonical domain type (@incircleme/types); economics values key off it.
 export type { HostTier } from '@incircleme/types';
-import type { HostTier } from '@incircleme/types';
+import type { HostTier, VerificationTier } from '@incircleme/types';
 
 export interface TierEconomics {
   /** Subscription price in cents (Basic free, Pro €35, Premium €80). */
@@ -70,4 +70,56 @@ export function programSubmissionFeeCents(): number {
 
 export function isSubmissionFeeRefundable(): boolean {
   return ECONOMICS.programSubmission.feeRefundableOnRejection;
+}
+
+// ============================================================================
+// Trust review (Slice 5 Part 2) — gate criteria, reviewer permissions, tier
+// rules. Config-driven so the Trust team can tune the 4-gate review without code
+// surgery. Refund-on-reject reads ECONOMICS.programSubmission above (no duplication).
+// ============================================================================
+
+export interface ReviewGate {
+  id: string;
+  label: string;
+}
+
+export const TRUST_REVIEW = {
+  /** Roles allowed to use the admin review queue. */
+  reviewerRoles: ['trust_reviewer'] as string[],
+  /** Program statuses that appear in the reviewer queue. */
+  queueStatuses: ['pending_review', 'under_review'] as string[],
+  /** The 4-gate review checklist (Alina-approved 2026-06-15). */
+  gates: [
+    {
+      id: 'host_standing',
+      label: 'Host standing — Premium + good standing, no unresolved trust flags',
+    },
+    { id: 'curriculum_substance', label: 'Curriculum substance — real, multi-week, coherent' },
+    {
+      id: 'credentials_verified',
+      label: 'Credentials & references verified (accredited adds a valid governing-body link)',
+    },
+    {
+      id: 'assessment_integrity',
+      label: 'Assessment integrity — a real completion bar, not a participation sticker',
+    },
+  ] as ReviewGate[],
+  /** Tier rules: verified = gold IncircleMe seal; accredited = forest + governing-body link. */
+  tiers: {
+    verified: { badge: 'gold', requiresGoverningBody: false },
+    accredited: { badge: 'forest', requiresGoverningBody: true },
+  } as Record<VerificationTier, { badge: 'gold' | 'forest'; requiresGoverningBody: boolean }>,
+} as const;
+
+export function isReviewerRole(role: string): boolean {
+  return TRUST_REVIEW.reviewerRoles.includes(role);
+}
+export function tierRequiresGoverningBody(tier: VerificationTier): boolean {
+  return TRUST_REVIEW.tiers[tier].requiresGoverningBody;
+}
+export function reviewGates(): ReviewGate[] {
+  return TRUST_REVIEW.gates;
+}
+export function reviewQueueStatuses(): string[] {
+  return TRUST_REVIEW.queueStatuses;
 }
