@@ -39,6 +39,7 @@ export const strings = {
     signIn: 'Entra',
     continueLabel: 'Continua',
     catAll: 'Esdeveniments',
+    inBarcelona: '{cat} a Barcelona', // §4 locked ("Art a Barcelona")
     catFoodDrink: 'Menjar i beure',
     catWellness: 'Benestar',
     catArtCraft: 'Art',
@@ -162,6 +163,7 @@ export const strings = {
     signIn: 'Entrar',
     continueLabel: 'Continuar',
     catAll: 'Eventos',
+    inBarcelona: '{cat} en Barcelona',
     catFoodDrink: 'Comida y bebida',
     catWellness: 'Bienestar',
     catArtCraft: 'Arte',
@@ -282,6 +284,7 @@ export const strings = {
     signIn: 'Sign in',
     continueLabel: 'Continue',
     catAll: 'Events',
+    inBarcelona: '{cat} in Barcelona',
     catFoodDrink: 'Food & Drink',
     catWellness: 'Wellness',
     catArtCraft: 'Art & Craft',
@@ -378,7 +381,29 @@ export const strings = {
 
 export type StringKey = keyof (typeof strings)['ca'];
 
-export function t(key: StringKey, locale: Locale = defaultLocale): string {
+// --- Active locale ---
+// CA is the shipping default. `t()` / `formatPrice()` read `activeLocale`, which
+// only ever changes via setActiveLocale() — called exclusively from DEV-gated
+// review tooling (see apps/mobile/lib/devLocale). Production never calls it, so
+// activeLocale stays `defaultLocale`. This is NOT the real (device/region)
+// resolution path — that lands separately and must not route through here.
+let activeLocale: Locale = defaultLocale;
+const localeListeners = new Set<() => void>();
+
+export function setActiveLocale(locale: Locale): void {
+  if (locale === activeLocale) return;
+  activeLocale = locale;
+  for (const fn of localeListeners) fn();
+}
+export function getActiveLocale(): Locale {
+  return activeLocale;
+}
+export function subscribeLocale(fn: () => void): () => void {
+  localeListeners.add(fn);
+  return () => localeListeners.delete(fn);
+}
+
+export function t(key: StringKey, locale: Locale = activeLocale): string {
   return strings[locale][key] ?? strings[defaultLocale][key];
 }
 
@@ -398,7 +423,7 @@ const PRICE_LOCALE: Record<Locale, string> = { ca: 'ca-ES', es: 'es-ES', en: 'en
 export function formatPrice(
   cents: number,
   currency = 'EUR',
-  locale: Locale = defaultLocale,
+  locale: Locale = activeLocale,
 ): string {
   return new Intl.NumberFormat(PRICE_LOCALE[locale], { style: 'currency', currency }).format(
     cents / 100,
