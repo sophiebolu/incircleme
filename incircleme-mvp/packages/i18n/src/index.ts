@@ -123,10 +123,10 @@ export const strings = {
     prog_ctaSubmitForReview: 'Envia per revisar',
     prog_ctaPaySubmit: 'Paga i envia (150 €)',
     prog_ctaAddCredential: 'Afegeix credencial',
-    // §22-addendum — PROVISIONAL, pending Alina's verdict (NOT yet locked)
+    // §22 addendum — list wrapper + credential kinds (locked 2026-06-15)
     prog_entry: 'Els teus Programes',
     prog_submitNew: 'Envia un Programa',
-    prog_empty: 'Encara cap Programa.',
+    prog_empty: 'Encara no tens cap Programa.',
     prog_premiumOnly: 'Els Programes són una funció Premium.',
     prog_kindDiploma: 'Diploma',
     prog_kindLicense: 'Llicència',
@@ -241,10 +241,10 @@ export const strings = {
     prog_ctaSubmitForReview: 'Enviar a revisión',
     prog_ctaPaySubmit: 'Pagar y enviar (150 €)',
     prog_ctaAddCredential: 'Añadir credencial',
-    // §22-addendum — PROVISIONAL, pending Alina's verdict (NOT yet locked)
+    // §22 addendum — list wrapper + credential kinds (locked 2026-06-15)
     prog_entry: 'Tus Programas',
-    prog_submitNew: 'Envía un Programa',
-    prog_empty: 'Aún ningún Programa.',
+    prog_submitNew: 'Enviar un Programa',
+    prog_empty: 'Aún no tienes ningún Programa.',
     prog_premiumOnly: 'Los Programas son una función Premium.',
     prog_kindDiploma: 'Diploma',
     prog_kindLicense: 'Licencia',
@@ -358,10 +358,10 @@ export const strings = {
     prog_ctaSubmitForReview: 'Submit for review',
     prog_ctaPaySubmit: 'Pay & submit (€150)',
     prog_ctaAddCredential: 'Add credential',
-    // §22-addendum — PROVISIONAL, pending Alina's verdict (NOT yet locked)
+    // §22 addendum — list wrapper + credential kinds (locked 2026-06-15)
     prog_entry: 'Your Programs',
     prog_submitNew: 'Submit a Program',
-    prog_empty: 'No Programs yet.',
+    prog_empty: "You don't have a Program yet.",
     prog_premiumOnly: 'Programs are a Premium feature.',
     prog_kindDiploma: 'Diploma',
     prog_kindLicense: 'License',

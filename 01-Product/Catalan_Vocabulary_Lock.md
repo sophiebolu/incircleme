@@ -568,6 +568,26 @@ The Premium host's *Submit a Program* surfaces (Slice 5 Part 1). **Net-new copy*
 | Pay & submit (€150) | Paga i envia (150 €) | Pagar y enviar (150 €) |
 | Add credential | Afegeix credencial | Añadir credencial |
 
+### List wrapper (addendum — added 2026-06-15)
+
+The creator Programs list + entry, drafted during the checkpoint-2 build (the prototype never mocked this wrapper either).
+
+| EN | CA | ES |
+|---|---|---|
+| Your Programs | Els teus Programes | Tus Programas |
+| Submit a Program | Envia un Programa | Enviar un Programa |
+| You don't have a Program yet. | Encara no tens cap Programa. | Aún no tienes ningún Programa. |
+| Programs are a Premium feature. | Els Programes són una funció Premium. | Los Programas son una función Premium. |
+
+### Credential kinds (addendum — added 2026-06-15)
+
+| EN | CA | ES |
+|---|---|---|
+| Diploma | Diploma | Diploma |
+| License | Llicència | Licencia |
+| Accreditation | Acreditació | Acreditación |
+| Reference letter | Carta de referència | Carta de referencia |
+
 ---
 
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
