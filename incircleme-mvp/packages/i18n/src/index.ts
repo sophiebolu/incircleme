@@ -39,6 +39,7 @@ export const strings = {
     signIn: 'Entra',
     continueLabel: 'Continua',
     catAll: 'Esdeveniments',
+    inBarcelona: '{cat} a Barcelona', // §4 locked ("Art a Barcelona")
     catFoodDrink: 'Menjar i beure',
     catWellness: 'Benestar',
     catArtCraft: 'Art',
@@ -134,6 +135,16 @@ export const strings = {
     prog_kindReferenceLetter: 'Carta de referència',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'Cap',
+    // §23 localization sweep — booking/checkout/profile (locked 2026-06-15)
+    bookStatusHeld: 'Pendent',
+    bookStatusConfirmed: 'Confirmat',
+    bookStatusCancelled: 'Cancel·lat',
+    bookStatusRefunded: 'Reemborsat',
+    bookRoomYours: 'La sala és teva.',
+    bookPay: 'Paga',
+    bookTotal: 'Total',
+    bookUnavailable: 'Aquesta sala ja no hi és.',
+    signOut: 'Surt',
   },
   es: {
     home: 'Inicio',
@@ -162,6 +173,7 @@ export const strings = {
     signIn: 'Entrar',
     continueLabel: 'Continuar',
     catAll: 'Eventos',
+    inBarcelona: '{cat} en Barcelona',
     catFoodDrink: 'Comida y bebida',
     catWellness: 'Bienestar',
     catArtCraft: 'Arte',
@@ -254,6 +266,16 @@ export const strings = {
     prog_kindReferenceLetter: 'Carta de referencia',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'Ninguna',
+    // §23 localization sweep — booking/checkout/profile (locked 2026-06-15)
+    bookStatusHeld: 'Pendiente',
+    bookStatusConfirmed: 'Confirmado',
+    bookStatusCancelled: 'Cancelado',
+    bookStatusRefunded: 'Reembolsado',
+    bookRoomYours: 'La sala es tuya.',
+    bookPay: 'Pagar',
+    bookTotal: 'Total',
+    bookUnavailable: 'Esta sala ya no está.',
+    signOut: 'Salir',
   },
   en: {
     home: 'Home',
@@ -282,6 +304,7 @@ export const strings = {
     signIn: 'Sign in',
     continueLabel: 'Continue',
     catAll: 'Events',
+    inBarcelona: '{cat} in Barcelona',
     catFoodDrink: 'Food & Drink',
     catWellness: 'Wellness',
     catArtCraft: 'Art & Craft',
@@ -373,12 +396,44 @@ export const strings = {
     prog_kindReferenceLetter: 'Reference letter',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'None',
+    // §23 localization sweep — booking/checkout/profile (locked 2026-06-15)
+    bookStatusHeld: 'Pending',
+    bookStatusConfirmed: 'Confirmed',
+    bookStatusCancelled: 'Cancelled',
+    bookStatusRefunded: 'Refunded',
+    bookRoomYours: 'The room is yours.',
+    bookPay: 'Pay',
+    bookTotal: 'Total',
+    bookUnavailable: 'This room is no longer available.',
+    signOut: 'Sign out',
   },
 } as const;
 
 export type StringKey = keyof (typeof strings)['ca'];
 
-export function t(key: StringKey, locale: Locale = defaultLocale): string {
+// --- Active locale ---
+// CA is the shipping default. `t()` / `formatPrice()` read `activeLocale`, which
+// only ever changes via setActiveLocale() — called exclusively from DEV-gated
+// review tooling (see apps/mobile/lib/devLocale). Production never calls it, so
+// activeLocale stays `defaultLocale`. This is NOT the real (device/region)
+// resolution path — that lands separately and must not route through here.
+let activeLocale: Locale = defaultLocale;
+const localeListeners = new Set<() => void>();
+
+export function setActiveLocale(locale: Locale): void {
+  if (locale === activeLocale) return;
+  activeLocale = locale;
+  for (const fn of localeListeners) fn();
+}
+export function getActiveLocale(): Locale {
+  return activeLocale;
+}
+export function subscribeLocale(fn: () => void): () => void {
+  localeListeners.add(fn);
+  return () => localeListeners.delete(fn);
+}
+
+export function t(key: StringKey, locale: Locale = activeLocale): string {
   return strings[locale][key] ?? strings[defaultLocale][key];
 }
 
@@ -393,14 +448,39 @@ export function interpolate(template: string, vars: Record<string, string>): str
  * Locale-aware price formatting (Addendum/§20 review note): ca/es "15,00 €",
  * en "€15.00". Always via Intl — never hand-rolled decimals.
  */
-const PRICE_LOCALE: Record<Locale, string> = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' };
+// BCP-47 locale for all Intl formatting (price + dates), keyed by app locale.
+const INTL_LOCALE: Record<Locale, string> = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' };
 
 export function formatPrice(
   cents: number,
   currency = 'EUR',
-  locale: Locale = defaultLocale,
+  locale: Locale = activeLocale,
 ): string {
-  return new Intl.NumberFormat(PRICE_LOCALE[locale], { style: 'currency', currency }).format(
+  return new Intl.NumberFormat(INTL_LOCALE[locale], { style: 'currency', currency }).format(
     cents / 100,
   );
+}
+
+// Locale-aware date/time — month & weekday names follow the active locale (EN in
+// English, ES in Spanish, CA default) instead of being pinned to Catalan.
+export function formatDateTime(
+  date: Date | string,
+  opts: Intl.DateTimeFormatOptions,
+  locale: Locale = activeLocale,
+): string {
+  return new Date(date).toLocaleString(INTL_LOCALE[locale], opts);
+}
+export function formatDate(
+  date: Date | string,
+  opts: Intl.DateTimeFormatOptions,
+  locale: Locale = activeLocale,
+): string {
+  return new Date(date).toLocaleDateString(INTL_LOCALE[locale], opts);
+}
+export function formatTime(
+  date: Date | string,
+  opts: Intl.DateTimeFormatOptions,
+  locale: Locale = activeLocale,
+): string {
+  return new Date(date).toLocaleTimeString(INTL_LOCALE[locale], opts);
 }

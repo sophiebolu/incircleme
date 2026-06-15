@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import type { ArrivingMoment, CircleDetail, CircleMessage } from '@incircleme/types';
-import { t, interpolate } from '@incircleme/i18n';
+import { t, interpolate, formatDate, formatDateTime } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { joinCircle } from '../../lib/socket';
 import { BrandBar } from '../../components/BrandBar';
@@ -145,7 +145,7 @@ export default function CircleScreen() {
   const kept = circle.keptAt !== null;
   const window = arrivingWindow(circle.event.startsAt, circle.event.endsAt, now);
   const showVote = !kept && voteWindowOpen(circle.event.endsAt, now);
-  const eventDateLine = new Date(circle.event.startsAt).toLocaleString('ca-ES', {
+  const eventDateLine = formatDateTime(circle.event.startsAt, {
     weekday: 'long',
     hour: '2-digit',
     minute: '2-digit',
@@ -220,10 +220,7 @@ export default function CircleScreen() {
               {/* §20 locked: "Kept by the group · since {date}" (§6 'Circle kept' = badges only) */}
               <Text style={styles.barTitleKept}>
                 {interpolate(t('keptByGroup'), {
-                  date: new Date(circle.keptAt!).toLocaleDateString('ca-ES', {
-                    day: 'numeric',
-                    month: 'short',
-                  }),
+                  date: formatDate(circle.keptAt!, { day: 'numeric', month: 'short' }),
                 })}
               </Text>
               <Text style={styles.barSub}>{t('keptNote')}</Text>

@@ -11,11 +11,19 @@ import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
-const STATUS_CA: Record<string, string> = {
-  held: 'Pendent',
-  confirmed: 'Confirmat',
-  cancelled: 'Cancel·lat',
-  refunded: 'Retornat',
+const statusLabel = (s: string): string => {
+  switch (s) {
+    case 'held':
+      return t('bookStatusHeld');
+    case 'confirmed':
+      return t('bookStatusConfirmed');
+    case 'cancelled':
+      return t('bookStatusCancelled');
+    case 'refunded':
+      return t('bookStatusRefunded');
+    default:
+      return s;
+  }
 };
 
 export default function Bookings() {
@@ -51,7 +59,9 @@ export default function Bookings() {
       <BrandBar />
       <Text style={styles.heading}>{t('bookings')}</Text>
       {!signedIn ? (
-        <Text style={styles.empty}>{t('signIn')} — Perfil</Text>
+        <Text style={styles.empty}>
+          {t('signIn')} — {t('profile')}
+        </Text>
       ) : (
         <FlatList
           data={items ?? []}
@@ -61,7 +71,7 @@ export default function Bookings() {
           renderItem={({ item }) => (
             <View>
               <Text style={[styles.status, item.status === 'confirmed' && styles.statusOk]}>
-                {STATUS_CA[item.status] ?? item.status}
+                {statusLabel(item.status)}
               </Text>
               <EventCard event={item.event} />
             </View>

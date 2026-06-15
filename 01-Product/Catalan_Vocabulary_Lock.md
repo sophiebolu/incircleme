@@ -598,4 +598,31 @@ The "Revisa i envia" step lists the locked field labels (Setmanes · sessions, H
 
 ---
 
+## 23. Localization sweep — booking / checkout / profile (locked 2026-06-15)
+
+Routes the last hardcoded Catalan on Slice 1–2 screens through `t()` so the app flips fully to EN/ES. CA values are the existing in-app copy (unchanged); ES/EN are the translations. Mirrored in `incircleme-mvp/packages/i18n`. (Dates are now a locale-aware formatter, not copy; the event-detail "address unlocks" line reuses §20.)
+
+### Booking status (bookings list badge + checkout title)
+| EN | CA | ES |
+|---|---|---|
+| Pending | Pendent | Pendiente |
+| Confirmed | Confirmat | Confirmado |
+| Cancelled | Cancel·lat | Cancelado |
+| Refunded | Reemborsat | Reembolsado |
+
+### Checkout
+| EN | CA | ES |
+|---|---|---|
+| The room is yours. | La sala és teva. | La sala es tuya. |
+| Pay | Paga | Pagar |
+| Total | Total | Total |
+| This room is no longer available. | Aquesta sala ja no hi és. | Esta sala ya no está. |
+
+### Profile
+| EN | CA | ES |
+|---|---|---|
+| Sign out | Surt | Salir |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

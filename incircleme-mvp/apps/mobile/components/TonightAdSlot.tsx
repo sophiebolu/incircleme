@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { EventListItem } from '@incircleme/types';
-import { t, formatPrice } from '@incircleme/i18n';
+import { t, formatPrice, formatTime } from '@incircleme/i18n';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 
@@ -61,7 +61,7 @@ export function TonightAdSlot({ slides }: { slides: AdSlide[] }) {
   const slide = slides[Math.min(index, slides.length - 1)]!;
   const e = slide.event;
 
-  const when = new Date(e.startsAt).toLocaleTimeString('ca-ES', {
+  const when = formatTime(e.startsAt, {
     hour: '2-digit',
     minute: '2-digit',
   });

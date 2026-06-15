@@ -3,7 +3,7 @@ import { FlatList, Pressable, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { EventListItem } from '@incircleme/types';
-import { t, type StringKey } from '@incircleme/i18n';
+import { t, interpolate, type StringKey } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { EventCard } from '../../components/EventCard';
 import { BrandBar } from '../../components/BrandBar';
@@ -32,7 +32,7 @@ export default function Category() {
       .catch(() => setEvents([]));
   }, [cat]);
 
-  const label = LABEL[cat ?? ''] ? t(LABEL[cat!]!) : 'Esdeveniments';
+  const label = LABEL[cat ?? ''] ? t(LABEL[cat!]!) : t('catAll');
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -40,8 +40,8 @@ export default function Category() {
       <Pressable onPress={() => router.back()} hitSlop={10}>
         <Text style={styles.back}>←</Text>
       </Pressable>
-      {/* Category title pattern per vocab lock §4: "{Category} a Barcelona" */}
-      <Text style={styles.heading}>{label} a Barcelona</Text>
+      {/* Category title pattern per vocab lock §4 — locale-aware connector */}
+      <Text style={styles.heading}>{interpolate(t('inBarcelona'), { cat: label })}</Text>
       <FlatList
         data={events}
         keyExtractor={(e) => e.id}

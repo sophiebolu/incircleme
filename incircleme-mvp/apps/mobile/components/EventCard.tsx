@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { EventListItem } from '@incircleme/types';
-import { t, formatPrice } from '@incircleme/i18n';
+import { t, formatPrice, formatDateTime } from '@incircleme/i18n';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 
@@ -9,7 +9,7 @@ const FALLBACK_PHOTO = 'https://images.unsplash.com/photo-1556910103-1c02745aae4
 
 export function EventCard({ event }: { event: EventListItem }) {
   const router = useRouter();
-  const when = new Date(event.startsAt).toLocaleString('ca-ES', {
+  const when = formatDateTime(event.startsAt, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
