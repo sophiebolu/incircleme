@@ -1,49 +1,54 @@
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import type { PublicProgramCard } from '@incircleme/types';
+import { t } from '@incircleme/i18n';
+import { api } from '../lib/api';
+import { tierColor, tierLabel } from '../lib/programTier';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 
-// Presentational stub until Slice 5 (Programs backend). Cards mirror the prototype strip.
-const STUB_PROGRAMS = [
-  {
-    title: 'Hands in Clay',
-    host: 'Teresa',
-    weeks: 6,
-    photo: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600',
-  },
-  {
-    title: 'Drawing from Life',
-    host: 'Sofía',
-    weeks: 8,
-    photo: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600',
-  },
-  {
-    title: 'Catalan for Newcomers',
-    host: 'Joan',
-    weeks: 6,
-    photo: 'https://images.unsplash.com/photo-1543165796-5426273eaab3?w=600',
-  },
-];
-
+// Home strip — surfaces verified Programs (§24). Tap a card → public detail;
+// tap the eyebrow → the full listing. Hidden until at least one Program is verified.
 export function ProgramsStrip() {
+  const router = useRouter();
+  const [programs, setPrograms] = useState<PublicProgramCard[] | null>(null);
+
+  useEffect(() => {
+    api
+      .listPublicPrograms()
+      .then(setPrograms)
+      .catch(() => setPrograms([]));
+  }, []);
+
+  if (!programs || programs.length === 0) return null;
+
   return (
     <View>
-      {/* Locked verbatim (Codex-Brief): EN-only until CA/ES rows are locked */}
-      <Text style={styles.eyebrow}>Programs. Where craft becomes your way.</Text>
+      <Pressable onPress={() => router.push('/programs/browse')}>
+        <Text style={styles.eyebrow}>{t('prog_pub_eyebrow')}</Text>
+      </Pressable>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
-        {STUB_PROGRAMS.map((p) => (
-          <View key={p.title} style={styles.card}>
-            <Image source={{ uri: p.photo }} style={styles.photo} />
+        {programs.map((p) => (
+          <Pressable key={p.id} style={styles.card} onPress={() => router.push(`/program/${p.id}`)}>
+            <View style={styles.photo}>
+              <View style={[styles.badge, { borderColor: tierColor(p.verifiedTier) }]}>
+                <Text style={[styles.badgeText, { color: tierColor(p.verifiedTier) }]}>
+                  {tierLabel(p.verifiedTier)}
+                </Text>
+              </View>
+            </View>
             <Text style={styles.title} numberOfLines={1}>
               {p.title}
             </Text>
-            <Text style={styles.meta}>
-              {p.host} · {p.weeks} setmanes
+            <Text style={styles.meta} numberOfLines={1}>
+              {p.hostName}
+              {p.neighbourhood ? ` · ${p.neighbourhood}` : ''}
             </Text>
-          </View>
+          </Pressable>
         ))}
       </ScrollView>
-      {/* Locked verbatim (Codex-Brief) */}
-      <Text style={styles.trust}>Verified by IncircleMe Trust · the certificate is real.</Text>
+      <Text style={styles.trust}>{t('prog_pub_trustLine')}</Text>
     </View>
   );
 }
@@ -61,15 +66,20 @@ const styles = StyleSheet.create({
     width: 150,
     height: 96,
     borderRadius: 12,
-    backgroundColor: tokens.color.border,
+    backgroundColor: tokens.color.forestSoft,
     marginBottom: 6,
+    padding: 7,
   },
+  badge: {
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    backgroundColor: '#FFFFFF',
+  },
+  badgeText: { fontFamily: fonts.bodySemi, fontSize: 9.5 },
   title: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.ink },
-  meta: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.gray },
-  trust: {
-    fontFamily: fonts.body,
-    fontSize: 11,
-    color: tokens.color.gray,
-    marginTop: 10,
-  },
+  meta: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.text2 },
+  trust: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.text2, marginTop: 10 },
 });
