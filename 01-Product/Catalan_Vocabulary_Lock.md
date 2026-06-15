@@ -517,4 +517,57 @@ Behavior note (not copy): the difference view is *silent, not stigmatised* — m
 
 ---
 
+## 22. Programs — submission flow (locked 2026-06-15)
+
+The Premium host's *Submit a Program* surfaces (Slice 5 Part 1). **Net-new copy** — the v3 prototype mocks the *Program detail* (learner-facing) screen but never the creator-side submission flow, so these strings were drafted for this lock, not lifted. Mirrored in `incircleme-mvp/packages/i18n` (keys `prog_*`). Status labels are display-only; DB enum values are unchanged (e.g. `rejected` → "Not approved"). The fee figure (€150) reflects the v2 economics config — if the config changes, this line is re-locked.
+
+### Status labels (host-facing)
+| EN | CA | ES |
+|---|---|---|
+| Draft | Esborrany | Borrador |
+| Payment pending | Pagament pendent | Pago pendiente |
+| In review | En revisió | En revisión |
+| Verified | Verificat | Verificado |
+| Not approved | No aprovat | No aprobado |
+| Paused | En pausa | En pausa |
+
+### Fee / credit explainer
+| EN | CA | ES |
+|---|---|---|
+| Verified Program submission — €150, refundable if not approved. | Enviament de Programa verificat — 150 €, reemborsable si no s'aprova. | Envío de Programa verificado — 150 €, reembolsable si no se aprueba. |
+| Included with Premium — 1 free Program. | Inclòs amb Premium — 1 Programa gratuït. | Incluido con Premium — 1 Programa gratis. |
+
+### Form sections
+| EN | CA | ES |
+|---|---|---|
+| Basics | Bàsics | Lo básico |
+| Curriculum | Temari | Temario |
+| Accreditation | Acreditació | Acreditación |
+| References | Referències | Referencias |
+| Credentials | Credencials | Credenciales |
+| Review & submit | Revisa i envia | Revisa y envía |
+
+### Field labels
+| EN | CA | ES |
+|---|---|---|
+| Title | Títol | Título |
+| Description | Descripció | Descripción |
+| Weeks · sessions | Setmanes · sessions | Semanas · sesiones |
+| Total hours | Hores totals | Horas totales |
+| How you assess | Com avalues | Cómo evalúas |
+| Accrediting body (optional) | Entitat acreditadora (opcional) | Entidad acreditadora (opcional) |
+| Your ID with them | El teu identificador | Tu identificador |
+| Add a reference | Afegeix una referència | Añade una referencia |
+| Upload a credential | Puja una credencial | Sube una credencial |
+
+### CTAs
+| EN | CA | ES |
+|---|---|---|
+| Save draft | Desa l'esborrany | Guardar borrador |
+| Submit for review | Envia per revisar | Enviar a revisión |
+| Pay & submit (€150) | Paga i envia (150 €) | Pagar y enviar (150 €) |
+| Add credential | Afegeix credencial | Añadir credencial |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
