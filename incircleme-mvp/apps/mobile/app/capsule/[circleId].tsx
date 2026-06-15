@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { Capsule } from '@incircleme/types';
-import { t, interpolate } from '@incircleme/i18n';
+import { t, interpolate, formatDate, formatTime } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { savePhotoToDevice } from '../../lib/savePhoto';
 import { BrandBar } from '../../components/BrandBar';
@@ -36,7 +36,7 @@ export default function CapsuleScreen() {
     return <SafeAreaView style={styles.safe} />;
   }
 
-  const dateLine = new Date(capsule.eventDate).toLocaleDateString('ca-ES', {
+  const dateLine = formatDate(capsule.eventDate, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -99,20 +99,14 @@ export default function CapsuleScreen() {
                     <Image source={{ uri: abs(p.beforeUrl) }} style={styles.paneImg} />
                     <Text style={styles.paneLabel}>{t('paneArriving')}</Text>
                     <Text style={styles.paneTime}>
-                      {new Date(p.beforeAt).toLocaleTimeString('ca-ES', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {formatTime(p.beforeAt, { hour: '2-digit', minute: '2-digit' })}
                     </Text>
                   </View>
                   <View style={styles.pane}>
                     <Image source={{ uri: abs(p.afterUrl) }} style={styles.paneImg} />
                     <Text style={styles.paneLabel}>{t('paneLeaving')}</Text>
                     <Text style={styles.paneTime}>
-                      {new Date(p.afterAt).toLocaleTimeString('ca-ES', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {formatTime(p.afterAt, { hour: '2-digit', minute: '2-digit' })}
                     </Text>
                   </View>
                 </View>

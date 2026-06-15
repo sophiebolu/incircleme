@@ -75,7 +75,7 @@ export default function Profile() {
             <Text style={styles.buttonGhostText}>{t('prog_entry')} →</Text>
           </Pressable>
           <Pressable style={styles.buttonGhost} onPress={signOut}>
-            <Text style={styles.buttonGhostText}>Surt</Text>
+            <Text style={styles.buttonGhostText}>{t('signOut')}</Text>
           </Pressable>
         </View>
       ) : (

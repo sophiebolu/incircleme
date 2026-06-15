@@ -135,6 +135,16 @@ export const strings = {
     prog_kindReferenceLetter: 'Carta de referència',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'Cap',
+    // §23 localization sweep — booking/checkout/profile (PROVISIONAL, pending verdict)
+    bookStatusHeld: 'Pendent',
+    bookStatusConfirmed: 'Confirmat',
+    bookStatusCancelled: 'Cancel·lat',
+    bookStatusRefunded: 'Retornat',
+    bookRoomYours: 'La sala és teva.',
+    bookPay: 'Paga',
+    bookTotal: 'Total',
+    bookUnavailable: 'Aquesta sala ja no hi és.',
+    signOut: 'Surt',
   },
   es: {
     home: 'Inicio',
@@ -256,6 +266,16 @@ export const strings = {
     prog_kindReferenceLetter: 'Carta de referencia',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'Ninguna',
+    // §23 localization sweep — PROVISIONAL, pending verdict
+    bookStatusHeld: 'Pendiente',
+    bookStatusConfirmed: 'Confirmado',
+    bookStatusCancelled: 'Cancelado',
+    bookStatusRefunded: 'Reembolsado',
+    bookRoomYours: 'La sala es tuya.',
+    bookPay: 'Paga',
+    bookTotal: 'Total',
+    bookUnavailable: 'Esta sala ya no está.',
+    signOut: 'Salir',
   },
   en: {
     home: 'Home',
@@ -376,6 +396,16 @@ export const strings = {
     prog_kindReferenceLetter: 'Reference letter',
     // §22 review-summary empty value, e.g. blank accreditation (locked 2026-06-15)
     prog_valueNone: 'None',
+    // §23 localization sweep — PROVISIONAL, pending verdict
+    bookStatusHeld: 'Pending',
+    bookStatusConfirmed: 'Confirmed',
+    bookStatusCancelled: 'Cancelled',
+    bookStatusRefunded: 'Refunded',
+    bookRoomYours: 'The room is yours.',
+    bookPay: 'Pay',
+    bookTotal: 'Total',
+    bookUnavailable: 'This room is no longer available.',
+    signOut: 'Sign out',
   },
 } as const;
 
@@ -418,14 +448,39 @@ export function interpolate(template: string, vars: Record<string, string>): str
  * Locale-aware price formatting (Addendum/§20 review note): ca/es "15,00 €",
  * en "€15.00". Always via Intl — never hand-rolled decimals.
  */
-const PRICE_LOCALE: Record<Locale, string> = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' };
+// BCP-47 locale for all Intl formatting (price + dates), keyed by app locale.
+const INTL_LOCALE: Record<Locale, string> = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' };
 
 export function formatPrice(
   cents: number,
   currency = 'EUR',
   locale: Locale = activeLocale,
 ): string {
-  return new Intl.NumberFormat(PRICE_LOCALE[locale], { style: 'currency', currency }).format(
+  return new Intl.NumberFormat(INTL_LOCALE[locale], { style: 'currency', currency }).format(
     cents / 100,
   );
+}
+
+// Locale-aware date/time — month & weekday names follow the active locale (EN in
+// English, ES in Spanish, CA default) instead of being pinned to Catalan.
+export function formatDateTime(
+  date: Date | string,
+  opts: Intl.DateTimeFormatOptions,
+  locale: Locale = activeLocale,
+): string {
+  return new Date(date).toLocaleString(INTL_LOCALE[locale], opts);
+}
+export function formatDate(
+  date: Date | string,
+  opts: Intl.DateTimeFormatOptions,
+  locale: Locale = activeLocale,
+): string {
+  return new Date(date).toLocaleDateString(INTL_LOCALE[locale], opts);
+}
+export function formatTime(
+  date: Date | string,
+  opts: Intl.DateTimeFormatOptions,
+  locale: Locale = activeLocale,
+): string {
+  return new Date(date).toLocaleTimeString(INTL_LOCALE[locale], opts);
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { EventDetail } from '@incircleme/types';
@@ -63,12 +63,16 @@ export default function Book() {
         <Text style={styles.back}>←</Text>
       </Pressable>
       <View style={styles.card}>
-        {phase === 'signedOut' ? (
-          <Text style={styles.note}>{t('signIn')} — Perfil</Text>
+        {phase === 'loading' ? (
+          <ActivityIndicator color={tokens.color.forest} />
+        ) : phase === 'signedOut' ? (
+          <Text style={styles.note}>
+            {t('signIn')} — {t('profile')}
+          </Text>
         ) : phase === 'done' ? (
           <>
-            <Text style={styles.confirmTitle}>Confirmat</Text>
-            <Text style={styles.note}>La sala és teva.</Text>
+            <Text style={styles.confirmTitle}>{t('bookStatusConfirmed')}</Text>
+            <Text style={styles.note}>{t('bookRoomYours')}</Text>
             <Pressable style={styles.cta} onPress={() => router.replace('/(tabs)/bookings')}>
               <Text style={styles.ctaText}>{t('bookings')}</Text>
             </Pressable>
@@ -78,17 +82,22 @@ export default function Book() {
         ) : event ? (
           <>
             <Text style={styles.title}>{event.title}</Text>
-            <Text style={styles.price}>Total · {price}</Text>
+            <Text style={styles.price}>
+              {t('bookTotal')} · {price}
+            </Text>
             <Pressable
               style={[styles.cta, phase === 'paying' && styles.ctaDisabled]}
               disabled={phase === 'paying'}
               onPress={pay}
             >
-              <Text style={styles.ctaText}>{phase === 'paying' ? '…' : 'Paga'}</Text>
+              <Text style={styles.ctaText}>{phase === 'paying' ? '…' : t('bookPay')}</Text>
             </Pressable>
             {phase === 'error' ? <Text style={styles.error}>···</Text> : null}
           </>
-        ) : null}
+        ) : (
+          // event failed to load (e.g. 404) — never leave the card blank
+          <Text style={styles.note}>{t('bookUnavailable')}</Text>
+        )}
       </View>
     </SafeAreaView>
   );

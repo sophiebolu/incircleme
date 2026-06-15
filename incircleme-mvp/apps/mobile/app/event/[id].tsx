@@ -3,7 +3,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { EventDetail } from '@incircleme/types';
-import { t, formatPrice } from '@incircleme/i18n';
+import { t, formatPrice, formatDateTime } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { HostRow } from '../../components/HostRow';
 import { BrandBar } from '../../components/BrandBar';
@@ -25,7 +25,7 @@ export default function Event() {
     return <SafeAreaView style={styles.safe} />;
   }
 
-  const when = new Date(event.startsAt).toLocaleString('ca-ES', {
+  const when = formatDateTime(event.startsAt, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -55,7 +55,9 @@ export default function Event() {
 
         {/* Address stays quiet until T-1 day (locked product rule) */}
         <Text style={styles.address}>
-          {event.addressLocked ? "L'adreça s'obre el dia abans." : event.address}
+          {event.addressLocked
+            ? `${t('addressUnlocksPrefix')}${t('addressUnlocksEm')}.`
+            : event.address}
         </Text>
 
         {event.roomFull ? (
