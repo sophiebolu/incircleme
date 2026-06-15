@@ -164,6 +164,8 @@ export const strings = {
     prog_pub_voicesSub: 'De la Càpsula de records de cada Cercle mantingut',
     prog_pub_questions: 'Preguntes dels veïns',
     prog_pub_questionsSub: 'Preguntat en públic · respost per {host}',
+    prog_pub_scheduleLine: '{weeks} setmanes · {hours} hores',
+    prog_pub_hostFallback: "l'amfitrió/a",
   },
   es: {
     home: 'Inicio',
@@ -314,6 +316,8 @@ export const strings = {
     prog_pub_voicesSub: 'De la Cápsula de recuerdos de cada Círculo mantenido',
     prog_pub_questions: 'Preguntas de los vecinos',
     prog_pub_questionsSub: 'Preguntado en público · respondido por {host}',
+    prog_pub_scheduleLine: '{weeks} semanas · {hours} horas',
+    prog_pub_hostFallback: 'su anfitrión/a',
   },
   en: {
     home: 'Home',
@@ -463,6 +467,8 @@ export const strings = {
     prog_pub_voicesSub: "From each kept Circle's Memory Capsule",
     prog_pub_questions: 'Questions from neighbours',
     prog_pub_questionsSub: 'Asked publicly · answered by {host}',
+    prog_pub_scheduleLine: '{weeks} weeks · {hours} hours',
+    prog_pub_hostFallback: 'the host',
   },
 } as const;
 

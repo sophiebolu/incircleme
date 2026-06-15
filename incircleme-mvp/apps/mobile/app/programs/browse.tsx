@@ -34,8 +34,7 @@ export default function BrowsePrograms() {
             <View style={{ flexShrink: 1 }}>
               <Text style={styles.title}>{p.title}</Text>
               <Text style={styles.meta}>
-                {p.hostName}
-                {p.neighbourhood ? ` · ${p.neighbourhood}` : ''}
+                {[p.hostName, p.neighbourhood].filter(Boolean).join(' · ')}
               </Text>
             </View>
             <View style={[styles.badge, { borderColor: tierColor(p.verifiedTier) }]}>

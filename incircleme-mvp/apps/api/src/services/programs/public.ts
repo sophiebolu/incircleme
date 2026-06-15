@@ -30,7 +30,7 @@ export async function listPublicPrograms(): Promise<PublicProgramCard[]> {
   return rows.map((r) => ({
     id: r.id,
     title: r.title,
-    hostName: r.hostName ?? '—',
+    hostName: r.hostName ?? '',
     neighbourhood: r.neighbourhood,
     timeFrameSessions: r.timeFrameSessions,
     verifiedTier: (r.verifiedTier ?? 'verified') as VerificationTier,
@@ -78,7 +78,7 @@ export async function getPublicProgram(id: string): Promise<PublicProgramDetail 
     id: row.id,
     title: row.title,
     description: row.description,
-    hostName: host?.displayName ?? '—',
+    hostName: host?.displayName ?? '',
     neighbourhood: host?.neighbourhood ?? null,
     timeFrameSessions: row.timeFrameSessions,
     timeFrameTotalHours: row.timeFrameTotalHours !== null ? Number(row.timeFrameTotalHours) : null,

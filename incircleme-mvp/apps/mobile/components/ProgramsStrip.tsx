@@ -42,8 +42,7 @@ export function ProgramsStrip() {
               {p.title}
             </Text>
             <Text style={styles.meta} numberOfLines={1}>
-              {p.hostName}
-              {p.neighbourhood ? ` · ${p.neighbourhood}` : ''}
+              {[p.hostName, p.neighbourhood].filter(Boolean).join(' · ')}
             </Text>
           </Pressable>
         ))}

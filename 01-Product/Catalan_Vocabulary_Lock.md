@@ -648,6 +648,8 @@ The browse-verified-Programs surfaces (Slice 5 Part 2). Prototype-verbatim EN (v
 | From each kept Circle's Memory Capsule | De la Càpsula de records de cada Cercle mantingut | De la Cápsula de recuerdos de cada Círculo mantenido |
 | Questions from neighbours | Preguntes dels veïns | Preguntas de los vecinos |
 | Asked publicly · answered by {host} | Preguntat en públic · respost per {host} | Preguntado en público · respondido por {host} |
+| {weeks} weeks · {hours} hours | {weeks} setmanes · {hours} hores | {weeks} semanas · {hours} horas |
+| the host *(fallback when a host has no display name — keeps "{host}'s signature" from rendering as "—'s")* | l'amfitrió/a | su anfitrión/a |
 
 ---
 

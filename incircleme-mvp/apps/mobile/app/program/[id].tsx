@@ -29,6 +29,8 @@ export default function PublicProgram() {
 
   const weeks = p.timeFrameSessions ?? p.curriculum.length;
   const color = tierColor(p.verifiedTier);
+  // Graceful fallback — host display_name is nullable, so never render "—'s signature".
+  const hostLabel = p.hostName || t('prog_pub_hostFallback');
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -44,10 +46,7 @@ export default function PublicProgram() {
         </View>
 
         <Text style={styles.title}>{p.title}</Text>
-        <Text style={styles.host}>
-          {p.hostName}
-          {p.neighbourhood ? ` · ${p.neighbourhood}` : ''}
-        </Text>
+        <Text style={styles.host}>{[p.hostName, p.neighbourhood].filter(Boolean).join(' · ')}</Text>
         {p.description ? <Text style={styles.desc}>{p.description}</Text> : null}
 
         {/* {n} weeks · what happens */}
@@ -70,7 +69,7 @@ export default function PublicProgram() {
           <Text style={styles.certEyebrow}>{t('prog_pub_certEyebrow')}</Text>
           <Text style={styles.certHead}>{t('prog_pub_realCredential')}</Text>
           <Text style={styles.certBody}>
-            {interpolate(t('prog_pub_certExplainer'), { host: p.hostName })}
+            {interpolate(t('prog_pub_certExplainer'), { host: hostLabel })}
           </Text>
           {p.assessmentMethod ? <Text style={styles.certBody}>{p.assessmentMethod}</Text> : null}
           {p.verifiedTier === 'accredited' && p.governingBodyUrl ? (
@@ -83,14 +82,13 @@ export default function PublicProgram() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('prog_pub_whatsIncluded')}</Text>
           <Text style={styles.bullet}>• {t('prog_pub_certEyebrow')}</Text>
-          {p.timeFrameSessions != null ? (
+          {p.timeFrameSessions != null && p.timeFrameTotalHours != null ? (
             <Text style={styles.bullet}>
-              • {t('prog_fldWeeksSessions')} · {p.timeFrameSessions}
-            </Text>
-          ) : null}
-          {p.timeFrameTotalHours != null ? (
-            <Text style={styles.bullet}>
-              • {t('prog_fldTotalHours')} · {p.timeFrameTotalHours}
+              •{' '}
+              {interpolate(t('prog_pub_scheduleLine'), {
+                weeks: String(p.timeFrameSessions),
+                hours: String(p.timeFrameTotalHours),
+              })}
             </Text>
           ) : null}
         </View>
@@ -115,7 +113,7 @@ export default function PublicProgram() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('prog_pub_questions')}</Text>
             <Text style={styles.sectionSub}>
-              {interpolate(t('prog_pub_questionsSub'), { host: p.hostName })}
+              {interpolate(t('prog_pub_questionsSub'), { host: hostLabel })}
             </Text>
             {p.questions.map((q) => (
               <View key={q.id} style={styles.qaCard}>
@@ -123,7 +121,7 @@ export default function PublicProgram() {
                 <Text style={styles.qText}>{q.question}</Text>
                 {q.answer ? (
                   <View style={styles.answer}>
-                    <Text style={styles.aName}>{p.hostName}</Text>
+                    <Text style={styles.aName}>{hostLabel}</Text>
                     <Text style={styles.aText}>{q.answer}</Text>
                   </View>
                 ) : null}
