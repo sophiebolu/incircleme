@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     color: tokens.color.ink,
     marginTop: 14,
   },
-  meta: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.gray, marginTop: 4 },
+  meta: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.text2, marginTop: 4 },
   section: { marginTop: 16 },
   description: {
     fontFamily: fonts.body,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   address: {
     fontFamily: fonts.bodyMedium,
     fontSize: 12.5,
-    color: tokens.color.gray,
+    color: tokens.color.text2,
     marginTop: 12,
   },
   cta: {
@@ -118,11 +118,13 @@ const styles = StyleSheet.create({
   },
   ctaText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.cream },
   ctaFull: { backgroundColor: tokens.color.border },
+  // Disabled "Full" CTA — kept gray (WCAG exempts inactive controls; text2 on the
+  // border fill is only ~4.3:1 anyway, so promoting it would falsely read as active).
   ctaFullText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.gray },
   seatsNote: {
     fontFamily: fonts.body,
     fontSize: 12,
-    color: tokens.color.gray,
+    color: tokens.color.text2,
     textAlign: 'center',
     marginTop: 8,
   },

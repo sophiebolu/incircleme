@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   kindChipOn: { backgroundColor: tokens.color.forestSoft, borderColor: tokens.color.forest },
-  kindChipText: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: tokens.color.gray },
+  kindChipText: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: tokens.color.text2 },
   kindChipTextOn: { color: tokens.color.forest },
   reviewTitle: { fontFamily: fonts.display, fontSize: 19, color: tokens.color.ink },
   title: { fontFamily: fonts.display, fontSize: 20, color: tokens.color.ink },

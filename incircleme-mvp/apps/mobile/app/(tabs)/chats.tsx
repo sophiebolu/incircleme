@@ -119,14 +119,14 @@ const styles = StyleSheet.create({
   avatarText: { fontFamily: fonts.displaySemi, fontSize: 18, color: tokens.color.cream },
   info: { flex: 1, gap: 2 },
   title: { fontFamily: fonts.bodySemi, fontSize: 14.5, color: tokens.color.ink },
-  meta: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.gray },
+  meta: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.text2 },
   badges: { alignItems: 'flex-end', gap: 2 },
   kept: { fontFamily: fonts.bodySemi, fontSize: 10.5, color: tokens.color.forest },
   capsule: { fontFamily: fonts.bodySemi, fontSize: 10.5, color: tokens.color.coralInk },
   empty: {
     fontFamily: fonts.body,
     fontSize: 13,
-    color: tokens.color.gray,
+    color: tokens.color.text2,
     paddingHorizontal: 16,
   },
 });

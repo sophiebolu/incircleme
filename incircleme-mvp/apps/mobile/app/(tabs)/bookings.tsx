@@ -98,14 +98,14 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 1,
     textTransform: 'uppercase',
-    color: tokens.color.gray,
+    color: tokens.color.text2,
     marginBottom: 4,
   },
   statusOk: { color: tokens.color.forest },
   empty: {
     fontFamily: fonts.body,
     fontSize: 13,
-    color: tokens.color.gray,
+    color: tokens.color.text2,
     paddingHorizontal: 16,
   },
 });

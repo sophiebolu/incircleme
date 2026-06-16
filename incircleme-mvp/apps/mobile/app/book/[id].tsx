@@ -126,6 +126,6 @@ const styles = StyleSheet.create({
   ctaDisabled: { opacity: 0.6 },
   ctaText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.cream },
   confirmTitle: { fontFamily: fonts.display, fontSize: 22, color: tokens.color.forest },
-  note: { fontFamily: fonts.body, fontSize: 13.5, color: tokens.color.gray },
+  note: { fontFamily: fonts.body, fontSize: 13.5, color: tokens.color.text2 },
   error: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.coralInk },
 });

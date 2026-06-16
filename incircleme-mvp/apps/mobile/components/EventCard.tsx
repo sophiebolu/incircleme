@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   photo: { width: 84, height: 84, borderRadius: 10, backgroundColor: tokens.color.border },
   body: { flex: 1, justifyContent: 'center', gap: 3 },
   title: { fontFamily: fonts.displaySemi, fontSize: 15.5, color: tokens.color.ink },
-  meta: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.gray },
+  meta: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.text2 },
   seats: { fontFamily: fonts.bodySemi, fontSize: 12, color: tokens.color.forest },
   roomFull: { fontFamily: fonts.bodySemi, fontSize: 12, color: tokens.color.coralInk },
 });

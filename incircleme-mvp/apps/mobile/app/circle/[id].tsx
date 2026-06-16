@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   back: { fontSize: 22, color: tokens.color.ink },
   headerInfo: { flex: 1 },
   headerTitle: { fontFamily: fonts.displaySemi, fontSize: 17, color: tokens.color.ink },
-  headerMeta: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.gray },
+  headerMeta: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.text2 },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   barTitle: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.ink },
   barTitleKept: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.forest },
   barEm: { fontFamily: fonts.displayItalic, color: tokens.color.coralInk },
-  barSub: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.gray },
+  barSub: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.text2 },
   barHours: {
     fontFamily: fonts.displaySemi,
     fontSize: 15,
@@ -443,8 +443,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   cardGhostText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.ink },
-  cardSkip: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: tokens.color.gray },
-  cardNote: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.gray },
+  cardSkip: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: tokens.color.text2 },
+  cardNote: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.text2 },
   momentsRow: { flexDirection: 'row', gap: 6, marginTop: 4 },
   momentThumb: {
     width: 44,
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   systemLine: {
     fontFamily: fonts.body,
     fontSize: 11.5,
-    color: tokens.color.gray,
+    color: tokens.color.text2,
     textAlign: 'center',
     paddingHorizontal: 16,
     paddingVertical: 4,

@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     textTransform: 'uppercase',
   },
-  paneTime: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.gray },
+  paneTime: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.text2 },
   rollHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   seeAll: { fontFamily: fonts.bodyMedium, fontSize: 12, color: tokens.color.coralInk },
   roll: { gap: 8 },
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statBig: { fontFamily: fonts.displaySemi, fontSize: 16, color: tokens.color.forest },
-  statSub: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.gray, marginTop: 1 },
+  statSub: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.text2, marginTop: 1 },
   circleLine: { fontFamily: fonts.body, fontSize: 13.5, color: tokens.color.text2 },
   actions: { flexDirection: 'row', gap: 10, marginTop: 24 },
   cta: {
