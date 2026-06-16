@@ -115,21 +115,34 @@ export async function rejectProgram(
   reason: string,
   payments: Payments,
 ): Promise<ReviewDetail> {
-  const row = await reviewableOrThrow(programId);
-  // Refund the submission fee on rejection (config-driven), once, only if a real PI was charged.
-  if (isSubmissionFeeRefundable() && row.stripePiId && !row.feeRefunded) {
-    await payments.refund(row.stripePiId);
-  }
-  await db
-    .update(programs)
-    .set({
-      status: 'rejected',
-      rejectionReason: reason,
-      verifiedBy: reviewerId,
-      feeRefunded:
-        isSubmissionFeeRefundable() && row.stripePiId ? true : row.feeRefunded,
-    })
-    .where(eq(programs.id, programId));
+  // Lock the row for the duration so two concurrent rejections can't both refund.
+  // We re-read status + feeRefunded under the lock, refund at most once (with a
+  // Stripe idempotency key as a second guard), then flip feeRefunded in the same tx.
+  await db.transaction(async (tx) => {
+    const [row] = await tx
+      .select()
+      .from(programs)
+      .where(and(eq(programs.id, programId), isNull(programs.deletedAt)))
+      .limit(1)
+      .for('update');
+    if (!row) throw new ProgramNotFoundError();
+    if (!REVIEWABLE.includes(row.status)) throw new InvalidStateError();
+
+    const shouldRefund =
+      isSubmissionFeeRefundable() && !!row.stripePiId && !row.feeRefunded;
+    if (shouldRefund && row.stripePiId) {
+      await payments.refund(row.stripePiId, `program-refund-${row.stripePiId}`);
+    }
+    await tx
+      .update(programs)
+      .set({
+        status: 'rejected',
+        rejectionReason: reason,
+        verifiedBy: reviewerId,
+        feeRefunded: shouldRefund ? true : row.feeRefunded,
+      })
+      .where(eq(programs.id, programId));
+  });
   return getReviewDetail(programId);
 }
 

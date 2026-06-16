@@ -24,6 +24,9 @@ export async function verifyOAuthIdToken(
       issuer: ['https://accounts.google.com', 'accounts.google.com'],
       audience: env.GOOGLE_CLIENT_ID,
     });
+    // Only trust the email if Google says it's verified — findOrCreateByOAuth
+    // links accounts by email, so an unverified address could hijack an account.
+    if (payload.email_verified !== true) throw new Error('email_not_verified');
     return { providerUserId: payload.sub!, email: String(payload.email ?? '') };
   }
   if (!env.APPLE_CLIENT_ID) throw new Error('APPLE_CLIENT_ID not configured');

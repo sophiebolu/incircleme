@@ -22,8 +22,11 @@ export type WebhookEvent =
 export interface Payments {
   createPaymentIntent(input: CreatePaymentIntentInput): Promise<PaymentIntentResult>;
   constructWebhookEvent(rawBody: Buffer, signature: string): WebhookEvent;
-  /** Refund a captured PaymentIntent (used for the refundable Program submission fee on rejection). */
-  refund(paymentIntentId: string): Promise<void>;
+  /**
+   * Refund a captured PaymentIntent (used for the refundable Program submission fee on rejection).
+   * `idempotencyKey` makes a retried refund a no-op at Stripe rather than a double refund.
+   */
+  refund(paymentIntentId: string, idempotencyKey?: string): Promise<void>;
 }
 
 class StripePayments implements Payments {
@@ -53,8 +56,11 @@ class StripePayments implements Payments {
     return { type: 'other' };
   }
 
-  async refund(paymentIntentId: string): Promise<void> {
-    await this.stripe.refunds.create({ payment_intent: paymentIntentId });
+  async refund(paymentIntentId: string, idempotencyKey?: string): Promise<void> {
+    await this.stripe.refunds.create(
+      { payment_intent: paymentIntentId },
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
   }
 }
 
@@ -79,12 +85,20 @@ export class FakePayments implements Payments {
 
   /** Records the refund call so tests can assert it; no external effect. */
   public readonly refunded: string[] = [];
-  async refund(paymentIntentId: string): Promise<void> {
+  async refund(paymentIntentId: string, _idempotencyKey?: string): Promise<void> {
     this.refunded.push(paymentIntentId);
   }
 }
 
 export function createPayments(logger: Pick<FastifyBaseLogger, 'warn'>): Payments {
+  // In production both keys are mandatory: without the secret key we would charge
+  // no one, and without the webhook secret we could not verify payment events.
+  // Never silently fall back to fake payments there — fail fast at startup instead.
+  if (env.NODE_ENV === 'production' && (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET)) {
+    throw new Error(
+      '[payments] STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are required in production',
+    );
+  }
   if (env.STRIPE_SECRET_KEY) {
     return new StripePayments(new Stripe(env.STRIPE_SECRET_KEY), env.STRIPE_WEBHOOK_SECRET);
   }
