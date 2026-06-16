@@ -27,32 +27,32 @@ Sign up for each (use your founder email). Don't configure anything yet.
 ---
 
 ## Part C — Deploy the API to Fly
+> ⚠️ **Order matters:** the API **refuses to boot in production unless both Stripe secrets are set** (a safety guard so it can never silently run charging no one). So we create the Stripe webhook and set its secrets **before** the first `fly deploy`. That's fine because your API URL is fixed the moment `fly launch` finishes — long before we deploy.
+
 - [ ] `⌨️ fly auth login` (opens the browser — you approve).
-- [ ] `⌨️ fly launch --no-deploy --copy-config --name incircleme-staging` (run from the `incircleme-mvp` folder — it uses the `fly.toml` already in the repo; say **No** to Postgres/Redis offers, we use Neon/Upstash).
+- [ ] `⌨️ fly launch --no-deploy --copy-config --name incircleme-staging` (run from the `incircleme-mvp` folder — it uses the `fly.toml` already in the repo; say **No** to Postgres/Redis offers, we use Neon/Upstash). **Your API URL is now fixed: `https://incircleme-staging.fly.dev`** — you'll need it in the Stripe step next.
 - [ ] `⌨️ fly volumes create uploads --region ams --size 1` (1 GB for uploaded photos).
-- [ ] **Paste the secrets** (each is a separate command — paste your saved 🔑 values):
+- [ ] **Paste the base secrets** (each is a separate command — paste your saved 🔑 values):
   ```
   ⌨️ fly secrets set DATABASE_URL="<your Neon string>"
   ⌨️ fly secrets set REDIS_URL="<your Upstash rediss URL>"
   ⌨️ fly secrets set JWT_SECRET="<your random secret>"
   ```
-  *(Google + Stripe secrets come in Parts D–E — set them then.)*
-- [ ] `⌨️ fly deploy` — this builds, **runs the database migrations automatically**, and starts the API + worker. When it finishes, your API is at **`https://incircleme-staging.fly.dev`**. Open `…/health` in a browser — you should see `{"status":"ok"}`.
+- [ ] **Stripe test webhook + keys — set these *before* deploying** (in Stripe, still **Test mode**):
+  - **Developers → Webhooks → Add endpoint.**
+    - Endpoint URL: `https://incircleme-staging.fly.dev/webhooks/stripe`
+    - Events: select **`payment_intent.succeeded`** and **`payment_intent.payment_failed`**.
+  - Copy the endpoint’s **Signing secret** (`whsec_…`) → `⌨️ fly secrets set STRIPE_WEBHOOK_SECRET="whsec_…"`
+  - Copy your **Test secret key** (Developers → API keys → `sk_test_…`) → `⌨️ fly secrets set STRIPE_SECRET_KEY="sk_test_…"`
+  - Copy your **Test publishable key** (`pk_test_…`) → save as 🔑 (goes into the app in Part E).
+- [ ] `⌨️ fly deploy` — with the Stripe secrets in place, this builds, **runs the database migrations automatically**, and starts the API + worker. When it finishes, open `https://incircleme-staging.fly.dev/health` in a browser — you should see a small JSON object with **`status: ok`** (plus `db` and `ts` fields).
 - [ ] **Seed a bit of content:** `⌨️ fly ssh console -C "pnpm --filter @incircleme/api exec tsx scripts/seedStaging.ts"` (adds two hosts, a few events, and one verified Program).
 
----
-
-## Part D — Stripe test webhook (so bookings confirm)
-- [ ] In Stripe (still **Test mode**): **Developers → Webhooks → Add endpoint**.
-  - Endpoint URL: `https://incircleme-staging.fly.dev/webhooks/stripe`
-  - Events: select **`payment_intent.succeeded`** and **`payment_intent.payment_failed`**.
-- [ ] Copy the endpoint’s **Signing secret** (`whsec_…`) → 🔑, then: `⌨️ fly secrets set STRIPE_WEBHOOK_SECRET="whsec_…"`
-- [ ] Copy your **Test secret key** (Developers → API keys → `sk_test_…`) → `⌨️ fly secrets set STRIPE_SECRET_KEY="sk_test_…"`
-- [ ] Copy your **Test publishable key** (`pk_test_…`) → save as 🔑 (goes into the app in Part F).
+*(Google sign-in comes next in Part D — the server boots fine without it; Google just isn't wired until you set it.)*
 
 ---
 
-## Part E — Google “Sign in with Google”
+## Part D — Google “Sign in with Google”
 The Android app needs a fingerprint that Expo generates, so we do **Expo first**, then Google.
 
 1. **Expo:** `⌨️ eas login` → then `⌨️ eas credentials` → choose **Android → Production/preview keystore → set up a new keystore**. It prints a **SHA-1 fingerprint** → save as 🔑 `SHA1`.
@@ -64,7 +64,7 @@ The Android app needs a fingerprint that Expo generates, so we do **Expo first**
 
 ---
 
-## Part F — Build the Android app (APK) and install it
+## Part E — Build the Android app (APK) and install it
 - [ ] **Put your public keys into the app build.** In `apps/mobile/eas.json`, replace the two placeholders:
   - `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` → your `pk_test_…`
   - `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` → your `GOOGLE_WEB_CLIENT_ID`
@@ -74,7 +74,7 @@ The Android app needs a fingerprint that Expo generates, so we do **Expo first**
 
 ---
 
-## Part G — Test end-to-end (the payoff)
+## Part F — Test end-to-end (the payoff)
 - [ ] Open **IncircleMe** → **Profile** → **Sign in with Google** → pick your Gmail.
 - [ ] Browse **Home** → open an event → **book** it. Use Stripe **test card** `4242 4242 4242 4242`, any future date, any CVC. → you get a **ticket**.
 - [ ] Check **Bookings**, the event **Circle**, and **Programs** (the verified “Hands in Clay”).
