@@ -241,7 +241,7 @@ export const strings = {
     fil_thisWeek: 'Aquesta setmana',
     fil_weekend: 'Cap de setmana',
     fil_allBarrios: 'Tots els barris',
-    // Auth — PROVISIONAL (Google sign-in button; pending lock verdict)
+    // §33 auth — Google sign-in (locked 2026-06-16)
     signInWithGoogle: 'Entra amb Google',
   },
   es: {
@@ -470,8 +470,8 @@ export const strings = {
     fil_thisWeek: 'Esta semana',
     fil_weekend: 'Fin de semana',
     fil_allBarrios: 'Todos los barrios',
-    // Auth — PROVISIONAL (pending lock verdict)
-    signInWithGoogle: 'Entra con Google',
+    // §33 auth — Google sign-in (locked 2026-06-16)
+    signInWithGoogle: 'Entrar con Google',
   },
   en: {
     home: 'Home',
@@ -695,7 +695,7 @@ export const strings = {
     fil_thisWeek: 'This week',
     fil_weekend: 'Weekend',
     fil_allBarrios: 'All barrios',
-    // Auth — PROVISIONAL (pending lock verdict)
+    // §33 auth — Google sign-in (locked 2026-06-16)
     signInWithGoogle: 'Sign in with Google',
   },
 } as const;

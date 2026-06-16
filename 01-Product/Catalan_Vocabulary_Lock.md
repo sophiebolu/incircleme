@@ -790,4 +790,14 @@ Enriching the Home Programs strip (keys `prog_pub_*`). The eyebrow is the alread
 
 ---
 
+## 33. Auth — Google sign-in (locked 2026-06-16)
+
+The sign-in button on Profile (staging onward — Google is the only sign-in; the dev paste box is `__DEV__`-only). Mirrored in `incircleme-mvp/packages/i18n` (`signInWithGoogle`). ES uses the infinitive to match the locked §15 *Entrar*. *(Renumbered from §25 during the staging→main rebase — main had already taken §25–§32.)*
+
+| EN | CA | ES |
+|---|---|---|
+| Sign in with Google | Entra amb Google | Entrar con Google |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
