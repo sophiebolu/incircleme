@@ -8,6 +8,7 @@ import type {
 } from '@incircleme/types';
 import {
   isSubmissionFeeRefundable,
+  reviewGates,
   reviewQueueStatuses,
   tierRequiresGoverningBody,
 } from '@incircleme/config';
@@ -18,6 +19,13 @@ import { toProgram, ProgramNotFoundError, InvalidStateError } from './programs';
 export class GoverningBodyRequiredError extends Error {
   constructor() {
     super('governing_body_required');
+  }
+}
+
+/** Verification attempted without affirming all required review gates. */
+export class GateChecksRequiredError extends Error {
+  constructor() {
+    super('gate_checks_required');
   }
 }
 
@@ -94,6 +102,11 @@ export async function verifyProgram(
   if (tierRequiresGoverningBody(tier) && !req.governingBodyUrl?.trim()) {
     throw new GoverningBodyRequiredError();
   }
+  // Every config gate must be explicitly affirmed before a program can be verified.
+  const checks = req.gateChecks ?? {};
+  if (!reviewGates().every((g) => checks[g.id] === true)) {
+    throw new GateChecksRequiredError();
+  }
   await db
     .update(programs)
     .set({
@@ -101,8 +114,10 @@ export async function verifyProgram(
       verifiedTier: tier,
       governingBodyUrl: req.governingBodyUrl?.trim() ?? null,
       verifiedBy: reviewerId,
+      reviewedBy: reviewerId,
       verifiedAt: new Date(),
       reviewNotes: req.notes ?? null,
+      gateChecks: checks, // audit trail of the affirmed gates
     })
     .where(eq(programs.id, programId));
   return getReviewDetail(programId);
@@ -138,7 +153,7 @@ export async function rejectProgram(
       .set({
         status: 'rejected',
         rejectionReason: reason,
-        verifiedBy: reviewerId,
+        reviewedBy: reviewerId,
         feeRefunded: shouldRefund ? true : row.feeRefunded,
       })
       .where(eq(programs.id, programId));
@@ -154,7 +169,7 @@ export async function markUnderReview(
   await reviewableOrThrow(programId);
   await db
     .update(programs)
-    .set({ status: 'under_review', verifiedBy: reviewerId })
+    .set({ status: 'under_review', reviewedBy: reviewerId })
     .where(eq(programs.id, programId));
   return getReviewDetail(programId);
 }

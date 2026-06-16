@@ -19,6 +19,21 @@ import type { PhotoStorage } from '../../lib/storage';
 
 const EDITABLE: ProgramStatus[] = ['draft', 'rejected'];
 
+// When a previously-rejected program is edited or re-submitted it re-enters the
+// queue clean — every artifact of the prior trust decision is wiped, including
+// feeRefunded so a fresh fee can be charged and (if needed) refunded again.
+const CLEARED_TRUST_FIELDS = {
+  verifiedTier: null,
+  governingBodyUrl: null,
+  rejectionReason: null,
+  reviewNotes: null,
+  gateChecks: null,
+  verifiedBy: null,
+  reviewedBy: null,
+  verifiedAt: null,
+  feeRefunded: false,
+} satisfies Partial<ProgramRow>;
+
 export class NotPremiumError extends Error {
   constructor() {
     super('not_premium');
@@ -146,6 +161,8 @@ export async function updateDraft(
   if (input.accreditationBody !== undefined) set.accreditationBody = input.accreditationBody;
   if (input.accreditationId !== undefined) set.accreditationId = input.accreditationId;
   if (input.references !== undefined) set.references = input.references;
+  // Editing a rejected program clears the stale rejection/verdict so it's clean for re-review.
+  if (row.status === 'rejected') Object.assign(set, CLEARED_TRUST_FIELDS);
   const [updated] = await db
     .update(programs)
     .set(set)
@@ -185,6 +202,9 @@ export async function submitProgram(
   const [host] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
   if (!host || !canTierSubmitProgram(host.hostTier as HostTier)) throw new NotPremiumError();
 
+  // Re-submitting a rejected program wipes the prior trust verdict (see CLEARED_TRUST_FIELDS).
+  const clearTrust = row.status === 'rejected' ? CLEARED_TRUST_FIELDS : {};
+
   // Free-credit path (atomic): consume a credit, go straight to review.
   const usedFreeCredit = await db.transaction(async (tx) => {
     const [u] = await tx.select().from(users).where(eq(users.id, userId)).for('update').limit(1);
@@ -195,7 +215,7 @@ export async function submitProgram(
         .where(eq(users.id, userId));
       await tx
         .update(programs)
-        .set({ status: 'pending_review', submittedAt: new Date(), stripePiId: null })
+        .set({ ...clearTrust, status: 'pending_review', submittedAt: new Date(), stripePiId: null })
         .where(eq(programs.id, programId));
       return true;
     }
@@ -215,6 +235,7 @@ export async function submitProgram(
   await db
     .update(programs)
     .set({
+      ...clearTrust,
       status: 'submitted',
       submittedAt: new Date(),
       stripePiId: pi.id,
@@ -231,6 +252,20 @@ export async function confirmProgramSubmission(piId: string): Promise<boolean> {
   await db
     .update(programs)
     .set({ status: 'pending_review' })
+    .where(and(eq(programs.id, row.id), eq(programs.status, 'submitted')));
+  return true;
+}
+
+/**
+ * Webhook: the submission PI failed → release the program back to draft so it
+ * isn't stuck at `submitted` forever (idempotent). The host can edit and retry.
+ */
+export async function failProgramSubmission(piId: string): Promise<boolean> {
+  const [row] = await db.select().from(programs).where(eq(programs.stripePiId, piId)).limit(1);
+  if (!row || row.status !== 'submitted') return false;
+  await db
+    .update(programs)
+    .set({ status: 'draft', stripePiId: null, submittedAt: null })
     .where(and(eq(programs.id, row.id), eq(programs.status, 'submitted')));
   return true;
 }

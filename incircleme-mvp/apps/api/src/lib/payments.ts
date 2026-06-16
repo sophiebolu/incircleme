@@ -15,8 +15,11 @@ export interface PaymentIntentResult {
 }
 
 export type WebhookEvent =
-  | { type: 'payment_intent.succeeded'; paymentIntentId: string }
-  | { type: 'payment_intent.payment_failed'; paymentIntentId: string }
+  // `kind` mirrors the PaymentIntent metadata ('booking' | 'program_submission'),
+  // letting the webhook route dispatch without probing tables. Undefined for
+  // legacy/hand-crafted events, in which case the route falls back to probing.
+  | { type: 'payment_intent.succeeded'; paymentIntentId: string; kind?: string }
+  | { type: 'payment_intent.payment_failed'; paymentIntentId: string; kind?: string }
   | { type: 'other' };
 
 export interface Payments {
@@ -49,10 +52,11 @@ class StripePayments implements Payments {
     if (!this.webhookSecret) throw new Error('STRIPE_WEBHOOK_SECRET not set');
     const event = this.stripe.webhooks.constructEvent(rawBody, signature, this.webhookSecret);
     const pi = event.data.object as Stripe.PaymentIntent;
+    const kind = pi.metadata?.kind;
     if (event.type === 'payment_intent.succeeded')
-      return { type: 'payment_intent.succeeded', paymentIntentId: pi.id };
+      return { type: 'payment_intent.succeeded', paymentIntentId: pi.id, kind };
     if (event.type === 'payment_intent.payment_failed')
-      return { type: 'payment_intent.payment_failed', paymentIntentId: pi.id };
+      return { type: 'payment_intent.payment_failed', paymentIntentId: pi.id, kind };
     return { type: 'other' };
   }
 
@@ -75,11 +79,20 @@ export class FakePayments implements Payments {
     const parsed = JSON.parse(rawBody.toString('utf8')) as {
       type?: string;
       paymentIntentId?: string;
+      kind?: string;
     };
     if (parsed.type === 'payment_intent.succeeded' && parsed.paymentIntentId)
-      return { type: 'payment_intent.succeeded', paymentIntentId: parsed.paymentIntentId };
+      return {
+        type: 'payment_intent.succeeded',
+        paymentIntentId: parsed.paymentIntentId,
+        kind: parsed.kind,
+      };
     if (parsed.type === 'payment_intent.payment_failed' && parsed.paymentIntentId)
-      return { type: 'payment_intent.payment_failed', paymentIntentId: parsed.paymentIntentId };
+      return {
+        type: 'payment_intent.payment_failed',
+        paymentIntentId: parsed.paymentIntentId,
+        kind: parsed.kind,
+      };
     return { type: 'other' };
   }
 

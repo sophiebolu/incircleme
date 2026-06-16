@@ -58,7 +58,7 @@ export async function book(
   const pi = await payments.createPaymentIntent({
     amountCents: reservation.amountCents,
     currency: reservation.currency,
-    metadata: { bookingId: reservation.booking.id, eventId, userId },
+    metadata: { kind: 'booking', bookingId: reservation.booking.id, eventId, userId },
   });
   await db.update(bookings).set({ stripePiId: pi.id }).where(eq(bookings.id, reservation.booking.id));
 

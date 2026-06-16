@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { reviewGates } from '@incircleme/config';
 import { requireReviewer } from '../plugins/requireReviewer';
 import {
+  GateChecksRequiredError,
   GoverningBodyRequiredError,
   getReviewDetail,
   listReviewQueue,
@@ -26,6 +27,8 @@ function mapError(err: unknown, reply: FastifyReply): FastifyReply {
   if (err instanceof InvalidStateError) return reply.code(409).send({ error: 'invalid_state' });
   if (err instanceof GoverningBodyRequiredError)
     return reply.code(400).send({ error: 'governing_body_required' });
+  if (err instanceof GateChecksRequiredError)
+    return reply.code(400).send({ error: 'gate_checks_required' });
   throw err;
 }
 

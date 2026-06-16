@@ -350,11 +350,15 @@ export const programs = pgTable('programs', {
   feeRefunded: boolean('fee_refunded').notNull().default(false),
   submittedAt: timestamp('submitted_at', { withTimezone: true }),
   verifiedAt: timestamp('verified_at', { withTimezone: true }),
-  verifiedBy: uuid('verified_by').references(() => users.id),
+  verifiedBy: uuid('verified_by').references(() => users.id), // set ONLY on actual verification
+  // Who made the latest review decision of any kind (verify/reject/under-review).
+  reviewedBy: uuid('reviewed_by').references(() => users.id),
   // Trust review (Part 2): tier assigned on verify + the accredited governing-body link.
   verifiedTier: text('verified_tier'), // 'verified' (gold) | 'accredited' (forest)
   governingBodyUrl: text('governing_body_url'), // required for the accredited tier
   reviewNotes: text('review_notes'), // internal reviewer notes
+  // The 4-gate affirmations recorded at verify time (audit trail): { gateId: true }.
+  gateChecks: jsonb('gate_checks'),
   rejectionReason: text('rejection_reason'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
