@@ -16,6 +16,8 @@ import type {
   MeResponse,
   MessageAttachment,
   Program,
+  PublicProgramCard,
+  PublicProgramDetail,
   SubmitProgramResult,
   UpdateProgramRequest,
 } from '@incircleme/types';
@@ -175,6 +177,10 @@ export const api = {
     request<Program>('/me/programs', { method: 'POST', body: JSON.stringify(body) }),
   updateProgram: (id: string, body: UpdateProgramRequest) =>
     request<Program>(`/me/programs/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  // --- Public Programs (verified, no auth) ---
+  listPublicPrograms: () => request<PublicProgramCard[]>('/programs'),
+  getPublicProgram: (id: string) => request<PublicProgramDetail>(`/programs/${id}`),
+
   submitProgram: (id: string) =>
     // Body must be a non-empty JSON value: the client always sends content-type
     // application/json, and Fastify rejects an empty body for that content-type.

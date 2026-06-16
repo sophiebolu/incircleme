@@ -13,6 +13,9 @@ export type TrustTier = 'newcomer' | 'regular' | 'trusted' | 'pillar' | 'legend'
 
 export type HostTier = 'basic' | 'pro' | 'premium';
 
+/** Internal role — 'trust_reviewer' may use the admin review queue. */
+export type UserRole = 'member' | 'trust_reviewer';
+
 export type EventCategory =
   | 'food_drink'
   | 'wellness'
@@ -35,6 +38,7 @@ export interface User {
   trustScore: number;
   hostTier: HostTier;
   freeProgramCredits: number;
+  role: UserRole;
   joinedAt: string;
   lastSeenAt: string | null;
 }

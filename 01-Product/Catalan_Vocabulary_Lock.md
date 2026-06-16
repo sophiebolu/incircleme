@@ -625,4 +625,32 @@ Routes the last hardcoded Catalan on Slice 1–2 screens through `t()` so the ap
 
 ---
 
+## 24. Public Programs — listing + detail (locked 2026-06-15)
+
+The browse-verified-Programs surfaces (Slice 5 Part 2). Prototype-verbatim EN (v3 Program-detail screen, Pass 38B/39A/39B); CA/ES are the translations. Mirrored in `incircleme-mvp/packages/i18n` (keys `prog_pub_*`). `{n}`/`{host}` interpolate; week titles, quotes, and Q&A are per-program **data**, not locked copy. Read-only this slice — the ask/answer composer + "See sample →" are deferred with the Q&A write-path / certificates (Part 3). Tier badges render with the AA-passing gold (`#7E6410`) / forest tokens. Canonical "Kept Circle" CA/ES = *Cercle mantingut / Círculo mantenido*.
+
+| EN | CA | ES |
+|---|---|---|
+| Programs. Where craft becomes your way. | Programes. On l'ofici esdevé camí. | Programas. Donde el oficio se hace camino. |
+| Verified Program | Programa verificat | Programa verificado |
+| Accredited Program | Programa acreditat | Programa acreditado |
+| Verified by IncircleMe Trust · the certificate is real. | Verificat per IncircleMe Trust · el certificat és real. | Verificado por IncircleMe Trust · el certificado es real. |
+| Verified by IncircleMe Trust | Verificat per IncircleMe Trust | Verificado por IncircleMe Trust |
+| How it works → | Com funciona → | Cómo funciona → |
+| How verification works → | Com funciona la verificació → | Cómo funciona la verificación → |
+| {n} weeks · what happens | {n} setmanes · què passa | {n} semanas · qué pasa |
+| The certificate | El certificat | El certificado |
+| Verified Program · Completion certificate | Programa verificat · Certificat de finalització | Programa verificado · Certificado de finalización |
+| A real credential — not a participation sticker. | Una credencial de veritat — no un adhesiu de participació. | Una credencial de verdad — no una pegatina de participación. |
+| Real completion criteria, {host}'s signature, and IncircleMe's verification seal. | Criteris de finalització reals, la signatura de {host} i el segell de verificació d'IncircleMe. | Criterios de finalización reales, la firma de {host} y el sello de verificación de IncircleMe. |
+| What's included | Què inclou | Qué incluye |
+| Voices from past cohorts | Veus de cohorts anteriors | Voces de cohortes anteriores |
+| From each kept Circle's Memory Capsule | De la Càpsula de records de cada Cercle mantingut | De la Cápsula de recuerdos de cada Círculo mantenido |
+| Questions from neighbours | Preguntes dels veïns | Preguntas de los vecinos |
+| Asked publicly · answered by {host} | Preguntat en públic · respost per {host} | Preguntado en público · respondido por {host} |
+| {weeks} weeks · {hours} hours | {weeks} setmanes · {hours} hores | {weeks} semanas · {hours} horas |
+| the host *(fallback when a host has no display name — keeps "{host}'s signature" from rendering as "—'s")* | l'amfitrió/a | su anfitrión/a |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

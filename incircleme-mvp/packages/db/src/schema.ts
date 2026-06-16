@@ -42,6 +42,8 @@ export const users = pgTable('users', {
   hostTier: text('host_tier').notNull().default('basic'), // 'basic' | 'pro' | 'premium'
   // Free Program credits (Premium includes 1). Consumed on submission before any fee.
   freeProgramCredits: integer('free_program_credits').notNull().default(0),
+  // Internal role — 'trust_reviewer' may use the admin review queue. Dev sets by hand.
+  role: text('role').notNull().default('member'), // 'member' | 'trust_reviewer'
   joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -349,6 +351,10 @@ export const programs = pgTable('programs', {
   submittedAt: timestamp('submitted_at', { withTimezone: true }),
   verifiedAt: timestamp('verified_at', { withTimezone: true }),
   verifiedBy: uuid('verified_by').references(() => users.id),
+  // Trust review (Part 2): tier assigned on verify + the accredited governing-body link.
+  verifiedTier: text('verified_tier'), // 'verified' (gold) | 'accredited' (forest)
+  governingBodyUrl: text('governing_body_url'), // required for the accredited tier
+  reviewNotes: text('review_notes'), // internal reviewer notes
   rejectionReason: text('rejection_reason'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -369,6 +375,41 @@ export const programCredentials = pgTable('program_credentials', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Curated testimonials from past cohorts (read-only public; seeded for now). §39A.
+export const programVoices = pgTable('program_voices', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  programId: uuid('program_id')
+    .notNull()
+    .references(() => programs.id),
+  quote: text('quote').notNull(),
+  attribution: text('attribution').notNull(), // "Sofía R. · February cohort"
+  cohortLabel: text('cohort_label'), // short note under the attribution
+  position: integer('position').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Public Q&A on a Program. Part 2 ships READ-ONLY + seeded; the authenticated
+// ask + host-answer write-path is a deferred fast-follow (table is ready). §39B.
+export const programQuestions = pgTable('program_questions', {
+  id: uuid('id')
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  programId: uuid('program_id')
+    .notNull()
+    .references(() => programs.id),
+  askerUserId: uuid('asker_user_id').references(() => users.id),
+  askerName: text('asker_name').notNull(),
+  question: text('question').notNull(),
+  answer: text('answer'),
+  answeredAt: timestamp('answered_at', { withTimezone: true }),
+  isPublic: boolean('is_public').notNull().default(true),
+  askedAt: timestamp('asked_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type ProgramRow = typeof programs.$inferSelect;
 export type NewProgramRow = typeof programs.$inferInsert;
 export type ProgramCredentialRow = typeof programCredentials.$inferSelect;
+export type ProgramVoiceRow = typeof programVoices.$inferSelect;
+export type ProgramQuestionRow = typeof programQuestions.$inferSelect;
