@@ -14,6 +14,9 @@ const schema = z.object({
   PORT: z.coerce.number().default(4000),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url().optional(),
+  // Comma-separated allowlist of browser origins. Enforced only in production;
+  // dev/test reflect any origin. Empty in prod → deny all cross-origin requests.
+  CORS_ORIGINS: z.string().optional(),
 
   // Auth
   JWT_SECRET: z.string().min(16),

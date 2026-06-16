@@ -71,6 +71,20 @@
       "when": 1781556977704,
       "tag": "0009_charming_millenium_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1781604001581,
+      "tag": "0010_nervous_vin_gonzales",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1781605435590,
+      "tag": "0011_classy_zuras",
+      "breakpoints": true
     }
   ]
 }

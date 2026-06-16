@@ -1,0 +1,1 @@
+ALTER TABLE "programs" ALTER COLUMN "submission_fee_cents" DROP DEFAULT;

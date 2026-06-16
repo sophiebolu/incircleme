@@ -53,5 +53,5 @@ const styles = StyleSheet.create({
   info: { flex: 1, gap: 1 },
   name: { fontFamily: fonts.bodySemi, fontSize: 14.5, color: tokens.color.ink },
   tier: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: tokens.color.coralInk },
-  bio: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.gray, marginTop: 2 },
+  bio: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.text2, marginTop: 2 },
 });

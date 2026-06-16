@@ -21,7 +21,7 @@ export default function Profile() {
   const [phase, setPhase] = useState<'idle' | 'sent' | 'error-request' | 'error-verify'>('idle');
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       if (await isSignedIn()) {
         try {
           setMe(await api.me());
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   name: { fontFamily: fonts.displaySemi, fontSize: 18, color: tokens.color.ink },
-  meta: { fontFamily: fonts.body, fontSize: 12.5, color: tokens.color.gray },
+  meta: { fontFamily: fonts.body, fontSize: 12.5, color: tokens.color.text2 },
   label: { fontFamily: fonts.bodySemi, fontSize: 14, color: tokens.color.ink },
   input: {
     borderColor: tokens.color.border,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonGhostText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.ink },
-  hint: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.gray },
+  hint: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.text2 },
   error: {
     fontFamily: fonts.bodySemi,
     fontSize: 13,

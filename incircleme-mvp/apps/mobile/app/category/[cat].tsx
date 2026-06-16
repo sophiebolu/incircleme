@@ -64,5 +64,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   list: { paddingHorizontal: 16, paddingBottom: 24 },
-  empty: { fontFamily: fonts.body, color: tokens.color.gray },
+  empty: { fontFamily: fonts.body, color: tokens.color.text2 },
 });

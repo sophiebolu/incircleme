@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
+import { env } from './env';
 import { registerRateLimit } from './plugins/rateLimit';
 import { healthRoutes } from './routes/health';
 import { authRoutes } from './routes/auth';
@@ -41,7 +42,14 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   const storage = opts.storage ?? createLocalStorage();
   const realtime: Realtime = opts.realtime === false ? nullRealtime : createRealtime(app);
 
-  await app.register(cors, { origin: true });
+  // In production restrict CORS to the configured allowlist; dev/test reflect any origin.
+  const corsOrigin =
+    env.NODE_ENV === 'production'
+      ? (env.CORS_ORIGINS?.split(',')
+          .map((o) => o.trim())
+          .filter(Boolean) ?? [])
+      : true;
+  await app.register(cors, { origin: corsOrigin });
   await app.register(sensible);
   await app.register(multipart);
   await app.register(fastifyStatic, { root: uploadsDir, prefix: '/uploads/' });

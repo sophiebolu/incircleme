@@ -6,7 +6,7 @@ import type { Payments } from '../lib/payments';
 import type { Mailer } from '../lib/mailer';
 import { confirmByPaymentIntent, releaseByPaymentIntent } from '../services/booking/booking';
 import { ensureCircleAndMembership } from '../services/circles/circles';
-import { confirmProgramSubmission } from '../services/programs/programs';
+import { confirmProgramSubmission, failProgramSubmission } from '../services/programs/programs';
 
 export async function webhookRoutes(
   app: FastifyInstance,
@@ -28,10 +28,16 @@ export async function webhookRoutes(
     }
 
     if (event.type === 'payment_intent.succeeded') {
-      // A PI is either a booking or a Program-submission fee — try booking first.
-      const ctx = await confirmByPaymentIntent(event.paymentIntentId);
-      if (!ctx) {
-        await confirmProgramSubmission(event.paymentIntentId); // no-op if not a program PI
+      // Dispatch on the PI's metadata kind; probe both tables only for legacy
+      // events that predate the kind tag (booking first, then program).
+      let ctx = null;
+      if (event.kind === 'program_submission') {
+        await confirmProgramSubmission(event.paymentIntentId);
+      } else if (event.kind === 'booking') {
+        ctx = await confirmByPaymentIntent(event.paymentIntentId);
+      } else {
+        ctx = await confirmByPaymentIntent(event.paymentIntentId);
+        if (!ctx) await confirmProgramSubmission(event.paymentIntentId);
       }
       if (ctx) {
         // One Circle per event, auto-created on first confirmed booking (host + attendee join).
@@ -62,7 +68,16 @@ export async function webhookRoutes(
         }
       }
     } else if (event.type === 'payment_intent.payment_failed') {
-      await releaseByPaymentIntent(event.paymentIntentId);
+      // Same dispatch: release a held booking, or release a stuck program submission.
+      if (event.kind === 'program_submission') {
+        await failProgramSubmission(event.paymentIntentId);
+      } else if (event.kind === 'booking') {
+        await releaseByPaymentIntent(event.paymentIntentId);
+      } else {
+        // Legacy event without a kind — both are scoped no-ops on a non-match.
+        await releaseByPaymentIntent(event.paymentIntentId);
+        await failProgramSubmission(event.paymentIntentId);
+      }
     }
 
     return reply.code(200).send({ received: true });

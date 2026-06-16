@@ -152,6 +152,14 @@ describe('Trust review — reviewer gate + queue', () => {
   });
 });
 
+// All four config gates affirmed — required for a program to be verified.
+const ALL_GATES = {
+  host_standing: true,
+  curriculum_substance: true,
+  credentials_verified: true,
+  assessment_integrity: true,
+};
+
 describe('Trust review — decisions', () => {
   it('verify (verified/gold) → verified + tier + verifiedBy; leaves the queue', async () => {
     const pid = await freePending();
@@ -160,13 +168,15 @@ describe('Trust review — decisions', () => {
       method: 'POST',
       url: `/admin/programs/${pid}/verify`,
       headers: auth(r.accessToken),
-      payload: { tier: 'verified' },
+      payload: { tier: 'verified', gateChecks: ALL_GATES },
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().verifiedTier).toBe('verified');
     const [row] = await db.select().from(programs).where(eq(programs.id, pid));
     expect(row!.status).toBe('verified');
     expect(row!.verifiedBy).toBe(r.user.id);
+    expect(row!.reviewedBy).toBe(r.user.id);
+    expect(row!.gateChecks).toEqual(ALL_GATES);
 
     const queue = (
       await app.inject({ method: 'GET', url: '/admin/programs/queue', headers: auth(r.accessToken) })
@@ -194,7 +204,11 @@ describe('Trust review — decisions', () => {
       method: 'POST',
       url: `/admin/programs/${pid}/verify`,
       headers: auth(r.accessToken),
-      payload: { tier: 'accredited', governingBodyUrl: 'https://ceramics.example.org/cert/77' },
+      payload: {
+        tier: 'accredited',
+        governingBodyUrl: 'https://ceramics.example.org/cert/77',
+        gateChecks: ALL_GATES,
+      },
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().verifiedTier).toBe('accredited');
@@ -248,9 +262,22 @@ describe('Trust review — decisions', () => {
       method: 'POST',
       url: `/admin/programs/${pid}/verify`,
       headers: auth(r.accessToken),
-      payload: { tier: 'verified' },
+      payload: { tier: 'verified', gateChecks: ALL_GATES },
     });
     expect(verify.statusCode).toBe(200);
+  });
+
+  it('verify without affirming every gate → 400 gate_checks_required', async () => {
+    const pid = await freePending();
+    const r = await reviewer();
+    const res = await app.inject({
+      method: 'POST',
+      url: `/admin/programs/${pid}/verify`,
+      headers: auth(r.accessToken),
+      payload: { tier: 'verified', gateChecks: { ...ALL_GATES, assessment_integrity: false } },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toBe('gate_checks_required');
   });
 
   it('acting on a non-queue Program (draft) → 409', async () => {
@@ -275,6 +302,91 @@ describe('Trust review — decisions', () => {
   });
 });
 
+describe('Trust review — re-submit & failed payment', () => {
+  it('editing a rejected Program wipes the stale verdict; re-submit re-queues it', async () => {
+    const host = await signIn('resubmit@test.com');
+    await makePremium(host.user.id, 2); // two credits: one per submission
+    const p = (
+      await app.inject({
+        method: 'POST',
+        url: '/me/programs',
+        headers: auth(host.accessToken),
+        payload: { title: 'Bread, Slowly' },
+      })
+    ).json();
+    await app.inject({
+      method: 'POST',
+      url: `/me/programs/${p.id}/submit`,
+      headers: auth(host.accessToken),
+    });
+    const r = await reviewer();
+    await app.inject({
+      method: 'POST',
+      url: `/admin/programs/${p.id}/reject`,
+      headers: auth(r.accessToken),
+      payload: { reason: 'Needs a real assessment bar.' },
+    });
+    const [rejected] = await db.select().from(programs).where(eq(programs.id, p.id));
+    expect(rejected!.status).toBe('rejected');
+    expect(rejected!.rejectionReason).toContain('assessment');
+    expect(rejected!.reviewedBy).toBe(r.user.id);
+
+    // Host edits → stale verdict cleared, still editable (rejected).
+    await app.inject({
+      method: 'PATCH',
+      url: `/me/programs/${p.id}`,
+      headers: auth(host.accessToken),
+      payload: { title: 'Bread, Slowly (v2)' },
+    });
+    const [edited] = await db.select().from(programs).where(eq(programs.id, p.id));
+    expect(edited!.rejectionReason).toBeNull();
+    expect(edited!.reviewedBy).toBeNull();
+    expect(edited!.status).toBe('rejected');
+
+    // Re-submit → back in the queue.
+    await app.inject({
+      method: 'POST',
+      url: `/me/programs/${p.id}/submit`,
+      headers: auth(host.accessToken),
+    });
+    const [resubmitted] = await db.select().from(programs).where(eq(programs.id, p.id));
+    expect(resubmitted!.status).toBe('pending_review');
+  });
+
+  it('a failed submission payment releases a stuck Program back to draft', async () => {
+    const host = await signIn('failpay@test.com');
+    await makePremium(host.user.id, 0); // no credit → fee path → status submitted
+    const p = (
+      await app.inject({
+        method: 'POST',
+        url: '/me/programs',
+        headers: auth(host.accessToken),
+        payload: { title: 'Watercolour Mornings' },
+      })
+    ).json();
+    await app.inject({
+      method: 'POST',
+      url: `/me/programs/${p.id}/submit`,
+      headers: auth(host.accessToken),
+    });
+    const [submitted] = await db.select().from(programs).where(eq(programs.id, p.id));
+    expect(submitted!.status).toBe('submitted');
+
+    await app.inject({
+      method: 'POST',
+      url: '/webhooks/stripe',
+      payload: {
+        type: 'payment_intent.payment_failed',
+        paymentIntentId: submitted!.stripePiId,
+        kind: 'program_submission',
+      },
+    });
+    const [released] = await db.select().from(programs).where(eq(programs.id, p.id));
+    expect(released!.status).toBe('draft');
+    expect(released!.stripePiId).toBeNull();
+  });
+});
+
 describe('Public Programs', () => {
   it('lists only verified Programs; detail is rich (voices + Q&A)', async () => {
     const pid = await freePending();
@@ -286,7 +398,7 @@ describe('Public Programs', () => {
       method: 'POST',
       url: `/admin/programs/${pid}/verify`,
       headers: auth(r.accessToken),
-      payload: { tier: 'verified' },
+      payload: { tier: 'verified', gateChecks: ALL_GATES },
     });
     // seed voices + a public question
     await db.insert(programVoices).values({

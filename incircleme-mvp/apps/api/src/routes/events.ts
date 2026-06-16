@@ -30,7 +30,7 @@ export async function eventRoutes(
   app.post('/events', { preHandler: requireAuth }, async (req, reply) => {
     const parsed = createEventSchema.safeParse(req.body);
     if (!parsed.success) {
-      return reply.code(400).send({ error: 'invalid_request', details: parsed.error.flatten() });
+      return reply.code(400).send({ error: 'invalid_request' });
     }
     const detail = await createEvent(req.userId!, parsed.data);
     return reply.code(201).send(detail);

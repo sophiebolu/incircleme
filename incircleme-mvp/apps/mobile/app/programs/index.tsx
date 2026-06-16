@@ -23,7 +23,7 @@ export default function ProgramsList() {
   useFocusEffect(
     useCallback(() => {
       let active = true;
-      (async () => {
+      void (async () => {
         if (!(await isSignedIn())) {
           if (active) setPhase('signedOut');
           return;

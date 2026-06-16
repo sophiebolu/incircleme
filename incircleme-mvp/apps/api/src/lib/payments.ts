@@ -15,15 +15,21 @@ export interface PaymentIntentResult {
 }
 
 export type WebhookEvent =
-  | { type: 'payment_intent.succeeded'; paymentIntentId: string }
-  | { type: 'payment_intent.payment_failed'; paymentIntentId: string }
+  // `kind` mirrors the PaymentIntent metadata ('booking' | 'program_submission'),
+  // letting the webhook route dispatch without probing tables. Undefined for
+  // legacy/hand-crafted events, in which case the route falls back to probing.
+  | { type: 'payment_intent.succeeded'; paymentIntentId: string; kind?: string }
+  | { type: 'payment_intent.payment_failed'; paymentIntentId: string; kind?: string }
   | { type: 'other' };
 
 export interface Payments {
   createPaymentIntent(input: CreatePaymentIntentInput): Promise<PaymentIntentResult>;
   constructWebhookEvent(rawBody: Buffer, signature: string): WebhookEvent;
-  /** Refund a captured PaymentIntent (used for the refundable Program submission fee on rejection). */
-  refund(paymentIntentId: string): Promise<void>;
+  /**
+   * Refund a captured PaymentIntent (used for the refundable Program submission fee on rejection).
+   * `idempotencyKey` makes a retried refund a no-op at Stripe rather than a double refund.
+   */
+  refund(paymentIntentId: string, idempotencyKey?: string): Promise<void>;
 }
 
 class StripePayments implements Payments {
@@ -46,15 +52,19 @@ class StripePayments implements Payments {
     if (!this.webhookSecret) throw new Error('STRIPE_WEBHOOK_SECRET not set');
     const event = this.stripe.webhooks.constructEvent(rawBody, signature, this.webhookSecret);
     const pi = event.data.object as Stripe.PaymentIntent;
+    const kind = pi.metadata?.kind;
     if (event.type === 'payment_intent.succeeded')
-      return { type: 'payment_intent.succeeded', paymentIntentId: pi.id };
+      return { type: 'payment_intent.succeeded', paymentIntentId: pi.id, kind };
     if (event.type === 'payment_intent.payment_failed')
-      return { type: 'payment_intent.payment_failed', paymentIntentId: pi.id };
+      return { type: 'payment_intent.payment_failed', paymentIntentId: pi.id, kind };
     return { type: 'other' };
   }
 
-  async refund(paymentIntentId: string): Promise<void> {
-    await this.stripe.refunds.create({ payment_intent: paymentIntentId });
+  async refund(paymentIntentId: string, idempotencyKey?: string): Promise<void> {
+    await this.stripe.refunds.create(
+      { payment_intent: paymentIntentId },
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
   }
 }
 
@@ -69,22 +79,39 @@ export class FakePayments implements Payments {
     const parsed = JSON.parse(rawBody.toString('utf8')) as {
       type?: string;
       paymentIntentId?: string;
+      kind?: string;
     };
     if (parsed.type === 'payment_intent.succeeded' && parsed.paymentIntentId)
-      return { type: 'payment_intent.succeeded', paymentIntentId: parsed.paymentIntentId };
+      return {
+        type: 'payment_intent.succeeded',
+        paymentIntentId: parsed.paymentIntentId,
+        kind: parsed.kind,
+      };
     if (parsed.type === 'payment_intent.payment_failed' && parsed.paymentIntentId)
-      return { type: 'payment_intent.payment_failed', paymentIntentId: parsed.paymentIntentId };
+      return {
+        type: 'payment_intent.payment_failed',
+        paymentIntentId: parsed.paymentIntentId,
+        kind: parsed.kind,
+      };
     return { type: 'other' };
   }
 
   /** Records the refund call so tests can assert it; no external effect. */
   public readonly refunded: string[] = [];
-  async refund(paymentIntentId: string): Promise<void> {
+  async refund(paymentIntentId: string, _idempotencyKey?: string): Promise<void> {
     this.refunded.push(paymentIntentId);
   }
 }
 
 export function createPayments(logger: Pick<FastifyBaseLogger, 'warn'>): Payments {
+  // In production both keys are mandatory: without the secret key we would charge
+  // no one, and without the webhook secret we could not verify payment events.
+  // Never silently fall back to fake payments there — fail fast at startup instead.
+  if (env.NODE_ENV === 'production' && (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET)) {
+    throw new Error(
+      '[payments] STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are required in production',
+    );
+  }
   if (env.STRIPE_SECRET_KEY) {
     return new StripePayments(new Stripe(env.STRIPE_SECRET_KEY), env.STRIPE_WEBHOOK_SECRET);
   }
