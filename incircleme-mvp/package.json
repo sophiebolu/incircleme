@@ -11,9 +11,14 @@
     "dev:mobile": "pnpm --filter @incircleme/mobile start",
     "db:generate": "pnpm --filter @incircleme/db generate",
     "db:migrate": "pnpm --filter @incircleme/db migrate",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint ."
   },
   "devDependencies": {
-    "typescript": "^5.7.0"
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "globals": "^17.6.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.61.0"
   }
 }

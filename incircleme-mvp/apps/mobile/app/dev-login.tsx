@@ -20,7 +20,7 @@ export default function DevLogin() {
       router.replace('/');
       return;
     }
-    (async () => {
+    void (async () => {
       try {
         const session = await api.devLogin(typeof email === 'string' ? email : undefined);
         await saveSession(session);
@@ -29,7 +29,6 @@ export default function DevLogin() {
         setFailed(true);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!__DEV__) return null;

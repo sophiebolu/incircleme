@@ -18,7 +18,7 @@ export default function Chats() {
   useFocusEffect(
     useCallback(() => {
       let live = true;
-      (async () => {
+      void (async () => {
         if (!(await isSignedIn())) {
           if (live) setSignedIn(false);
           return;

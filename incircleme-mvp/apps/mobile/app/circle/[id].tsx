@@ -174,6 +174,8 @@ export default function CircleScreen() {
               <Text style={[styles.sender, isHost ? styles.senderHost : styles.senderOther]}>
                 {sender?.displayName ?? '—'}
               </Text>
+              {/* TODO(deferred, needs i18n verdict): "HOST" is hardcoded English and
+                  ungendered — route through i18n once copy is decided (CA/ES). */}
               {isHost ? <Text style={styles.hostTag}>HOST</Text> : null}
             </View>
           ) : null}

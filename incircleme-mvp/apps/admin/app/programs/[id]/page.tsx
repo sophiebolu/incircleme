@@ -40,7 +40,6 @@ export default function ReviewDetailPage() {
   useEffect(() => {
     load();
     adminApi.gates().then(setGates).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (error) return <p style={{ color: '#A6563A' }}>{error}</p>;

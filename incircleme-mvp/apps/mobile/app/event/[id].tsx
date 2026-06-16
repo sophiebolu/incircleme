@@ -22,6 +22,8 @@ export default function Event() {
   }, [id]);
 
   if (!event) {
+    // TODO(deferred, needs copy verdict): show an explicit not-found / loading
+    // empty state here instead of a blank screen (same for program + capsule).
     return <SafeAreaView style={styles.safe} />;
   }
 

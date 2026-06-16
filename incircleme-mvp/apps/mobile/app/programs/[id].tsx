@@ -94,7 +94,7 @@ export default function ProgramForm() {
   };
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       if (!(await isSignedIn())) return setPhase('signedOut');
       try {
         const profile = await api.me();
@@ -108,7 +108,6 @@ export default function ProgramForm() {
         setPhase('error');
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const buildPatch = (): UpdateProgramRequest => ({

@@ -33,6 +33,7 @@ export default function CapsuleScreen() {
   }, [circleId]);
 
   if (!capsule) {
+    // TODO(deferred, needs copy verdict): explicit not-found / loading empty state.
     return <SafeAreaView style={styles.safe} />;
   }
 

@@ -22,7 +22,7 @@ export default function Book() {
   const [phase, setPhase] = useState<Phase>('loading');
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       if (!(await isSignedIn())) {
         setPhase('signedOut');
         return;

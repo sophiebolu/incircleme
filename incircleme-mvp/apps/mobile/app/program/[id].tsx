@@ -24,6 +24,7 @@ export default function PublicProgram() {
         .catch(() => setMissing(true));
   }, [id]);
 
+  // TODO(deferred, needs copy verdict): explicit not-found vs loading empty states.
   if (missing) return <SafeAreaView style={styles.safe} />;
   if (!p) return <SafeAreaView style={styles.safe} />;
 

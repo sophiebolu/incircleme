@@ -21,7 +21,7 @@ export default function Profile() {
   const [phase, setPhase] = useState<'idle' | 'sent' | 'error-request' | 'error-verify'>('idle');
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       if (await isSignedIn()) {
         try {
           setMe(await api.me());
