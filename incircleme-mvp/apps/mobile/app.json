@@ -11,6 +11,9 @@
       "bundleIdentifier": "com.incircleme.app",
       "supportsTablet": false
     },
+    "android": {
+      "package": "com.incircleme.app"
+    },
     "plugins": [
       "expo-router",
       "expo-font",
@@ -21,7 +24,13 @@
           "enableGooglePay": false
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.PLACEHOLDER_REPLACE_FOR_IOS"
+        }
+      ]
     ]
   }
 }

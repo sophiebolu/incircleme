@@ -124,6 +124,11 @@ export const api = {
     }),
   verifyMagicLink: (token: string) =>
     request<AuthResult>('/auth/verify', { method: 'POST', body: JSON.stringify({ token }) }),
+  oauthGoogle: (idToken: string) =>
+    request<AuthResult>('/auth/oauth/google', {
+      method: 'POST',
+      body: JSON.stringify({ idToken }),
+    }),
   // DEV-ONLY: the API route exists only when NODE_ENV !== 'production'.
   devLogin: (email?: string) =>
     request<AuthResult>('/dev/login', { method: 'POST', body: JSON.stringify({ email }) }),

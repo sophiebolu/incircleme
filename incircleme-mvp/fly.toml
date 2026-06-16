@@ -1,0 +1,45 @@
+# IncircleMe — STAGING (Fly.io). API + worker. Secrets are set with `fly secrets set`
+# (never committed). Default *.fly.dev URL — no custom domain.
+app = "incircleme-staging"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+# Run DB migrations before the new release goes live (DATABASE_URL is a Fly secret).
+[deploy]
+  release_command = "pnpm --filter @incircleme/db migrate"
+
+[processes]
+  app = "pnpm --filter @incircleme/api start"
+  worker = "pnpm --filter @incircleme/api worker"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+
+# HTTP + WebSocket (Socket.io) on the app process. Always-on (no cold starts during a test).
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+# Uploaded photos/credentials persist on a volume (single staging machine).
+# R2 is the multi-machine production path (deferred).
+[[mounts]]
+  source = "uploads"
+  destination = "/app/apps/api/uploads"
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  processes = ["worker"]
