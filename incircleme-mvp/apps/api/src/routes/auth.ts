@@ -46,7 +46,8 @@ export async function authRoutes(
   );
 
   // POST /auth/verify — consume magic link, find-or-create user, issue tokens.
-  app.post('/auth/verify', async (req, reply) => {
+  // Rate-limited per IP to blunt token-guessing.
+  app.post('/auth/verify', { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } }, async (req, reply) => {
     const parsed = verifyRequestSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });
     const email = await verifyMagicLink(parsed.data.token);
@@ -60,7 +61,8 @@ export async function authRoutes(
   });
 
   // POST /auth/oauth/:provider — verify id_token via JWKS, find-or-create user, issue tokens.
-  app.post('/auth/oauth/:provider', async (req, reply) => {
+  // Rate-limited per IP to blunt token-replay / brute-force.
+  app.post('/auth/oauth/:provider', { config: { rateLimit: { max: 20, timeWindow: '15 minutes' } } }, async (req, reply) => {
     const provider = oauthProviderSchema.safeParse((req.params as { provider?: string }).provider);
     if (!provider.success) return reply.code(404).send({ error: 'unknown_provider' });
     const body = oauthRequestSchema.safeParse(req.body);

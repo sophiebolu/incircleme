@@ -345,7 +345,9 @@ export const programs = pgTable('programs', {
   references: jsonb('references'), // [{name, role, contact, verifiedAt}]
   status: text('status').notNull().default('draft'),
   // draft | submitted | pending_review | verified | under_review | rejected
-  submissionFeeCents: integer('submission_fee_cents').notNull().default(15000),
+  // No DB default: the fee is always written from @incircleme/config on insert
+  // (programSubmissionFeeCents()), so config stays the single source of truth.
+  submissionFeeCents: integer('submission_fee_cents').notNull(),
   stripePiId: text('stripe_pi_id'), // the €150 submission PI (null when a free credit was used)
   feeRefunded: boolean('fee_refunded').notNull().default(false),
   submittedAt: timestamp('submitted_at', { withTimezone: true }),

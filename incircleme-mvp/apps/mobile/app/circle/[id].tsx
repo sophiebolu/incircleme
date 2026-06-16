@@ -85,9 +85,14 @@ export default function CircleScreen() {
     let cleanup: (() => void) | undefined;
     joinCircle(id, ({ message }) => {
       setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
-    }).then((fn) => {
-      cleanup = fn;
-    });
+    })
+      .then((fn) => {
+        cleanup = fn;
+      })
+      .catch(() => {
+        // realtime is best-effort; a failed join shouldn't crash the screen
+        // (load() already fetched the backlog over HTTP).
+      });
     return () => cleanup?.();
   }, [id]);
 
