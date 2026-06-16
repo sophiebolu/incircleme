@@ -1,15 +1,8 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import type { HostSummary } from '@incircleme/types';
+import { tierLabel } from '../lib/trustTier';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
-
-const TIER_LABEL: Record<string, string> = {
-  newcomer: 'Nouvingut/da',
-  regular: 'Habitual',
-  trusted: 'De confiança',
-  pillar: 'Pilar',
-  legend: 'Llegenda',
-};
 
 export function HostRow({ host }: { host: HostSummary }) {
   const initial = (host.displayName ?? '?').charAt(0).toUpperCase();
@@ -24,7 +17,7 @@ export function HostRow({ host }: { host: HostSummary }) {
       )}
       <View style={styles.info}>
         <Text style={styles.name}>{host.displayName ?? 'Amfitrió'}</Text>
-        <Text style={styles.tier}>{TIER_LABEL[host.trustTier] ?? host.trustTier}</Text>
+        <Text style={styles.tier}>{tierLabel(host.trustTier)}</Text>
         {host.bio ? (
           <Text style={styles.bio} numberOfLines={2}>
             {host.bio}

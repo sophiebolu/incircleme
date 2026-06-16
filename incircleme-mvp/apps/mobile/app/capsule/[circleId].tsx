@@ -83,6 +83,16 @@ export default function CapsuleScreen() {
           </Text>
         </ImageBackground>
 
+        {/* Featured quote — the top voice from the Circle (empty until reviews land) */}
+        {capsule.quotes.length > 0 ? (
+          <View style={styles.quoteCard}>
+            <Text style={styles.quoteText}>“{capsule.quotes[0]!.body}”</Text>
+            {capsule.quotes[0]!.authorName ? (
+              <Text style={styles.quoteAuthor}>{capsule.quotes[0]!.authorName}</Text>
+            ) : null}
+          </View>
+        ) : null}
+
         {/* The difference — silent, not stigmatised: pairs only, no slots for skippers */}
         {capsule.differencePairs.length > 0 ? (
           <View style={styles.section}>
@@ -210,6 +220,30 @@ const styles = StyleSheet.create({
     color: tokens.color.cream,
   },
   heroMeta: { fontFamily: fonts.body, fontSize: 12, color: 'rgba(247,243,237,0.85)', marginTop: 4 },
+  // Prototype .quote-card: bg2 card, accent left-rule, italic pull-quote + author.
+  quoteCard: {
+    backgroundColor: '#FFFFFF',
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderLeftWidth: 3,
+    borderLeftColor: tokens.color.coralInk,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginTop: 14,
+  },
+  quoteText: {
+    fontFamily: fonts.displayItalic,
+    fontSize: 15,
+    lineHeight: 21,
+    color: tokens.color.ink,
+  },
+  quoteAuthor: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: 11.5,
+    color: tokens.color.text2,
+    marginTop: 6,
+  },
   section: { marginTop: 22 },
   sectionTitle: {
     fontFamily: fonts.display,

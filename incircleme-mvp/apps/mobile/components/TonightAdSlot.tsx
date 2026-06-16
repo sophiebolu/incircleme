@@ -15,6 +15,13 @@ export interface AdSlide {
   eyebrow: 'adTonightsPick' | 'adBookedByNeighbours' | 'adSixWeekRitual';
 }
 
+// The three rotating editorial eyebrows (vocab lock §17), in prototype order.
+const EYEBROWS: AdSlide['eyebrow'][] = [
+  'adTonightsPick',
+  'adBookedByNeighbours',
+  'adSixWeekRitual',
+];
+
 /** Picks ≤5 slides: highest booking momentum first (seats booked / capacity), then soonest. */
 export function pickSlides(events: EventListItem[], neighbourhood?: string | null): AdSlide[] {
   let pool = neighbourhood ? events.filter((e) => e.neighbourhood === neighbourhood) : events;
@@ -25,10 +32,8 @@ export function pickSlides(events: EventListItem[], neighbourhood?: string | nul
     if (vb !== va) return vb - va;
     return a.startsAt.localeCompare(b.startsAt);
   });
-  return ranked.slice(0, 5).map((event, i) => ({
-    event,
-    eyebrow: i === 0 ? 'adTonightsPick' : 'adBookedByNeighbours',
-  }));
+  // Top-momentum slide keeps "Tonight's pick"; the rest cycle the three eyebrows.
+  return ranked.slice(0, 5).map((event, i) => ({ event, eyebrow: EYEBROWS[i % EYEBROWS.length]! }));
 }
 
 /** Fraunces title with the last word italic + coral-soft (the prototype's <em> treatment). */

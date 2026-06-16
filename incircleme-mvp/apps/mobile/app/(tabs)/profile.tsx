@@ -6,6 +6,7 @@ import type { MeResponse } from '@incircleme/types';
 import { t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { clearSession, isSignedIn, saveSession } from '../../lib/auth';
+import { tierLabel } from '../../lib/trustTier';
 import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
@@ -69,7 +70,7 @@ export default function Profile() {
         <View style={styles.card}>
           <Text style={styles.name}>{me.displayName ?? me.email}</Text>
           <Text style={styles.meta}>
-            {me.neighbourhood ?? 'Barcelona'} · {me.trustTier}
+            {me.neighbourhood ?? 'Barcelona'} · {tierLabel(me.trustTier)}
           </Text>
           <Pressable style={styles.buttonGhost} onPress={() => router.push('/programs')}>
             <Text style={styles.buttonGhostText}>{t('prog_entry')} →</Text>
