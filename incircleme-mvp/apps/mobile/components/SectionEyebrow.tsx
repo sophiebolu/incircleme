@@ -4,11 +4,18 @@ import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 
 // Prototype .sect-eyebrow: gold-glow pill + gradient hairline trailing right.
+// The pill's last word is italic (<em>) — e.g. "TYPES OF EVENTS".
 export function SectionEyebrow({ label }: { label: string }) {
+  const words = label.toUpperCase().split(' ');
+  const last = words.length > 1 ? words.pop()! : null;
   return (
     <View style={styles.row}>
       <View style={styles.pill}>
-        <Text style={styles.text}>{label.toUpperCase()}</Text>
+        <Text style={styles.text}>
+          {words.join(' ')}
+          {last ? ' ' : ''}
+          {last ? <Text style={styles.textEm}>{last}</Text> : null}
+        </Text>
       </View>
       <LinearGradient
         colors={[tokens.color.goldLine, 'transparent']}
@@ -43,5 +50,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     color: tokens.color.coralInk,
   },
+  textEm: { fontStyle: 'italic' },
   line: { flex: 1, height: 1 },
 });
