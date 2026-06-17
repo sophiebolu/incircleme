@@ -217,6 +217,19 @@ export const strings = {
     bk_emptyTitle: 'Res a la teva agenda — encara.',
     bk_emptySub: 'La teva propera sala petita és a tres tocs.',
     bk_emptyCta: 'Explora Barcelona',
+    // §29 Programs detail enrichment (Tier 2 · locked 2026-06-17)
+    prog_pub_hostMeta: 'Acull des de {year} · {n} sales',
+    prog_pub_hostBadge: 'Amfitrió/a',
+    prog_pub_quietQuestions: 'Preguntes tranquil·les',
+    prog_pub_faqMissQ: 'I si em perdo una setmana?',
+    prog_pub_faqMissA:
+      "Una absència sol estar bé — parla amb l'amfitrió/a per recuperar-la.",
+    prog_pub_faqBeginnerQ: 'Comences de zero?',
+    prog_pub_faqBeginnerA:
+      'La meitat de cada cohort són principiants — hi estaràs ben acompanyat/da.',
+    prog_pub_faqRefundQ: 'Reemborsament?',
+    prog_pub_faqRefundA:
+      "Les condicions les fixa l'amfitrió/a — pregunta abans d'inscriure't.",
   },
   es: {
     home: 'Inicio',
@@ -420,6 +433,19 @@ export const strings = {
     bk_emptyTitle: 'Nada en tu agenda — todavía.',
     bk_emptySub: 'Tu próxima sala pequeña está a tres toques.',
     bk_emptyCta: 'Explorar Barcelona',
+    // §29 Programs detail enrichment (Tier 2 · locked 2026-06-17)
+    prog_pub_hostMeta: 'Anfitrión/a desde {year} · {n} salas',
+    prog_pub_hostBadge: 'Anfitrión/a',
+    prog_pub_quietQuestions: 'Preguntas tranquilas',
+    prog_pub_faqMissQ: '¿Y si me pierdo una semana?',
+    prog_pub_faqMissA:
+      'Una ausencia suele estar bien — habla con tu anfitrión/a para recuperarla.',
+    prog_pub_faqBeginnerQ: '¿Empiezas de cero?',
+    prog_pub_faqBeginnerA:
+      'La mitad de cada cohorte son principiantes — estarás en buena compañía.',
+    prog_pub_faqRefundQ: '¿Reembolso?',
+    prog_pub_faqRefundA:
+      'Las condiciones las fija el anfitrión/a — pregunta antes de inscribirte.',
   },
   en: {
     home: 'Home',
@@ -622,6 +648,16 @@ export const strings = {
     bk_emptyTitle: 'Nothing on your calendar — yet.',
     bk_emptySub: 'Your next small room is three taps away.',
     bk_emptyCta: 'Browse Barcelona',
+    // §29 Programs detail enrichment (Tier 2 · locked 2026-06-17)
+    prog_pub_hostMeta: 'Hosting since {year} · {n} rooms',
+    prog_pub_hostBadge: 'Host',
+    prog_pub_quietQuestions: 'Quiet questions',
+    prog_pub_faqMissQ: 'What if I miss a week?',
+    prog_pub_faqMissA: 'One miss is usually fine — talk to your host about making it up.',
+    prog_pub_faqBeginnerQ: 'New to it?',
+    prog_pub_faqBeginnerA: "Most cohorts are half first-timers — you'll be in good company.",
+    prog_pub_faqRefundQ: 'Refund?',
+    prog_pub_faqRefundA: 'Refund terms are set by the host — ask before you enrol.',
   },
 } as const;
 

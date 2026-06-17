@@ -1,5 +1,5 @@
-import { db, programs, programVoices, programQuestions, users } from '@incircleme/db';
-import { and, asc, desc, eq, isNull } from 'drizzle-orm';
+import { db, events, programs, programVoices, programQuestions, users } from '@incircleme/db';
+import { and, asc, count, desc, eq, isNull } from 'drizzle-orm';
 import type {
   CurriculumWeek,
   ProgramQuestion,
@@ -47,6 +47,10 @@ export async function getPublicProgram(id: string): Promise<PublicProgramDetail 
   if (!row) return null;
 
   const [host] = await db.select().from(users).where(eq(users.id, row.hostUserId)).limit(1);
+  const [hostedRow] = await db
+    .select({ n: count() })
+    .from(events)
+    .where(and(eq(events.hostUserId, row.hostUserId), isNull(events.deletedAt)));
 
   const voiceRows = await db
     .select()
@@ -79,6 +83,9 @@ export async function getPublicProgram(id: string): Promise<PublicProgramDetail 
     title: row.title,
     description: row.description,
     hostName: host?.displayName ?? '',
+    hostAvatarUrl: host?.avatarUrl ?? null,
+    hostJoinedAt: host?.joinedAt ? host.joinedAt.toISOString() : null,
+    hostEventsHosted: Number(hostedRow?.n ?? 0),
     neighbourhood: host?.neighbourhood ?? null,
     timeFrameSessions: row.timeFrameSessions,
     timeFrameTotalHours: row.timeFrameTotalHours !== null ? Number(row.timeFrameTotalHours) : null,

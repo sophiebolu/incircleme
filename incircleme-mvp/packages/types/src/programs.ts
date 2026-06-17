@@ -14,6 +14,8 @@ export type VerificationTier = 'verified' | 'accredited';
 export interface CurriculumWeek {
   week: number;
   title: string;
+  /** Optional per-week prose (creator-entered at submission). */
+  description?: string;
   skills?: string[];
   hours?: number;
 }
@@ -125,6 +127,9 @@ export interface PublicProgramDetail {
   title: string;
   description: string | null;
   hostName: string;
+  hostAvatarUrl: string | null;
+  hostJoinedAt: string | null;
+  hostEventsHosted: number;
   neighbourhood: string | null;
   timeFrameSessions: number | null;
   timeFrameTotalHours: number | null;
