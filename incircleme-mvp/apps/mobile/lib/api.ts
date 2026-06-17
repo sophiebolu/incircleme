@@ -100,7 +100,9 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
-  listEvents: (query: { category?: string; neighbourhood?: string } = {}) => {
+  listEvents: (
+    query: { category?: string; neighbourhood?: string; dateFrom?: string; dateTo?: string } = {},
+  ) => {
     const params = new URLSearchParams(
       Object.entries(query).filter(([, v]) => v != null) as [string, string][],
     ).toString();
