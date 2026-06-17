@@ -688,4 +688,37 @@ The five `trustTier` enum values, rendered as human labels wherever a person's t
 
 ---
 
+## 27. Event detail enrichment (Tier 2 · locked 2026-06-17)
+
+The enriched event-detail surfaces. Mirrored in `incircleme-mvp/packages/i18n` (keys `ev_*`). `{braces}` interpolate; `{amount}` is locale-formatted currency (€5 / 5 €). Two anti-vocabulary substitutions vs the v3 prototype: **"Tickets" → "Seats / Places / Plazas"** (§12) and **"Bring a friend" → "Go together / Anem junts / Vamos juntos"** (§5). The about-eyebrow is time-neutral ("room", not "evening"); its last word renders italic per §13b. The seat-hold is creator-optional (event `depositRequired`, default off) and the amount comes from `ECONOMICS.seatHold`. Review-derived host stats (★ rating, "felt included %") and the Founding-host chip are **deferred to Tier 3** — not locked here.
+
+| EN | CA | ES |
+|---|---|---|
+| About this *room* | Sobre aquesta *sala* | Sobre esta *sala* |
+| Already coming | Ja venen | Ya vienen |
+| {filled} of {total} spots filled | {filled} de {total} places ocupades | {filled} de {total} plazas ocupadas |
+| +{n} more | +{n} més | +{n} más |
+| Chat opens in the event Circle after you book. No DMs to strangers before. | El xat s’obre al Cercle després de reservar. Sense missatges a desconeguts abans. | El chat se abre en el Círculo después de reservar. Sin mensajes a desconocidos antes. |
+| When | Quan | Cuándo |
+| Full refund up to 24h before. | Reemborsament complet fins a 24 h abans. | Reembolso completo hasta 24 h antes. |
+| Where | On | Dónde |
+| Open in Maps | Obre al mapa | Abrir en el mapa |
+| Why book through us | Per què reservar amb nosaltres | Por qué reservar con nosotros |
+| Insured | Assegurat | Asegurado |
+| Covered up to €500,000 | Cobertura fins a 500.000 € | Cobertura hasta 500.000 € |
+| Easy refund | Reemborsament fàcil | Reembolso fácil |
+| 1-tap up to 24h before | Amb un toc fins a 24 h abans | Con un toque hasta 24 h antes |
+| Secure payment | Pagament segur | Pago seguro |
+| PCI-compliant · Stripe | Conforme a PCI · Stripe | Conforme a PCI · Stripe |
+| Event Circle | Cercle de l'esdeveniment | Círculo del evento |
+| Group chat included | Xat de grup inclòs | Chat de grupo incluido |
+| Seats | Places | Plazas |
+| General admission | Entrada general | Entrada general |
+| Seat hold {amount} | Reserva de plaça {amount} | Reserva de plaza {amount} |
+| Refundable — returned at check-in. Set by the host. | Reemborsable — es torna en fer el check-in. Ho decideix l'amfitrió/a. | Reembolsable — se devuelve al hacer el check-in. Lo decide el anfitrión/a. |
+| Go together | Anem junts | Vamos juntos |
+| {n} events hosted | {n} esdeveniments organitzats | {n} eventos organizados |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

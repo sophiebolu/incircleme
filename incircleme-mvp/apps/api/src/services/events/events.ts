@@ -1,6 +1,7 @@
 import { db, events, users } from '@incircleme/db';
 import type { EventRow, UserRow } from '@incircleme/db';
-import { and, eq, gte, isNull, lte } from 'drizzle-orm';
+import { and, count, eq, gte, isNull, lte } from 'drizzle-orm';
+import { seatHoldAmountCents } from '@incircleme/config';
 import type {
   CreateEventRequest,
   EventCategory,
@@ -8,6 +9,7 @@ import type {
   EventListItem,
   EventsQuery,
   HostSummary,
+  HostTier,
   TrustTier,
 } from '@incircleme/types';
 
@@ -31,7 +33,7 @@ export function toEventListItem(e: EventRow): EventListItem {
   };
 }
 
-function toHostSummary(u: UserRow): HostSummary {
+function toHostSummary(u: UserRow, eventsHosted: number): HostSummary {
   return {
     id: u.id,
     displayName: u.displayName,
@@ -39,6 +41,9 @@ function toHostSummary(u: UserRow): HostSummary {
     bio: u.bio,
     neighbourhood: u.neighbourhood,
     trustTier: u.trustTier as TrustTier,
+    verified: u.verified,
+    hostTier: u.hostTier as HostTier,
+    eventsHosted,
   };
 }
 
@@ -64,6 +69,11 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
     .limit(1);
   if (!row) return null;
   const [host] = await db.select().from(users).where(eq(users.id, row.hostUserId)).limit(1);
+  const [hostedRow] = await db
+    .select({ n: count() })
+    .from(events)
+    .where(and(eq(events.hostUserId, row.hostUserId), isNull(events.deletedAt)));
+  const eventsHosted = Number(hostedRow?.n ?? 0);
   return {
     ...toEventListItem(row),
     description: row.description,
@@ -71,8 +81,10 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
     addressLocked: row.addressLocked,
     durationMinutes: row.durationMinutes,
     arrivingEnabled: row.arrivingEnabled,
+    depositRequired: row.depositRequired,
+    depositAmountCents: row.depositRequired ? seatHoldAmountCents() : 0,
     host: host
-      ? toHostSummary(host)
+      ? toHostSummary(host, eventsHosted)
       : {
           id: row.hostUserId,
           displayName: null,
@@ -80,6 +92,9 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
           bio: null,
           neighbourhood: null,
           trustTier: 'newcomer',
+          verified: false,
+          hostTier: 'basic',
+          eventsHosted,
         },
   };
 }

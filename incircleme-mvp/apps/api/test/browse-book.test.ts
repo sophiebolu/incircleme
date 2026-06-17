@@ -265,3 +265,24 @@ describe('me stats', () => {
     expect(res.statusCode).toBe(401);
   });
 });
+
+describe('event detail enrichment', () => {
+  it('exposes host stats (verified · eventsHosted) + creator-optional seat-hold', async () => {
+    const host = await signIn('eh-host@test.com');
+    const evA = (await createEvent(host.accessToken)).json();
+    await createEvent(host.accessToken, { title: 'Second' }); // host now runs 2 events
+
+    let detail = (await app.inject({ method: 'GET', url: `/events/${evA.id}` })).json();
+    expect(detail.host.eventsHosted).toBe(2);
+    expect(typeof detail.host.verified).toBe('boolean'); // exposed (magic-link sign-in verifies)
+    expect(detail.host.hostTier).toBe('basic');
+    expect(detail.depositRequired).toBe(false);
+    expect(detail.depositAmountCents).toBe(0); // no hold → no amount
+
+    // Enable the seat hold → amount comes from config (€5 = 500 cents)
+    await db.update(events).set({ depositRequired: true }).where(eq(events.id, evA.id));
+    detail = (await app.inject({ method: 'GET', url: `/events/${evA.id}` })).json();
+    expect(detail.depositRequired).toBe(true);
+    expect(detail.depositAmountCents).toBe(500);
+  });
+});
