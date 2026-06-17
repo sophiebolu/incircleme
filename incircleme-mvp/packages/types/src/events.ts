@@ -87,4 +87,7 @@ export interface BookingListItem {
   amountCents: number;
   bookedAt: string;
   event: EventListItem;
+  /** The event's Circle, once it exists (created on first confirmed booking). */
+  circleId: string | null;
+  circleMemberCount: number | null;
 }

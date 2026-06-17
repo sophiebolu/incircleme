@@ -1,4 +1,4 @@
-import { db, bookings, events } from '@incircleme/db';
+import { db, bookings, circles, events } from '@incircleme/db';
 import type { BookingRow, EventRow } from '@incircleme/db';
 import { and, desc, eq, isNull } from 'drizzle-orm';
 import type { BookingListItem, BookingStatus, BookResult } from '@incircleme/types';
@@ -124,6 +124,8 @@ export async function listMyBookings(userId: string): Promise<BookingListItem[]>
   for (const b of rows) {
     const [e] = await db.select().from(events).where(eq(events.id, b.eventId)).limit(1);
     if (!e) continue;
+    // The event's Circle (one per event), if it has been created yet.
+    const [circle] = await db.select().from(circles).where(eq(circles.eventId, b.eventId)).limit(1);
     items.push({
       id: b.id,
       status: b.status as BookingStatus,
@@ -131,6 +133,8 @@ export async function listMyBookings(userId: string): Promise<BookingListItem[]>
       amountCents: b.amountCents,
       bookedAt: b.bookedAt.toISOString(),
       event: toEventListItem(e),
+      circleId: circle?.id ?? null,
+      circleMemberCount: circle?.memberCount ?? null,
     });
   }
   return items;

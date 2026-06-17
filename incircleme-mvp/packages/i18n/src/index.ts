@@ -209,6 +209,14 @@ export const strings = {
     ev_seatHoldExplain: "Reemborsable — es torna en fer el check-in. Ho decideix l'amfitrió/a.",
     ev_goTogether: 'Anem junts',
     ev_eventsHosted: '{n} esdeveniments organitzats',
+    // §28 Bookings enrichment (Tier 2 · locked 2026-06-17)
+    bk_tabUpcoming: 'Properes',
+    bk_tabPast: 'Passades',
+    bk_tabCancelled: 'Cancel·lades',
+    bk_circleChip: 'Cercle · {n}',
+    bk_emptyTitle: 'Res a la teva agenda — encara.',
+    bk_emptySub: 'La teva propera sala petita és a tres tocs.',
+    bk_emptyCta: 'Explora Barcelona',
   },
   es: {
     home: 'Inicio',
@@ -404,6 +412,14 @@ export const strings = {
     ev_seatHoldExplain: 'Reembolsable — se devuelve al hacer el check-in. Lo decide el anfitrión/a.',
     ev_goTogether: 'Vamos juntos',
     ev_eventsHosted: '{n} eventos organizados',
+    // §28 Bookings enrichment (Tier 2 · locked 2026-06-17)
+    bk_tabUpcoming: 'Próximas',
+    bk_tabPast: 'Pasadas',
+    bk_tabCancelled: 'Canceladas',
+    bk_circleChip: 'Círculo · {n}',
+    bk_emptyTitle: 'Nada en tu agenda — todavía.',
+    bk_emptySub: 'Tu próxima sala pequeña está a tres toques.',
+    bk_emptyCta: 'Explorar Barcelona',
   },
   en: {
     home: 'Home',
@@ -598,6 +614,14 @@ export const strings = {
     ev_seatHoldExplain: 'Refundable — returned at check-in. Set by the host.',
     ev_goTogether: 'Go together',
     ev_eventsHosted: '{n} events hosted',
+    // §28 Bookings enrichment (Tier 2 · locked 2026-06-17)
+    bk_tabUpcoming: 'Upcoming',
+    bk_tabPast: 'Past',
+    bk_tabCancelled: 'Cancelled',
+    bk_circleChip: 'Circle · {n}',
+    bk_emptyTitle: 'Nothing on your calendar — yet.',
+    bk_emptySub: 'Your next small room is three taps away.',
+    bk_emptyCta: 'Browse Barcelona',
   },
 } as const;
 
