@@ -154,6 +154,10 @@ export const strings = {
     prog_pub_howItWorks: 'Com funciona →',
     prog_pub_howVerification: 'Com funciona la verificació →',
     prog_pub_weeksWhatHappens: '{n} setmanes · què passa',
+    // §32 Home Programs strip (locked 2026-06-17)
+    prog_pub_weeks: '{n} setmanes',
+    prog_pub_week: '{n} setmana',
+    prog_pub_moreCard: 'Més programes',
     prog_pub_theCertificate: 'El certificat',
     prog_pub_certEyebrow: 'Programa verificat · Certificat de finalització',
     prog_pub_realCredential: 'Una credencial de veritat — no un adhesiu de participació.',
@@ -377,6 +381,10 @@ export const strings = {
     prog_pub_howItWorks: 'Cómo funciona →',
     prog_pub_howVerification: 'Cómo funciona la verificación →',
     prog_pub_weeksWhatHappens: '{n} semanas · qué pasa',
+    // §32 Home Programs strip (locked 2026-06-17)
+    prog_pub_weeks: '{n} semanas',
+    prog_pub_week: '{n} semana',
+    prog_pub_moreCard: 'Más programas',
     prog_pub_theCertificate: 'El certificado',
     prog_pub_certEyebrow: 'Programa verificado · Certificado de finalización',
     prog_pub_realCredential: 'Una credencial de verdad — no una pegatina de participación.',
@@ -599,6 +607,10 @@ export const strings = {
     prog_pub_howItWorks: 'How it works →',
     prog_pub_howVerification: 'How verification works →',
     prog_pub_weeksWhatHappens: '{n} weeks · what happens',
+    // §32 Home Programs strip (locked 2026-06-17)
+    prog_pub_weeks: '{n} weeks',
+    prog_pub_week: '{n} week',
+    prog_pub_moreCard: 'More programs',
     prog_pub_theCertificate: 'The certificate',
     prog_pub_certEyebrow: 'Verified Program · Completion certificate',
     prog_pub_realCredential: 'A real credential — not a participation sticker.',

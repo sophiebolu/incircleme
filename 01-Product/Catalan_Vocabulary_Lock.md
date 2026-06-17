@@ -778,4 +778,16 @@ Filter chips on the events feed (keys `fil_*`). EVENT discovery only — people-
 
 ---
 
+## 32. Home Programs strip (Tier 2 · locked 2026-06-17)
+
+Enriching the Home Programs strip (keys `prog_pub_*`). The eyebrow is the already-locked §24 `prog_pub_eyebrow` ("Programs. Where craft becomes your way.") — split at the first `". "` into a bold-ink label + an italic-coral tagline, prefixed with a grad-cap icon in a gold circle; no new eyebrow copy. Per-card meta surfaces `timeFrameSessions` as **weeks** (singular form when n = 1). A gold "more programs" arrow card ends the strip → `/programs/browse`. The trust line gains a "How it works →" link (reusing `prog_pub_howItWorks`) → a brief "coming soon" (verification flow is Tier 3). Price/cohort deferred (no data until the enrolment slice).
+
+| key | EN | CA | ES |
+|---|---|---|---|
+| `prog_pub_weeks` (n ≠ 1) | {n} weeks | {n} setmanes | {n} semanas |
+| `prog_pub_week` (n = 1) | {n} week | {n} setmana | {n} semana |
+| `prog_pub_moreCard` | More programs | Més programes | Más programas |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
