@@ -232,6 +232,11 @@ export const strings = {
       "Les condicions les fixa l'amfitrió/a — pregunta abans d'inscriure't.",
     // §30 Memory Capsule enrichment (Tier 2 · locked 2026-06-17)
     cap_diffFootnote: '{x} de {y} del Cercle van compartir totes dues fotos.',
+    // §31 Event-discovery filters (Tier 2 · locked 2026-06-17)
+    fil_anytime: 'Qualsevol dia',
+    fil_thisWeek: 'Aquesta setmana',
+    fil_weekend: 'Cap de setmana',
+    fil_allBarrios: 'Tots els barris',
   },
   es: {
     home: 'Inicio',
@@ -450,6 +455,11 @@ export const strings = {
       'Las condiciones las fija el anfitrión/a — pregunta antes de inscribirte.',
     // §30 Memory Capsule enrichment (Tier 2 · locked 2026-06-17)
     cap_diffFootnote: '{x} de {y} del Círculo compartieron ambas fotos.',
+    // §31 Event-discovery filters (Tier 2 · locked 2026-06-17)
+    fil_anytime: 'Cualquier día',
+    fil_thisWeek: 'Esta semana',
+    fil_weekend: 'Fin de semana',
+    fil_allBarrios: 'Todos los barrios',
   },
   en: {
     home: 'Home',
@@ -664,6 +674,11 @@ export const strings = {
     prog_pub_faqRefundA: 'Refund terms are set by the host — ask before you enrol.',
     // §30 Memory Capsule enrichment (Tier 2 · locked 2026-06-17)
     cap_diffFootnote: '{x} of {y} in the Circle shared both photos.',
+    // §31 Event-discovery filters (Tier 2 · locked 2026-06-17)
+    fil_anytime: 'Anytime',
+    fil_thisWeek: 'This week',
+    fil_weekend: 'Weekend',
+    fil_allBarrios: 'All barrios',
   },
 } as const;
 

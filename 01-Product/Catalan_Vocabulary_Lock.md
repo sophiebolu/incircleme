@@ -765,4 +765,17 @@ The Capsule screen's enriched surfaces (key `cap_*`, extending §21). `{x}`/`{y}
 
 ---
 
+## 31. Event-discovery filters (Tier 2 · locked 2026-06-17)
+
+Filter chips on the events feed (keys `fil_*`). EVENT discovery only — people-discovery + its filters were cut in Pass 40. The when-chips are single-select and map to `dateFrom`/`dateTo` on the existing `/events` query: **Anytime = upcoming-only** (`dateFrom = now`, which also stops past events leaking into the feed), This week = now…+7d, Weekend = the next Sat–Sun. Barri chips (single-select) re-query with `neighbourhood`; the barri names themselves are data, not locked copy. "Barrios" matches the locked EN spelling (§4). Skipped this pass: price (free/paid), weekday, time-of-day, full From/To calendar.
+
+| EN | CA | ES |
+|---|---|---|
+| Anytime | Qualsevol dia | Cualquier día |
+| This week | Aquesta setmana | Esta semana |
+| Weekend | Cap de setmana | Fin de semana |
+| All barrios | Tots els barris | Todos los barrios |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

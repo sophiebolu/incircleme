@@ -96,6 +96,25 @@ describe('events', () => {
     expect(detail.json().address).toBeNull();
   });
 
+  it('dateFrom/dateTo filter by start time (powers the discovery when-chips)', async () => {
+    const host = await signIn('host@test.com');
+    await createEvent(host.accessToken, { title: 'Future' }); // default startsAt = now + 1 day
+    await createEvent(host.accessToken, {
+      title: 'Past',
+      startsAt: new Date(Date.now() - 90_000_000).toISOString(),
+      endsAt: new Date(Date.now() - 86_400_000).toISOString(),
+    });
+
+    const all = (await app.inject({ method: 'GET', url: '/events' })).json();
+    expect(all.length).toBe(2); // no filter → past + future
+
+    const now = new Date().toISOString();
+    const upcoming = (
+      await app.inject({ method: 'GET', url: `/events?dateFrom=${encodeURIComponent(now)}` })
+    ).json();
+    expect(upcoming.map((e: { title: string }) => e.title)).toEqual(['Future']);
+  });
+
   it('create requires auth', async () => {
     const res = await createEvent(''); // Bearer with empty token
     expect(res.statusCode).toBe(401);
