@@ -653,4 +653,25 @@ The browse-verified-Programs surfaces (Slice 5 Part 2). Prototype-verbatim EN (v
 
 ---
 
+## 25. Profile enrichment (Tier 2 · locked 2026-06-17)
+
+The self-profile screen sections (Tier 2 build). The v3 prototype mocks the self-profile (post-Pass-40), but several rows are **net-new copy** drafted for this lock. Mirrored in `incircleme-mvp/packages/i18n` (keys `prof_*`). `{date}` interpolates (formatted month + year). Tier label reuses the existing `tierLabel` map (CA, §host-row). The Reputation Passport card is an **honest summary only** — tier + member-since + "View full passport · coming soon"; the full Passport (trait rings, levels, badges) is deferred to Tier 3 and not rendered. Creator-mode tile and "View full passport" route to a coming-soon affordance; Edit profile / Share are deferred. The single language chip was deferred (app-locale ≠ spoken languages — needs a proper field).
+
+| EN | CA | ES |
+|---|---|---|
+| About | Sobre mi | Sobre mí |
+| Member since {date} | Membre des de {date} | Miembro desde {date} |
+| Creator mode · Host your first event | Mode creador · Organitza el teu primer esdeveniment | Modo creador · Organizar tu primer evento |
+| €0 to start · Secure payouts · Keep 100% on Premium | 0 € per començar · Pagaments segurs · Conserva el 100% amb Premium | 0 € para empezar · Pagos seguros · Conserva el 100% con Premium |
+| Attended | Assistits | Asistidos |
+| Hosted | Organitzats | Organizados |
+| Reputation Passport | Passaport de reputació | Pasaporte de reputación |
+| View full passport | Veure el passaport complet | Ver el pasaporte completo |
+| Coming soon | Aviat | Próximamente |
+| Verified identity | Identitat verificada | Identidad verificada |
+
+The Bookings stat reuses the existing nav label **Bookings / Reserves / Reservas** (§Booking surfaces) — confirmed bookings for upcoming events. "Attended" = confirmed bookings for past events; "Hosted" = events hosted. No overlap.
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

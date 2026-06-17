@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../plugins/auth';
 import { updateMeSchema } from '../schemas/auth';
 import { getUserById, toUser, updateUser } from '../services/auth/users';
+import { getUserStats } from '../services/me/stats';
 
 export async function meRoutes(app: FastifyInstance): Promise<void> {
   app.get('/me', { preHandler: requireAuth }, async (req, reply) => {
@@ -9,6 +10,8 @@ export async function meRoutes(app: FastifyInstance): Promise<void> {
     if (!row) return reply.code(404).send({ error: 'not_found' });
     return toUser(row);
   });
+
+  app.get('/me/stats', { preHandler: requireAuth }, async (req) => getUserStats(req.userId!));
 
   app.patch('/me', { preHandler: requireAuth }, async (req, reply) => {
     const parsed = updateMeSchema.safeParse(req.body);

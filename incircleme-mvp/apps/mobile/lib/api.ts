@@ -14,6 +14,7 @@ import type {
   EventDetail,
   EventListItem,
   MeResponse,
+  MeStats,
   MessageAttachment,
   Program,
   PublicProgramCard,
@@ -113,6 +114,7 @@ export const api = {
     }),
   myBookings: () => request<BookingListItem[]>('/me/bookings'),
   me: () => request<MeResponse>('/me'),
+  meStats: () => request<MeStats>('/me/stats'),
   requestMagicLink: (email: string) =>
     request<{ ok: boolean }>('/auth/email-magic-link', {
       method: 'POST',

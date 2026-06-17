@@ -43,6 +43,13 @@ export interface User {
   lastSeenAt: string | null;
 }
 
+/** Profile stat counts (GET /me/stats). No overlap between attended and bookings. */
+export interface MeStats {
+  attended: number; // confirmed bookings for past events
+  bookings: number; // confirmed bookings for upcoming events
+  hosted: number; // events the user hosts (non-deleted)
+}
+
 export interface EventSummary {
   id: string;
   title: string;
