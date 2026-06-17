@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { sql, eq } from 'drizzle-orm';
-import { db, pool, bookings } from '@incircleme/db';
+import { db, pool, bookings, events } from '@incircleme/db';
 import { buildApp } from '../src/app';
 import { redis } from '../src/lib/redis';
 import { FakePayments } from '../src/lib/payments';
@@ -212,6 +212,56 @@ describe('booking', () => {
       url: `/events/${ev.id}/book`,
       payload: { seatCount: 1 },
     });
+    expect(res.statusCode).toBe(401);
+  });
+});
+
+describe('me stats', () => {
+  it('attended=past confirmed · bookings=upcoming confirmed (no overlap) · hosted=events hosted', async () => {
+    const host = await signIn('statshost@test.com');
+    const evA = (await createEvent(host.accessToken, { title: 'A' })).json();
+    const evB = (await createEvent(host.accessToken, { title: 'B' })).json();
+    const user = await signIn('statsuser@test.com');
+
+    const confirmBooking = async (eventId: string) => {
+      const booked = await app.inject({
+        method: 'POST',
+        url: `/events/${eventId}/book`,
+        headers: auth(user.accessToken),
+        payload: { seatCount: 1 },
+      });
+      const [b] = await db.select().from(bookings).where(eq(bookings.id, booked.json().bookingId));
+      await app.inject({
+        method: 'POST',
+        url: '/webhooks/stripe',
+        payload: { type: 'payment_intent.succeeded', paymentIntentId: b!.stripePiId! },
+      });
+    };
+    await confirmBooking(evA.id);
+    await confirmBooking(evB.id);
+
+    const statsFor = async (token: string) =>
+      (await app.inject({ method: 'GET', url: '/me/stats', headers: auth(token) })).json();
+
+    // Both events upcoming + confirmed → bookings=2, attended=0
+    expect(await statsFor(user.accessToken)).toEqual({ attended: 0, bookings: 2, hosted: 0 });
+
+    // Move event A into the past → counts as attended, leaves bookings (no overlap)
+    await db
+      .update(events)
+      .set({
+        startsAt: new Date(Date.now() - 90_000_000),
+        endsAt: new Date(Date.now() - 86_400_000),
+      })
+      .where(eq(events.id, evA.id));
+    expect(await statsFor(user.accessToken)).toEqual({ attended: 1, bookings: 1, hosted: 0 });
+
+    // The host hosts both events, attends/books none.
+    expect(await statsFor(host.accessToken)).toEqual({ attended: 0, bookings: 0, hosted: 2 });
+  });
+
+  it('requires auth', async () => {
+    const res = await app.inject({ method: 'GET', url: '/me/stats' });
     expect(res.statusCode).toBe(401);
   });
 });
