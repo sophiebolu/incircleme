@@ -1,4 +1,4 @@
-import type { EventCategory, TrustTier } from './index';
+import type { EventCategory, HostTier, TrustTier } from './index';
 
 export interface HostSummary {
   id: string;
@@ -7,6 +7,10 @@ export interface HostSummary {
   bio: string | null;
   neighbourhood: string | null;
   trustTier: TrustTier;
+  verified: boolean;
+  hostTier: HostTier;
+  /** Count of non-deleted events this host runs. */
+  eventsHosted: number;
 }
 
 export interface EventListItem {
@@ -33,6 +37,10 @@ export interface EventDetail extends EventListItem {
   addressLocked: boolean;
   durationMinutes: number | null;
   arrivingEnabled: boolean;
+  /** Creator-optional refundable seat-hold (default off). */
+  depositRequired: boolean;
+  /** Seat-hold amount in cents (from config); 0 when no hold is required. */
+  depositAmountCents: number;
   host: HostSummary;
 }
 

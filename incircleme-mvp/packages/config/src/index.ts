@@ -37,6 +37,9 @@ export const ECONOMICS = {
   /** Platform fee charged per issued certificate, in cents (currently none). */
   perCertificatePlatformFeeCents: 0,
 
+  /** Refundable seat-hold (creator-optional, default off per event). Returned at check-in. */
+  seatHold: { amountCents: 500 },
+
   /** Tier subscription pricing + booking transaction fee. */
   tiers: {
     basic: { monthlyPriceCents: 0, transactionFeePct: 5 },
@@ -70,6 +73,10 @@ export function programSubmissionFeeCents(): number {
 
 export function isSubmissionFeeRefundable(): boolean {
   return ECONOMICS.programSubmission.feeRefundableOnRejection;
+}
+
+export function seatHoldAmountCents(): number {
+  return ECONOMICS.seatHold.amountCents;
 }
 
 // ============================================================================
