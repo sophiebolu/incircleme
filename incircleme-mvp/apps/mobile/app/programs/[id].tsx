@@ -75,6 +75,7 @@ export default function ProgramForm() {
   const [body, setBody] = useState('');
   const [accId, setAccId] = useState('');
   const [weeks, setWeeks] = useState<string[]>([]);
+  const [weekDescs, setWeekDescs] = useState<string[]>([]);
   const [refs, setRefs] = useState<string[]>([]);
   const [credentials, setCredentials] = useState<ProgramCredentialDTO[]>([]);
   const [credKind, setCredKind] = useState<CredentialKind>('diploma');
@@ -89,6 +90,7 @@ export default function ProgramForm() {
     setBody(p.accreditationBody ?? '');
     setAccId(p.accreditationId ?? '');
     setWeeks(p.curriculum.map((w) => w.title));
+    setWeekDescs(p.curriculum.map((w) => w.description ?? ''));
     setRefs(p.references.map((r) => r.name));
     setCredentials(p.credentials);
   };
@@ -119,7 +121,11 @@ export default function ProgramForm() {
     accreditationBody: body.trim() || undefined,
     accreditationId: accId.trim() || undefined,
     curriculum: weeks
-      .map((w, i) => ({ week: i + 1, title: w.trim() }))
+      .map((w, i) => ({
+        week: i + 1,
+        title: w.trim(),
+        ...(weekDescs[i]?.trim() ? { description: weekDescs[i]!.trim() } : {}),
+      }))
       .filter((w) => w.title.length > 0),
     references: refs
       .map((r) => r.trim())
@@ -291,13 +297,29 @@ export default function ProgramForm() {
           <>
             {sessionCount > 0 ? (
               Array.from({ length: sessionCount }).map((_, i) => (
-                <View key={i} style={styles.weekRow}>
-                  <Text style={styles.weekNum}>{i + 1}</Text>
+                <View key={i} style={styles.weekItem}>
+                  <View style={styles.weekRow}>
+                    <Text style={styles.weekNum}>{i + 1}</Text>
+                    <TextInput
+                      style={styles.weekInput}
+                      value={weeks[i] ?? ''}
+                      onChangeText={(v) =>
+                        setWeeks((prev) => {
+                          const next = [...prev];
+                          while (next.length <= i) next.push('');
+                          next[i] = v;
+                          return next;
+                        })
+                      }
+                      placeholderTextColor={tokens.color.gray}
+                    />
+                  </View>
+                  {/* Optional per-week prose (renders under the week title on the public detail). */}
                   <TextInput
-                    style={styles.weekInput}
-                    value={weeks[i] ?? ''}
+                    style={styles.weekDescInput}
+                    value={weekDescs[i] ?? ''}
                     onChangeText={(v) =>
-                      setWeeks((prev) => {
+                      setWeekDescs((prev) => {
                         const next = [...prev];
                         while (next.length <= i) next.push('');
                         next[i] = v;
@@ -305,6 +327,7 @@ export default function ProgramForm() {
                       })
                     }
                     placeholderTextColor={tokens.color.gray}
+                    multiline
                   />
                 </View>
               ))
@@ -493,6 +516,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   inputMultiline: { minHeight: 80, textAlignVertical: 'top' },
+  weekItem: { gap: 6, marginBottom: 4 },
+  weekDescInput: {
+    marginLeft: 30,
+    minHeight: 52,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontFamily: fonts.body,
+    fontSize: 12.5,
+    color: tokens.color.text2,
+    backgroundColor: '#FFFFFF',
+    textAlignVertical: 'top',
+  },
   weekRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   weekNum: {
     fontFamily: fonts.displaySemi,

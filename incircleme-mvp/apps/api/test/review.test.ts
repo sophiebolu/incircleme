@@ -424,6 +424,10 @@ describe('Public Programs', () => {
     expect(detail.voices).toHaveLength(1);
     expect(detail.questions).toHaveLength(1);
     expect(detail.questions[0].answer).toContain('grip');
+    // Enriched host fields (Tier 2): tenure + rooms count are exposed.
+    expect(detail.hostJoinedAt).toBeTruthy();
+    expect(typeof detail.hostEventsHosted).toBe('number');
+    expect('hostAvatarUrl' in detail).toBe(true);
   });
 
   it('public detail for a non-verified id → 404', async () => {

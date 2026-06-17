@@ -737,4 +737,22 @@ The enriched Bookings tab — Upcoming/Past/Cancelled segmentation, richer cards
 
 ---
 
+## 29. Programs detail enrichment (Tier 2 · locked 2026-06-17)
+
+Public learner-facing Program-detail surfaces (keys `prog_pub_*`, extending §24). `{year}`/`{n}` interpolate. The host meta uses the brand word "rooms" (*sales / salas*) for events hosted. "Quiet questions" is a static, program-agnostic 3-Q FAQ (honest + generic — per-program FAQ would need a host field, deferred). The "Host" badge marks host replies in the read-only neighbour Q&A. Deferred to later slices: hero image, host-entered "what's included", rating, Founding-host chip, cohort/spots/enrol bar, cert "See sample"/public `/v/{slug}`, the voices aggregate footnote, and the Q&A ask/answer composer.
+
+| EN | CA | ES |
+|---|---|---|
+| Hosting since {year} · {n} rooms | Acull des de {year} · {n} sales | Anfitrión/a desde {year} · {n} salas |
+| Host | Amfitrió/a | Anfitrión/a |
+| Quiet questions | Preguntes tranquil·les | Preguntas tranquilas |
+| What if I miss a week? | I si em perdo una setmana? | ¿Y si me pierdo una semana? |
+| One miss is usually fine — talk to your host about making it up. | Una absència sol estar bé — parla amb l'amfitrió/a per recuperar-la. | Una ausencia suele estar bien — habla con tu anfitrión/a para recuperarla. |
+| New to it? | Comences de zero? | ¿Empiezas de cero? |
+| Most cohorts are half first-timers — you'll be in good company. | La meitat de cada cohort són principiants — hi estaràs ben acompanyat/da. | La mitad de cada cohorte son principiantes — estarás en buena compañía. |
+| Refund? | Reemborsament? | ¿Reembolso? |
+| Refund terms are set by the host — ask before you enrol. | Les condicions les fixa l'amfitrió/a — pregunta abans d'inscriure't. | Las condiciones las fija el anfitrión/a — pregunta antes de inscribirte. |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
