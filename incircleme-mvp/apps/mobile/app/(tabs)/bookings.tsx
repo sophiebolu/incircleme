@@ -8,6 +8,7 @@ import { formatDateTime, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -41,6 +42,7 @@ export default function Bookings() {
   const [items, setItems] = useState<BookingListItem[] | null>(null);
   const [signedIn, setSignedIn] = useState(true);
   const [tab, setTab] = useState<Tab>('upcoming');
+  const navClearance = useNavClearance();
 
   useFocusEffect(
     useCallback(() => {
@@ -155,7 +157,7 @@ export default function Bookings() {
           <FlatList
             data={buckets[tab]}
             keyExtractor={(b) => b.id}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={[styles.list, { paddingBottom: navClearance }]}
             renderItem={renderCard}
             ListEmptyComponent={
               <View style={styles.empty}>

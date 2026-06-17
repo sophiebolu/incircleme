@@ -8,6 +8,7 @@ import { formatDate, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { clearSession, isSignedIn, saveSession } from '../../lib/auth';
 import { tierLabel } from '../../lib/trustTier';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
@@ -19,6 +20,7 @@ export default function Profile() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [stats, setStats] = useState<MeStats | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const navClearance = useNavClearance();
   const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
   // 'error-verify' keeps the token field visible so a fresh code can be pasted.
@@ -92,7 +94,7 @@ export default function Profile() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <BrandBar />
       {me ? (
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navClearance }]}>
           {/* Identity hero — avatar (+ verified badge), name, handle · joined, neighbourhood */}
           <View style={styles.hero}>
             <View style={styles.avatar}>

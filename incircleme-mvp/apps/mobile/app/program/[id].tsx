@@ -8,6 +8,7 @@ import { formatDate, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { tierColor, tierLabel } from '../../lib/programTier';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -17,6 +18,7 @@ export default function PublicProgram() {
   const [p, setP] = useState<PublicProgramDetail | null>(null);
   const [missing, setMissing] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const navClearance = useNavClearance();
 
   useEffect(() => {
     if (id)
@@ -57,7 +59,7 @@ export default function PublicProgram() {
           <Share2 size={20} color={tokens.color.ink} strokeWidth={2} />
         </Pressable>
       </View>
-      <ScrollView contentContainerStyle={styles.body}>
+      <ScrollView contentContainerStyle={[styles.body, { paddingBottom: navClearance }]}>
         {/* Placeholder hero (branded; real program images are a later coherent pass) */}
         <View style={styles.hero}>
           <View style={[styles.heroBadge, { borderColor: color }]}>

@@ -16,6 +16,7 @@ import { isSignedIn } from '../../lib/auth';
 import { presentPayment } from '../../lib/stripePay';
 import { isEditable, statusColor, statusLabel } from '../../lib/programStatus';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -65,6 +66,7 @@ export default function ProgramForm() {
   const [phase, setPhase] = useState<Phase>(isNew ? 'editing' : 'loading');
   const [step, setStep] = useState(0);
   const [usedFreeCredit, setUsedFreeCredit] = useState(false);
+  const navClearance = useNavClearance();
 
   // Form fields
   const [title, setTitle] = useState('');
@@ -262,7 +264,10 @@ export default function ProgramForm() {
       <Pressable onPress={back} hitSlop={10}>
         <Text style={styles.back}>←</Text>
       </Pressable>
-      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.body, { paddingBottom: navClearance }]}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Step dots */}
         <View style={styles.dots}>
           {STEPS.map((s, i) => (

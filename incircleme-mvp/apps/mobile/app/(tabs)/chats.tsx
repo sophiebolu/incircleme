@@ -7,6 +7,7 @@ import { t, interpolate } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -14,6 +15,7 @@ export default function Chats() {
   const router = useRouter();
   const [circles, setCircles] = useState<CircleSummary[] | null>(null);
   const [signedIn, setSignedIn] = useState(true);
+  const navClearance = useNavClearance();
 
   useFocusEffect(
     useCallback(() => {
@@ -51,7 +53,7 @@ export default function Chats() {
         <FlatList
           data={circles ?? []}
           keyExtractor={(c) => c.id}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, { paddingBottom: navClearance }]}
           ListEmptyComponent={<Text style={styles.empty}>—</Text>}
           renderItem={({ item }) => (
             <Pressable

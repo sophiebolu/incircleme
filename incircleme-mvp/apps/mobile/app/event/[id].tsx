@@ -17,6 +17,7 @@ import { formatDateTime, formatPrice, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { HostRow } from '../../components/HostRow';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -28,6 +29,7 @@ export default function Event() {
   const router = useRouter();
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const navClearance = useNavClearance();
 
   useEffect(() => {
     if (id) api.getEvent(id).then(setEvent).catch(() => setEvent(null));
@@ -73,7 +75,7 @@ export default function Event() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <BrandBar />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navClearance }]}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Text style={styles.back}>←</Text>
         </Pressable>

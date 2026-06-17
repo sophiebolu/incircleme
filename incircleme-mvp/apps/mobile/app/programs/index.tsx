@@ -8,6 +8,7 @@ import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { statusColor, statusLabel } from '../../lib/programStatus';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -18,6 +19,7 @@ export default function ProgramsList() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [me, setMe] = useState<MeResponse | null>(null);
   const [phase, setPhase] = useState<Phase>('loading');
+  const navClearance = useNavClearance();
 
   // Refetch on focus so a freshly-submitted Program reflects its new status on return.
   useFocusEffect(
@@ -52,7 +54,7 @@ export default function ProgramsList() {
       <Pressable onPress={() => router.back()} hitSlop={10}>
         <Text style={styles.back}>←</Text>
       </Pressable>
-      <ScrollView contentContainerStyle={styles.body}>
+      <ScrollView contentContainerStyle={[styles.body, { paddingBottom: navClearance }]}>
         <Text style={styles.heading}>{t('prog_entry')}</Text>
 
         {phase === 'signedOut' ? (

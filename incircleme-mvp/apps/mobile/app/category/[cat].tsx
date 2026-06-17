@@ -7,6 +7,7 @@ import { t, interpolate, type StringKey } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { EventCard } from '../../components/EventCard';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -24,6 +25,7 @@ export default function Category() {
   const { cat } = useLocalSearchParams<{ cat: string }>();
   const router = useRouter();
   const [events, setEvents] = useState<EventListItem[]>([]);
+  const navClearance = useNavClearance();
 
   useEffect(() => {
     api
@@ -45,7 +47,7 @@ export default function Category() {
       <FlatList
         data={events}
         keyExtractor={(e) => e.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: navClearance }]}
         renderItem={({ item }) => <EventCard event={item} />}
         ListEmptyComponent={<Text style={styles.empty}>—</Text>}
       />
