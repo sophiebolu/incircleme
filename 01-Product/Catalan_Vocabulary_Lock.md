@@ -721,4 +721,20 @@ The enriched event-detail surfaces. Mirrored in `incircleme-mvp/packages/i18n` (
 
 ---
 
+## 28. Bookings enrichment (Tier 2 · locked 2026-06-17)
+
+The enriched Bookings tab — Upcoming/Past/Cancelled segmentation, richer cards, editorial empty state, active-Circle deep-link chip. Mirrored in `incircleme-mvp/packages/i18n` (keys `bk_*`). `{n}` interpolates. Tabs are client-side classification (Upcoming = held/confirmed & not yet ended · Past = confirmed & ended · Cancelled = cancelled/refunded). Status-chip labels reuse §23 (Confirmed/Pending/Cancelled/Refunded). The empty-state title is italic on the lead clause (§13b). "Circle" reuses the canonical §6/§20 *Cercle / Círculo*. Cancel/refund, waitlist, quick-actions, review chips, and the friendly booking code are deferred to later slices.
+
+| EN | CA | ES |
+|---|---|---|
+| Upcoming | Properes | Próximas |
+| Past | Passades | Pasadas |
+| Cancelled | Cancel·lades | Canceladas |
+| Circle · {n} | Cercle · {n} | Círculo · {n} |
+| *Nothing on your calendar* — yet. | *Res a la teva agenda* — encara. | *Nada en tu agenda* — todavía. |
+| Your next small room is three taps away. | La teva propera sala petita és a tres tocs. | Tu próxima sala pequeña está a tres toques. |
+| Browse Barcelona | Explora Barcelona | Explorar Barcelona |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

@@ -147,6 +147,9 @@ describe('booking', () => {
     ).json();
     expect(myb.length).toBe(1);
     expect(myb[0].status).toBe('confirmed');
+    // Circle is auto-created on confirm → bookings expose its id + member count.
+    expect(myb[0].circleId).toBeTruthy();
+    expect(myb[0].circleMemberCount).toBeGreaterThanOrEqual(1);
 
     detail = (await app.inject({ method: 'GET', url: `/events/${ev.id}` })).json();
     expect(detail.seatsBooked).toBe(1);
