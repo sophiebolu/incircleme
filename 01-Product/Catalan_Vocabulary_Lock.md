@@ -674,4 +674,18 @@ The Bookings stat reuses the existing nav label **Bookings / Reserves / Reservas
 
 ---
 
+## 26. Trust-tier labels (locked 2026-06-17)
+
+The five `trustTier` enum values, rendered as human labels wherever a person's tier shows (Profile passport summary, HostRow). Previously a CA-only map; now locale-aware via `@incircleme/i18n` (keys `tier_*`), read through the shared `tierLabel` helper. CA matches the prior map verbatim. The enum is exactly these five — no extra/legacy values.
+
+| enum | EN | CA | ES |
+|---|---|---|---|
+| newcomer | Newcomer | Nouvingut/da | Recién llegado/a |
+| regular | Regular | Habitual | Habitual |
+| trusted | Trusted | De confiança | De confianza |
+| pillar | Pillar | Pilar | Pilar |
+| legend | Legend | Llegenda | Leyenda |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

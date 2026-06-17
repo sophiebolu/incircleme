@@ -177,6 +177,12 @@ export const strings = {
     prof_passportView: 'Veure el passaport complet',
     prof_comingSoon: 'Aviat',
     prof_verified: 'Identitat verificada',
+    // §26 Trust-tier labels (locked 2026-06-17)
+    tier_newcomer: 'Nouvingut/da',
+    tier_regular: 'Habitual',
+    tier_trusted: 'De confiança',
+    tier_pillar: 'Pilar',
+    tier_legend: 'Llegenda',
   },
   es: {
     home: 'Inicio',
@@ -340,6 +346,12 @@ export const strings = {
     prof_passportView: 'Ver el pasaporte completo',
     prof_comingSoon: 'Próximamente',
     prof_verified: 'Identidad verificada',
+    // §26 Trust-tier labels (locked 2026-06-17)
+    tier_newcomer: 'Recién llegado/a',
+    tier_regular: 'Habitual',
+    tier_trusted: 'De confianza',
+    tier_pillar: 'Pilar',
+    tier_legend: 'Leyenda',
   },
   en: {
     home: 'Home',
@@ -502,6 +514,12 @@ export const strings = {
     prof_passportView: 'View full passport',
     prof_comingSoon: 'Coming soon',
     prof_verified: 'Verified identity',
+    // §26 Trust-tier labels (locked 2026-06-17)
+    tier_newcomer: 'Newcomer',
+    tier_regular: 'Regular',
+    tier_trusted: 'Trusted',
+    tier_pillar: 'Pillar',
+    tier_legend: 'Legend',
   },
 } as const;
 

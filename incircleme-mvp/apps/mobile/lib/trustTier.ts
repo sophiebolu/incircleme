@@ -1,12 +1,18 @@
-// Trust-tier display labels (Catalan, vocab-locked). Single source of truth so
-// HostRow and Profile render the same human label instead of the raw enum.
-export const TIER_LABEL: Record<string, string> = {
-  newcomer: 'Nouvingut/da',
-  regular: 'Habitual',
-  trusted: 'De confiança',
-  pillar: 'Pilar',
-  legend: 'Llegenda',
+import { t, type StringKey } from '@incircleme/i18n';
+import type { TrustTier } from '@incircleme/types';
+
+// Locale-aware trust-tier labels (§26). Single source of truth so HostRow and
+// Profile render the same human label in the active locale, not the raw enum.
+const TIER_KEY: Record<TrustTier, StringKey> = {
+  newcomer: 'tier_newcomer',
+  regular: 'tier_regular',
+  trusted: 'tier_trusted',
+  pillar: 'tier_pillar',
+  legend: 'tier_legend',
 };
 
-/** Maps a trust-tier enum to its display label, falling back to the raw value. */
-export const tierLabel = (tier: string): string => TIER_LABEL[tier] ?? tier;
+/** Maps a trust-tier enum to its localized label, falling back to the raw value. */
+export const tierLabel = (tier: string): string => {
+  const key = TIER_KEY[tier as TrustTier];
+  return key ? t(key) : tier;
+};
