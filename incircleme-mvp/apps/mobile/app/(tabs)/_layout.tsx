@@ -1,29 +1,12 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
 import { t } from '@incircleme/i18n';
-import { tokens } from '../../theme/tokens';
-import { fonts } from '../../theme/fonts';
+import { BottomNav } from '../../components/BottomNav';
 
-// 4-tab nav per the prototype (Home · Chats · Bookings · Profile; no center FAB).
-const GLYPHS: Record<string, string> = { index: '⌂', chats: '◯', bookings: '▤', profile: '◉' };
-
+// 4-tab nav (Home · Chats · Bookings · Profile; no center FAB). Rendering is the
+// custom floating-pill BottomNav (gold active state, Samsung bottom clearance).
 export default function TabsLayout() {
   return (
-    <Tabs
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: tokens.color.forest,
-        tabBarInactiveTintColor: tokens.color.gray,
-        tabBarStyle: {
-          backgroundColor: tokens.color.cream,
-          borderTopColor: tokens.color.border,
-        },
-        tabBarLabelStyle: { fontFamily: fonts.bodyMedium, fontSize: 10.5 },
-        tabBarIcon: ({ color }) => (
-          <Text style={{ color, fontSize: 17 }}>{GLYPHS[route.name] ?? '·'}</Text>
-        ),
-      })}
-    >
+    <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <BottomNav {...props} />}>
       <Tabs.Screen name="index" options={{ title: t('home') }} />
       <Tabs.Screen name="chats" options={{ title: t('chats') }} />
       <Tabs.Screen name="bookings" options={{ title: t('bookings') }} />
