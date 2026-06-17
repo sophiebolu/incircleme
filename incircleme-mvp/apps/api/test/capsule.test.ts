@@ -164,6 +164,9 @@ describe('capsule generation', () => {
     expect(cap.stats.sharedBoth).toBe(1);
     expect(cap.stats.messages).toBe(1);
     expect(cap.quotes).toEqual([]); // wired, empty until Slice 6
+    // Active Circle members exposed for the "Your Circle" avatar strip.
+    expect(cap.members).toHaveLength(2);
+    expect('avatarUrl' in cap.members[0]).toBe(true);
     expect(cap.heroPhotoUrl).toBe(cap.differencePairs[0].afterUrl);
     expect(cap.eventTitle).toBe('Pottery Sunday');
   });

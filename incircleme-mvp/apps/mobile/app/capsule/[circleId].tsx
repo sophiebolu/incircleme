@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Camera, MessageCircle } from 'lucide-react-native';
 import type { Capsule } from '@incircleme/types';
 import { t, interpolate, formatDate, formatTime } from '@incircleme/i18n';
 import { api } from '../../lib/api';
@@ -73,8 +74,9 @@ export default function CapsuleScreen() {
           <View style={styles.heroScrim} />
           <Text style={styles.heroEyebrow}>{t('memoryCapsule').toUpperCase()}</Text>
           <Text style={styles.heroTitle}>{capsule.eventTitle}</Text>
+          {/* barri appears once — inside membersLine (was duplicated before the Circle clause) */}
           <Text style={styles.heroMeta}>
-            {dateLine} · {capsule.neighbourhood ?? 'Barcelona'} ·{' '}
+            {dateLine} ·{' '}
             {interpolate(t('membersLine'), {
               circle: t('circle'),
               count: String(capsule.stats.members),
@@ -102,75 +104,144 @@ export default function CapsuleScreen() {
                 {t('theDifference').split(' ').slice(1).join(' ')}
               </Text>
             </Text>
-            {capsule.differencePairs.map((p) => (
-              <View key={p.userId} style={styles.pairCard}>
-                <Text style={styles.pairName}>{p.displayName ?? '—'}</Text>
+            {/* Featured pair (first), full-width with Arriving/Leaving + times */}
+            {capsule.differencePairs[0] ? (
+              <View style={styles.pairCard}>
+                <Text style={styles.pairName}>{capsule.differencePairs[0].displayName ?? '—'}</Text>
                 <View style={styles.pairRow}>
                   <View style={styles.pane}>
-                    <Image source={{ uri: abs(p.beforeUrl) }} style={styles.paneImg} />
+                    <Image
+                      source={{ uri: abs(capsule.differencePairs[0].beforeUrl) }}
+                      style={styles.paneImg}
+                    />
                     <Text style={styles.paneLabel}>{t('paneArriving')}</Text>
                     <Text style={styles.paneTime}>
-                      {formatTime(p.beforeAt, { hour: '2-digit', minute: '2-digit' })}
+                      {formatTime(capsule.differencePairs[0].beforeAt, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </Text>
                   </View>
                   <View style={styles.pane}>
-                    <Image source={{ uri: abs(p.afterUrl) }} style={styles.paneImg} />
+                    <Image
+                      source={{ uri: abs(capsule.differencePairs[0].afterUrl) }}
+                      style={styles.paneImg}
+                    />
                     <Text style={styles.paneLabel}>{t('paneLeaving')}</Text>
                     <Text style={styles.paneTime}>
-                      {formatTime(p.afterAt, { hour: '2-digit', minute: '2-digit' })}
+                      {formatTime(capsule.differencePairs[0].afterAt, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </Text>
                   </View>
                 </View>
               </View>
-            ))}
-          </View>
-        ) : null}
+            ) : null}
 
-        {/* Photo roll */}
-        {capsule.photos.length > 0 ? (
-          <View style={styles.section}>
-            <View style={styles.rollHeader}>
-              <Text style={styles.sectionTitle}>{t('photoRoll')}</Text>
-              <Text style={styles.seeAll}>
-                {interpolate(t('seeAll'), { n: String(capsule.stats.photos) })}
-              </Text>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.roll}>
-              {capsule.photos.map((p, i) => (
-                <Image key={`${p.url}-${i}`} source={{ uri: abs(p.url) }} style={styles.rollPhoto} />
-              ))}
-            </ScrollView>
-          </View>
-        ) : null}
+            {/* Mini-pairs (the rest) — small before/after thumbs */}
+            {capsule.differencePairs.length > 1 ? (
+              <View style={styles.miniRow}>
+                {capsule.differencePairs.slice(1).map((p) => (
+                  <View key={p.userId} style={styles.miniCard}>
+                    <Image source={{ uri: abs(p.beforeUrl) }} style={styles.miniImg} />
+                    <Image source={{ uri: abs(p.afterUrl) }} style={styles.miniImg} />
+                    <Text style={styles.miniName}>{p.displayName ?? '—'}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
 
-        {/* Highlights — only stats we truly have */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('highlights')}</Text>
-          <View style={styles.statRow}>
-            <Text style={styles.statBig}>
-              {interpolate(t('nPhotos'), { n: String(capsule.stats.photos) })}
-            </Text>
-            <Text style={styles.statSub}>
-              {interpolate(t('sharedBy'), {
+            {/* Counts only — silent, not stigmatised (no skipper names) */}
+            <Text style={styles.diffFootnote}>
+              {interpolate(t('cap_diffFootnote'), {
                 x: String(capsule.stats.sharedBoth),
                 y: String(capsule.stats.members),
               })}
             </Text>
           </View>
-          <View style={styles.statRow}>
-            <Text style={styles.statBig}>
-              {interpolate(t('nCircleMessages'), { n: String(capsule.stats.messages) })}
-            </Text>
-            <Text style={styles.statSub}>{t('sinceEnded')}</Text>
+        ) : null}
+
+        {/* Photo roll — grid (every 5th tile spans full-width for rhythm) */}
+        {capsule.photos.length > 0 ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{t('photoRoll')}</Text>
+            <View style={styles.grid}>
+              {capsule.photos.map((p, i) => (
+                <Image
+                  key={`${p.url}-${i}`}
+                  source={{ uri: abs(p.url) }}
+                  style={[styles.gridPhoto, i % 5 === 0 && styles.gridPhotoWide]}
+                />
+              ))}
+            </View>
+          </View>
+        ) : null}
+
+        {/* Highlights — icon tiles, only the stats we truly have */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('highlights')}</Text>
+          <View style={styles.hlGrid}>
+            <View style={styles.hlItem}>
+              <View style={styles.hlIc}>
+                <Camera size={16} color={tokens.color.forest} strokeWidth={2} />
+              </View>
+              <View style={styles.hlTx}>
+                <Text style={styles.hlT}>
+                  {interpolate(t('nPhotos'), { n: String(capsule.stats.photos) })}
+                </Text>
+                <Text style={styles.hlS}>
+                  {interpolate(t('sharedBy'), {
+                    x: String(capsule.stats.sharedBoth),
+                    y: String(capsule.stats.members),
+                  })}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.hlItem}>
+              <View style={styles.hlIc}>
+                <MessageCircle size={16} color={tokens.color.forest} strokeWidth={2} />
+              </View>
+              <View style={styles.hlTx}>
+                <Text style={styles.hlT}>
+                  {interpolate(t('nCircleMessages'), { n: String(capsule.stats.messages) })}
+                </Text>
+                <Text style={styles.hlS}>{t('sinceEnded')}</Text>
+              </View>
+            </View>
           </View>
         </View>
 
-        {/* Your Circle */}
+        {/* Your Circle — member avatars (member-gated) + still-chatting line */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('yourCircle')}</Text>
-          <Text style={styles.circleLine}>
-            {interpolate(t('stillChatting'), { n: String(capsule.stats.members) })}
-          </Text>
+          <View style={styles.circleStrip}>
+            {capsule.members.length > 0 ? (
+              <View style={styles.csAvs}>
+                {capsule.members.slice(0, 6).map((m, i) =>
+                  m.avatarUrl ? (
+                    <Image
+                      key={i}
+                      source={{ uri: abs(m.avatarUrl) }}
+                      style={[styles.csAv, i > 0 && styles.csAvOverlap]}
+                    />
+                  ) : (
+                    <View
+                      key={i}
+                      style={[styles.csAv, styles.csAvFallback, i > 0 && styles.csAvOverlap]}
+                    >
+                      <Text style={styles.csAvInitial}>
+                        {(m.displayName ?? '?').charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                  ),
+                )}
+              </View>
+            ) : null}
+            <Text style={styles.circleLine}>
+              {interpolate(t('stillChatting'), { n: String(capsule.stats.members) })}
+            </Text>
+          </View>
         </View>
 
         {/* Actions */}
@@ -274,22 +345,81 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   paneTime: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.text2 },
-  rollHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  seeAll: { fontFamily: fonts.bodyMedium, fontSize: 12, color: tokens.color.coralInk },
-  roll: { gap: 8 },
-  rollPhoto: { width: 110, height: 110, borderRadius: 12, backgroundColor: tokens.color.border },
-  statRow: {
+
+  // Mini-pairs (the difference)
+  miniRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  miniCard: {
+    width: '31%',
+    backgroundColor: '#FFFFFF',
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 6,
+    alignItems: 'center',
+  },
+  miniImg: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 6,
+    backgroundColor: tokens.color.border,
+    marginBottom: 3,
+  },
+  miniName: { fontFamily: fonts.displayItalic, fontSize: 10.5, color: tokens.color.ink, marginTop: 3 },
+  diffFootnote: {
+    fontFamily: fonts.body,
+    fontSize: 11,
+    color: tokens.color.text2,
+    textAlign: 'center',
+    marginTop: 10,
+    lineHeight: 16,
+  },
+
+  // Photo grid
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  gridPhoto: { width: '48.5%', aspectRatio: 1, borderRadius: 10, backgroundColor: tokens.color.border },
+  gridPhotoWide: { width: '100%', aspectRatio: 16 / 9 },
+
+  // Highlights tiles
+  hlGrid: { flexDirection: 'row', gap: 10 },
+  hlItem: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 9,
+    alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderColor: tokens.color.border,
     borderWidth: 1,
     borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
-  statBig: { fontFamily: fonts.displaySemi, fontSize: 16, color: tokens.color.forest },
-  statSub: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.text2, marginTop: 1 },
-  circleLine: { fontFamily: fonts.body, fontSize: 13.5, color: tokens.color.text2 },
+  hlIc: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: tokens.color.forestSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hlTx: { flex: 1 },
+  hlT: { fontFamily: fonts.displaySemi, fontSize: 14, color: tokens.color.forest },
+  hlS: { fontFamily: fonts.body, fontSize: 10.5, color: tokens.color.text2, marginTop: 1, lineHeight: 14 },
+
+  // Your Circle strip
+  circleStrip: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  csAvs: { flexDirection: 'row' },
+  csAv: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: tokens.color.border,
+    borderColor: tokens.color.cream,
+    borderWidth: 1.5,
+  },
+  csAvOverlap: { marginLeft: -8 },
+  csAvFallback: { backgroundColor: tokens.color.forestSoft, alignItems: 'center', justifyContent: 'center' },
+  csAvInitial: { fontFamily: fonts.displaySemi, fontSize: 12, color: tokens.color.forest },
+  circleLine: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.text2, flex: 1 },
   actions: { flexDirection: 'row', gap: 10, marginTop: 24 },
   cta: {
     flex: 1,

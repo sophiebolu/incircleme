@@ -3,6 +3,7 @@ import {
   capsules,
   capsuleItems,
   circles,
+  circleMembers,
   circleMessages,
   arrivingMoments,
   events,
@@ -146,6 +147,13 @@ export async function getCapsule(circleId: string, userId: string): Promise<Caps
     }
   }
 
+  // Active Circle members → "Your Circle" avatar strip (read is already member-gated).
+  const memberRows = await db
+    .select({ displayName: users.displayName, avatarUrl: users.avatarUrl })
+    .from(circleMembers)
+    .innerJoin(users, eq(users.id, circleMembers.userId))
+    .where(and(eq(circleMembers.circleId, capsule.circleId), isNull(circleMembers.leftAt)));
+
   return {
     id: capsule.id,
     circleId,
@@ -155,6 +163,7 @@ export async function getCapsule(circleId: string, userId: string): Promise<Caps
     neighbourhood: event?.neighbourhood ?? null,
     heroPhotoUrl: capsule.heroPhotoUrl,
     stats: capsule.stats as CapsuleStats,
+    members: memberRows.map((m) => ({ displayName: m.displayName, avatarUrl: m.avatarUrl })),
     photos: items.filter((i) => i.kind === 'photo').map((i) => i.payload as CapsulePhoto),
     differencePairs: rawPairs.map((p) => ({ ...p, displayName: names.get(p.userId) ?? null })),
     quotes: items

@@ -34,6 +34,8 @@ export interface Capsule {
   neighbourhood: string | null;
   heroPhotoUrl: string | null;
   stats: CapsuleStats;
+  /** Active Circle members (member-gated read) — for the "Your Circle" avatar strip. */
+  members: { displayName: string | null; avatarUrl: string | null }[];
   photos: CapsulePhoto[];
   differencePairs: DifferencePair[];
   /** Empty until reviews land (Slice 6). */

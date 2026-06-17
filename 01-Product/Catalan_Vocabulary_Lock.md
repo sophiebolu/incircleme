@@ -755,4 +755,14 @@ Public learner-facing Program-detail surfaces (keys `prog_pub_*`, extending §24
 
 ---
 
+## 30. Memory Capsule enrichment (Tier 2 · locked 2026-06-17)
+
+The Capsule screen's enriched surfaces (key `cap_*`, extending §21). `{x}`/`{y}` interpolate (shared-both / Circle members). Photo roll becomes a grid; "the difference" gets a featured-pair + mini-pairs hierarchy; "Your Circle" gets member avatars. The difference footnote is **counts only — no skipper names** (honours §21's "silent, not stigmatised": absence is never represented). Deferred: full-screen photo gallery, per-pair quote (no data field), avg-rating (reviews, Tier 3), next-bookings (no data source), "next event together" line.
+
+| EN | CA | ES |
+|---|---|---|
+| {x} of {y} in the Circle shared both photos. | {x} de {y} del Cercle van compartir totes dues fotos. | {x} de {y} del Círculo compartieron ambas fotos. |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

@@ -230,6 +230,8 @@ export const strings = {
     prog_pub_faqRefundQ: 'Reemborsament?',
     prog_pub_faqRefundA:
       "Les condicions les fixa l'amfitrió/a — pregunta abans d'inscriure't.",
+    // §30 Memory Capsule enrichment (Tier 2 · locked 2026-06-17)
+    cap_diffFootnote: '{x} de {y} del Cercle van compartir totes dues fotos.',
   },
   es: {
     home: 'Inicio',
@@ -446,6 +448,8 @@ export const strings = {
     prog_pub_faqRefundQ: '¿Reembolso?',
     prog_pub_faqRefundA:
       'Las condiciones las fija el anfitrión/a — pregunta antes de inscribirte.',
+    // §30 Memory Capsule enrichment (Tier 2 · locked 2026-06-17)
+    cap_diffFootnote: '{x} de {y} del Círculo compartieron ambas fotos.',
   },
   en: {
     home: 'Home',
@@ -658,6 +662,8 @@ export const strings = {
     prog_pub_faqBeginnerA: "Most cohorts are half first-timers — you'll be in good company.",
     prog_pub_faqRefundQ: 'Refund?',
     prog_pub_faqRefundA: 'Refund terms are set by the host — ask before you enrol.',
+    // §30 Memory Capsule enrichment (Tier 2 · locked 2026-06-17)
+    cap_diffFootnote: '{x} of {y} in the Circle shared both photos.',
   },
 } as const;
 
