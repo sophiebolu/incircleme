@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { getActiveLocale, subscribeLocale } from '@incircleme/i18n';
 import { applyDevLocale } from '../lib/devLocale';
 import { DevLocaleSwitcher } from '../components/DevLocaleSwitcher';
+import { UniversalNav } from '../components/UniversalNav';
 import { fontMap } from '../theme/fonts';
 import { tokens } from '../theme/tokens';
 
@@ -33,6 +34,8 @@ export default function RootLayout() {
       >
         <Stack.Screen name="(tabs)" />
       </Stack>
+      {/* Universal floating nav — over every screen (tab roots + pushed details). */}
+      <UniversalNav />
       <DevLocaleSwitcher />
     </>
   );

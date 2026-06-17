@@ -18,6 +18,7 @@ import { t, interpolate, formatDate, formatDateTime } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { joinCircle } from '../../lib/socket';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -56,6 +57,7 @@ export default function CircleScreen() {
   const [arrivingDismissed, setArrivingDismissed] = useState(false);
   const [hasCapsule, setHasCapsule] = useState(false);
   const listRef = useRef<FlatList<CircleMessage>>(null);
+  const navClearance = useNavClearance();
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -354,8 +356,8 @@ export default function CircleScreen() {
           onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
         />
 
-        {/* Composer */}
-        <View style={styles.composer}>
+        {/* Composer — sits above the floating UniversalNav (clears it + safe area) */}
+        <View style={[styles.composer, { marginBottom: navClearance }]}>
           <TextInput
             style={styles.input}
             placeholder={t('composerPlaceholder')}

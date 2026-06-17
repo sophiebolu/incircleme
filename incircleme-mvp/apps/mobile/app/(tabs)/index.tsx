@@ -11,6 +11,7 @@ import { SearchBar } from '../../components/SearchBar';
 import { SectionEyebrow } from '../../components/SectionEyebrow';
 import { CategoryGrid } from '../../components/CategoryGrid';
 import { ProgramsStrip } from '../../components/ProgramsStrip';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -20,6 +21,7 @@ export default function Home() {
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [name, setName] = useState('Marta'); // prototype demo persona until signed in
   const [refreshing, setRefreshing] = useState(false);
+  const navClearance = useNavClearance();
 
   const load = useCallback(async () => {
     try {
@@ -55,7 +57,7 @@ export default function Home() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <BrandBar bell />
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: navClearance }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Home hero — locked §18; em = italic coral-ink on the meaning-bearer */}

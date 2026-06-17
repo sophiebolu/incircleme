@@ -7,12 +7,14 @@ import { t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { tierColor, tierLabel } from '../../lib/programTier';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
 export default function BrowsePrograms() {
   const router = useRouter();
   const [programs, setPrograms] = useState<PublicProgramCard[] | null>(null);
+  const navClearance = useNavClearance();
 
   useEffect(() => {
     api
@@ -27,7 +29,7 @@ export default function BrowsePrograms() {
       <Pressable onPress={() => router.back()} hitSlop={10}>
         <Text style={styles.back}>←</Text>
       </Pressable>
-      <ScrollView contentContainerStyle={styles.body}>
+      <ScrollView contentContainerStyle={[styles.body, { paddingBottom: navClearance }]}>
         <Text style={styles.eyebrow}>{t('prog_pub_eyebrow')}</Text>
         {(programs ?? []).map((p) => (
           <Pressable key={p.id} style={styles.card} onPress={() => router.push(`/program/${p.id}`)}>

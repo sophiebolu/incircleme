@@ -17,6 +17,7 @@ import { t, interpolate, formatDate, formatTime } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { savePhotoToDevice } from '../../lib/savePhoto';
 import { BrandBar } from '../../components/BrandBar';
+import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
@@ -28,6 +29,7 @@ export default function CapsuleScreen() {
   const router = useRouter();
   const [capsule, setCapsule] = useState<Capsule | null>(null);
   const [saved, setSaved] = useState(false);
+  const navClearance = useNavClearance();
 
   useEffect(() => {
     if (circleId) api.getCapsule(circleId).then(setCapsule).catch(() => setCapsule(null));
@@ -60,7 +62,7 @@ export default function CapsuleScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <BrandBar />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navClearance }]}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Text style={styles.back}>←</Text>
         </Pressable>
