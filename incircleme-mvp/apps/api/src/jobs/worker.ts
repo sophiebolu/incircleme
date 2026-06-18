@@ -16,10 +16,15 @@ if (!env.REDIS_URL) {
 }
 
 // BullMQ's bundled ioredis types clash with our own instance type — pass options instead.
+// Carry auth + TLS from the URL so managed Redis (Upstash: rediss:// + password) connects;
+// local dev (redis:// no-auth) leaves these undefined and is unaffected.
 const redisUrl = new URL(env.REDIS_URL);
 const connection = {
   host: redisUrl.hostname,
   port: Number(redisUrl.port || 6379),
+  username: redisUrl.username || undefined,
+  password: redisUrl.password || undefined,
+  tls: redisUrl.protocol === 'rediss:' ? {} : undefined,
   maxRetriesPerRequest: null as null,
 };
 const queue = new Queue('incircleme-jobs', { connection });
