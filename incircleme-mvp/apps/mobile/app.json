@@ -2,6 +2,7 @@
   "expo": {
     "name": "IncircleMe",
     "slug": "incircleme",
+    "owner": "incircleme",
     "scheme": "incircleme",
     "version": "0.0.1",
     "orientation": "portrait",
@@ -31,6 +32,12 @@
           "iosUrlScheme": "com.googleusercontent.apps.PLACEHOLDER_REPLACE_FOR_IOS"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f3c64a37-b208-4456-a699-c375aab55dd3"
+      }
+    }
   }
 }
