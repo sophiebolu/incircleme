@@ -31,7 +31,8 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.PLACEHOLDER_REPLACE_FOR_IOS"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "extra": {
       "router": {},

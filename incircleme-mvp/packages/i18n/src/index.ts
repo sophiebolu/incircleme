@@ -703,11 +703,10 @@ export const strings = {
 export type StringKey = keyof (typeof strings)['ca'];
 
 // --- Active locale ---
-// CA is the shipping default. `t()` / `formatPrice()` read `activeLocale`, which
-// only ever changes via setActiveLocale() — called exclusively from DEV-gated
-// review tooling (see apps/mobile/lib/devLocale). Production never calls it, so
-// activeLocale stays `defaultLocale`. This is NOT the real (device/region)
-// resolution path — that lands separately and must not route through here.
+// CA is the shipping default. `t()` / `formatPrice()` read `activeLocale`. It is set
+// once at startup from the real device/region resolution (see apps/mobile/lib/
+// deviceLocale → matchLocale), and may then be overridden by the DEV-gated review
+// switcher (apps/mobile/lib/devLocale). When nothing matches, it stays `defaultLocale`.
 let activeLocale: Locale = defaultLocale;
 const localeListeners = new Set<() => void>();
 
@@ -722,6 +721,17 @@ export function getActiveLocale(): Locale {
 export function subscribeLocale(fn: () => void): () => void {
   localeListeners.add(fn);
   return () => localeListeners.delete(fn);
+}
+
+const SUPPORTED: readonly Locale[] = ['ca', 'es', 'en'];
+/**
+ * Map a BCP-47 language tag (e.g. 'en-GB', 'es-419', 'ca-ES', 'EN') to a supported
+ * app locale by its primary language subtag. Returns null when none match — callers
+ * fall back to `defaultLocale` (ca). This is the real device/region resolution helper.
+ */
+export function matchLocale(tag: string | null | undefined): Locale | null {
+  const lang = (tag ?? '').toLowerCase().split(/[-_]/)[0] ?? '';
+  return (SUPPORTED as string[]).includes(lang) ? (lang as Locale) : null;
 }
 
 export function t(key: StringKey, locale: Locale = activeLocale): string {
