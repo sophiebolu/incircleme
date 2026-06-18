@@ -10,8 +10,8 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://incircleme-staging.fly.dev",
-        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_REPLACE_ME",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "REPLACE_ME.apps.googleusercontent.com"
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51Th7eRDayEQERjtKCaF574T0igA1sqWi4qavITOYAqN3E0LHWmr4Rtcibgc3XIJ72wznDip3uJetBWlHrMsmol7800Bm7JqLaU",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "277946415910-atiht012t0guv6pm8iv6km067iq4vom5.apps.googleusercontent.com"
       }
     }
   }
