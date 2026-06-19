@@ -7,6 +7,7 @@ export * from './capsules';
 export * from './circles';
 export * from './programs';
 export * from './reviews';
+export * from './users';
 
 export type Locale = 'ca' | 'es' | 'en';
 

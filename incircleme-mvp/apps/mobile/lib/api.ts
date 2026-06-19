@@ -13,6 +13,7 @@ import type {
   CreateReviewRequest,
   CredentialKind,
   PassportSummary,
+  PublicProfile,
   Review,
   ReviewAggregate,
   EventDetail,
@@ -125,6 +126,7 @@ export const api = {
   me: () => request<MeResponse>('/me'),
   meStats: () => request<MeStats>('/me/stats'),
   getPassport: () => request<PassportSummary>('/me/passport'),
+  getPublicProfile: (userId: string) => request<PublicProfile>(`/users/${userId}`),
   requestMagicLink: (email: string) =>
     request<{ ok: boolean }>('/auth/email-magic-link', {
       method: 'POST',

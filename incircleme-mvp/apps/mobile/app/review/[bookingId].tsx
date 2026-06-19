@@ -148,7 +148,9 @@ export default function ReviewScreen() {
                 </Text>
               </View>
             </View>
-            {detail?.host ? <HostRow host={detail.host} /> : null}
+            {detail?.host ? (
+              <HostRow host={detail.host} onPress={() => router.push(`/u/${detail!.host!.id}`)} />
+            ) : null}
             <Text style={styles.inviteQ}>{interpolate(t('rev_inviteQ'), { event: ev.title })}</Text>
             <Text style={styles.inviteSub}>
               {interpolate(t('rev_inviteSub'), { host: hostName })}

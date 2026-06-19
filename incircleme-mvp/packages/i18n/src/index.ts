@@ -322,6 +322,12 @@ export const strings = {
     pp_privateDefault: 'Privat per defecte',
     pp_levelUp: 'Com pujar de nivell',
     pp_privacy: 'Privacitat',
+    // Public host/creator profile — keepClose is locked §1; the rest PROVISIONAL.
+    keepClose: 'Mantén-te a prop',
+    up_about: 'Presentació',
+    up_theirEvents: 'Les seves sales',
+    up_reputation: 'Reputació',
+    up_report: 'Denuncia',
   },
   es: {
     home: 'Inicio',
@@ -629,6 +635,12 @@ export const strings = {
     pp_privateDefault: 'Privado por defecto',
     pp_levelUp: 'Cómo subir de nivel',
     pp_privacy: 'Privacidad',
+    // Public host/creator profile — keepClose is locked §1; the rest PROVISIONAL.
+    keepClose: 'Mantente cerca',
+    up_about: 'Presentación',
+    up_theirEvents: 'Sus salas',
+    up_reputation: 'Reputación',
+    up_report: 'Denunciar',
   },
   en: {
     home: 'Home',
@@ -931,6 +943,12 @@ export const strings = {
     pp_privateDefault: 'Private by default',
     pp_levelUp: 'How to level up',
     pp_privacy: 'Privacy',
+    // Public host/creator profile — keepClose is locked §1; the rest PROVISIONAL.
+    keepClose: 'Keep close',
+    up_about: 'About',
+    up_theirEvents: 'Their rooms',
+    up_reputation: 'Reputation',
+    up_report: 'Report',
   },
 } as const;
 

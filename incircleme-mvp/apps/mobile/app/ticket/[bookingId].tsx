@@ -199,9 +199,9 @@ export default function TicketScreen() {
             label={t('ticket_detailsPaid')} value={formatPrice(booking.amountCents, ev.currency)} />
         </View>
 
-        {/* Host strip → Reputation Passport (reuses HostRow + its locked copy) */}
+        {/* Host strip → the host's PUBLIC profile (never the self-Passport) */}
         {detail?.host ? (
-          <HostRow host={detail.host} onPress={() => router.push('/passport')} />
+          <HostRow host={detail.host} onPress={() => router.push(`/u/${detail.host.id}`)} />
         ) : null}
 
         {/* Circle deeplink */}
