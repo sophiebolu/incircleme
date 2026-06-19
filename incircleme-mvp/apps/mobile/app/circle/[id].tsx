@@ -15,7 +15,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Lock } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import type { ArrivingMoment, CircleDetail, CircleMessage } from '@incircleme/types';
-import { t, interpolate, formatDate, formatDateTime } from '@incircleme/i18n';
+import {
+  t,
+  interpolate,
+  formatDate,
+  formatDateTime,
+  getActiveLocale,
+  type Locale,
+} from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { joinCircle } from '../../lib/socket';
 import { BrandBar } from '../../components/BrandBar';
@@ -282,6 +289,13 @@ export default function CircleScreen() {
             <Text style={styles.cardTitle}>
               {window === 'before' ? t('arrivingBefore') : t('arrivingAfter')}
             </Text>
+            {/* §10b warmth — the same question in the other two languages (language as welcome) */}
+            <Text style={styles.cardTrilingual}>
+              {(['ca', 'es', 'en'] as Locale[])
+                .filter((l) => l !== getActiveLocale())
+                .map((l) => t(window === 'before' ? 'arrivingBefore' : 'arrivingAfter', l))
+                .join(' · ')}
+            </Text>
             {window === 'before' ? (
               <Text style={styles.cardEyebrow}>
                 {interpolate(t('roomOpensIn'), {
@@ -293,15 +307,21 @@ export default function CircleScreen() {
             {moments.length > 0 ? (
               <View style={styles.momentsRow}>
                 {moments.slice(0, 5).map((m) => (
-                  <Image
-                    key={m.id}
-                    source={{
-                      uri: m.photoUrl.startsWith('http')
-                        ? m.photoUrl
-                        : `${API_BASE}${m.photoUrl}`,
-                    }}
-                    style={styles.momentThumb}
-                  />
+                  <View key={m.id} style={styles.momentWrap}>
+                    <Image
+                      source={{
+                        uri: m.photoUrl.startsWith('http')
+                          ? m.photoUrl
+                          : `${API_BASE}${m.photoUrl}`,
+                      }}
+                      style={styles.momentThumb}
+                    />
+                    {members[m.userId]?.displayName ? (
+                      <Text style={styles.momentWho} numberOfLines={1}>
+                        {members[m.userId]!.displayName!.split(' ')[0]}
+                      </Text>
+                    ) : null}
+                  </View>
                 ))}
               </View>
             ) : null}
@@ -458,12 +478,27 @@ const styles = StyleSheet.create({
   cardGhostText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.ink },
   cardSkip: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: tokens.color.text2 },
   cardNote: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.text2 },
+  cardTrilingual: {
+    fontFamily: fonts.displayItalic,
+    fontSize: 11.5,
+    color: tokens.color.text2,
+    marginTop: 2,
+  },
   momentsRow: { flexDirection: 'row', gap: 6, marginTop: 4 },
+  momentWrap: { width: 44, height: 44, borderRadius: 10, overflow: 'hidden' },
   momentThumb: {
     width: 44,
     height: 44,
     borderRadius: 10,
     backgroundColor: tokens.color.border,
+  },
+  momentWho: {
+    position: 'absolute',
+    left: 4,
+    bottom: 3,
+    fontFamily: fonts.bodySemi,
+    fontSize: 8,
+    color: tokens.color.cream,
   },
   messages: { paddingHorizontal: 16, paddingVertical: 8, gap: 8 },
   bubbleRow: { flexDirection: 'row' },
