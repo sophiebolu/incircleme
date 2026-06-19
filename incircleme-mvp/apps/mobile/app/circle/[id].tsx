@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Lock } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import type { ArrivingMoment, CircleDetail, CircleMessage } from '@incircleme/types';
 import { t, interpolate, formatDate, formatDateTime } from '@incircleme/i18n';
@@ -237,6 +238,9 @@ export default function CircleScreen() {
           </View>
         ) : (
           <View style={styles.bar}>
+            {circle.event.addressLocked ? (
+              <Lock size={15} color={tokens.color.forest} strokeWidth={2} />
+            ) : null}
             <View style={styles.barBody}>
               <Text style={styles.barTitle}>
                 {circle.event.addressLocked ? (

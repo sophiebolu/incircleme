@@ -95,8 +95,14 @@ export default function Bookings() {
       hour: '2-digit',
       minute: '2-digit',
     });
+    // A confirmed, not-yet-ended booking opens its ticket; everything else
+    // (held/past/cancelled/refunded) keeps routing to the event detail.
+    const isLiveTicket =
+      item.status === 'confirmed' && new Date(item.event.endsAt).getTime() >= Date.now();
+    const onPress = () =>
+      router.push(isLiveTicket ? `/ticket/${item.id}` : `/event/${item.event.id}`);
     return (
-      <Pressable style={styles.card} onPress={() => router.push(`/event/${item.event.id}`)}>
+      <Pressable style={styles.card} onPress={onPress}>
         <Image source={{ uri: item.event.photoUrls[0] ?? FALLBACK_PHOTO }} style={styles.thumb} />
         <View style={styles.cardBody}>
           <Text style={styles.cardTitle} numberOfLines={1}>
