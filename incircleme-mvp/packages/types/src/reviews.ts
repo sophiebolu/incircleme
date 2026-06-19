@@ -42,3 +42,19 @@ export interface MyReviewSummary {
   given: number;
   received: number;
 }
+
+/** Read-only Reputation Passport aggregate, composed from existing signals. */
+export interface PassportSummary {
+  displayName: string | null;
+  neighbourhood: string | null;
+  trustTier: import('./index').TrustTier;
+  joinedAt: string;
+  attended: number;
+  hosted: number;
+  bookings: number;
+  /** Reviews received as a host (avg, tallies). */
+  reviewsReceived: ReviewAggregate;
+  /** Reviews this user has written for others. */
+  reviewsGiven: number;
+  activeCircles: number;
+}

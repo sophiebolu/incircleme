@@ -200,7 +200,9 @@ export default function TicketScreen() {
         </View>
 
         {/* Host strip → Reputation Passport (reuses HostRow + its locked copy) */}
-        {detail?.host ? <HostRow host={detail.host} onPress={comingSoon} /> : null}
+        {detail?.host ? (
+          <HostRow host={detail.host} onPress={() => router.push('/passport')} />
+        ) : null}
 
         {/* Circle deeplink */}
         {booking.circleId ? (

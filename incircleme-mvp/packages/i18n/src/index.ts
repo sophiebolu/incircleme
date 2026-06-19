@@ -298,6 +298,25 @@ export const strings = {
     rev_privateNote:
       'La teva ressenya és privada per a {host}. No has activat la compartició pública — només ella la llegirà.',
     bk_leaveReview: 'Deixa una ressenya',
+    // Reputation Passport — PROVISIONAL (Passport brief 2026-06-19).
+    pp_reliable: 'Fiable',
+    pp_hospitable: 'Hospitalari/ària',
+    pp_curious: 'Curiós/osa',
+    pp_traitsSoon: 'Les puntuacions de trets arriben aviat',
+    pp_scoreBuilt: 'Com es construeix la teva puntuació',
+    pp_reviewsReceived: 'Ressenyes rebudes',
+    pp_reviewsSub: '{avg} de mitjana · {again} repetirien · {incl} s’hi van sentir inclosos',
+    pp_circlesActive: 'Cercles actius',
+    pp_contributions: 'Contribucions',
+    pp_contributionsSub: '{n} ressenyes escrites per a altres',
+    pp_badges: 'Insígnies',
+    pp_badgesSoon: 'Més insígnies en camí',
+    pp_whyMatters: 'Per què importa',
+    pp_whyMattersBody:
+      'El teu Passaport et segueix per cada esdeveniment, Cercle i Ritual. Els amfitrions el veuen abans d’acceptar la teva reserva. Els nivells alts desbloquegen accés prioritari i privilegis per organitzar.',
+    pp_privateDefault: 'Privat per defecte',
+    pp_levelUp: 'Com pujar de nivell',
+    pp_privacy: 'Privacitat',
   },
   es: {
     home: 'Inicio',
@@ -581,6 +600,25 @@ export const strings = {
     rev_privateNote:
       'Tu reseña es privada para {host}. No activaste la compartición pública — solo ella la leerá.',
     bk_leaveReview: 'Dejar una reseña',
+    // Reputation Passport — PROVISIONAL (Passport brief 2026-06-19).
+    pp_reliable: 'Fiable',
+    pp_hospitable: 'Hospitalario/a',
+    pp_curious: 'Curioso/a',
+    pp_traitsSoon: 'Las puntuaciones de rasgos llegan pronto',
+    pp_scoreBuilt: 'Cómo se construye tu puntuación',
+    pp_reviewsReceived: 'Reseñas recibidas',
+    pp_reviewsSub: '{avg} de media · {again} repetirían · {incl} se sintieron incluidos',
+    pp_circlesActive: 'Círculos activos',
+    pp_contributions: 'Contribuciones',
+    pp_contributionsSub: '{n} reseñas escritas para otros',
+    pp_badges: 'Insignias',
+    pp_badgesSoon: 'Más insignias en camino',
+    pp_whyMatters: 'Por qué importa',
+    pp_whyMattersBody:
+      'Tu Pasaporte te acompaña en cada evento, Círculo y Ritual. Los anfitriones lo ven antes de aceptar tu reserva. Los niveles altos desbloquean acceso prioritario y privilegios para organizar.',
+    pp_privateDefault: 'Privado por defecto',
+    pp_levelUp: 'Cómo subir de nivel',
+    pp_privacy: 'Privacidad',
   },
   en: {
     home: 'Home',
@@ -859,6 +897,25 @@ export const strings = {
     rev_privateNote:
       'Your review is private to {host}. You didn’t turn on public sharing — only she will read it.',
     bk_leaveReview: 'Leave a review',
+    // Reputation Passport — PROVISIONAL (Passport brief 2026-06-19).
+    pp_reliable: 'Reliable',
+    pp_hospitable: 'Hospitable',
+    pp_curious: 'Curious',
+    pp_traitsSoon: 'Trait scores are coming soon',
+    pp_scoreBuilt: 'How your score is built',
+    pp_reviewsReceived: 'Reviews received',
+    pp_reviewsSub: '{avg} avg · {again} would go again · {incl} felt included',
+    pp_circlesActive: 'Active Circles',
+    pp_contributions: 'Contributions',
+    pp_contributionsSub: '{n} reviews written for others',
+    pp_badges: 'Badges',
+    pp_badgesSoon: 'More badges on the way',
+    pp_whyMatters: 'Why this matters',
+    pp_whyMattersBody:
+      'Your Passport travels with you across every event, Circle and Ritual. Hosts see it before accepting your booking. Higher levels unlock priority access and hosting privileges.',
+    pp_privateDefault: 'Private by default',
+    pp_levelUp: 'How to level up',
+    pp_privacy: 'Privacy',
   },
 } as const;
 

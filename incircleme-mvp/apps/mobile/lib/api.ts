@@ -12,6 +12,7 @@ import type {
   CreateProgramRequest,
   CreateReviewRequest,
   CredentialKind,
+  PassportSummary,
   Review,
   EventDetail,
   EventListItem,
@@ -121,6 +122,7 @@ export const api = {
     request<Review>('/reviews', { method: 'POST', body: JSON.stringify(body) }),
   me: () => request<MeResponse>('/me'),
   meStats: () => request<MeStats>('/me/stats'),
+  getPassport: () => request<PassportSummary>('/me/passport'),
   requestMagicLink: (email: string) =>
     request<{ ok: boolean }>('/auth/email-magic-link', {
       method: 'POST',
