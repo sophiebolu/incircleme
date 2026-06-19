@@ -14,6 +14,7 @@ import type {
   CredentialKind,
   PassportSummary,
   Review,
+  ReviewAggregate,
   EventDetail,
   EventListItem,
   MeResponse,
@@ -120,6 +121,7 @@ export const api = {
   myBookings: () => request<BookingListItem[]>('/me/bookings'),
   createReview: (body: CreateReviewRequest) =>
     request<Review>('/reviews', { method: 'POST', body: JSON.stringify(body) }),
+  getEventReviews: (eventId: string) => request<ReviewAggregate>(`/events/${eventId}/reviews`),
   me: () => request<MeResponse>('/me'),
   meStats: () => request<MeStats>('/me/stats'),
   getPassport: () => request<PassportSummary>('/me/passport'),

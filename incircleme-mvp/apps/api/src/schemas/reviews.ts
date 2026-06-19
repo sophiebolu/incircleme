@@ -6,6 +6,7 @@ import { REVIEWS } from '@incircleme/config';
 export const createReviewSchema = z.object({
   bookingId: z.string().uuid(),
   rating: z.number().int().min(REVIEWS.ratingMin).max(REVIEWS.ratingMax),
+  wouldGoAgain: z.boolean().optional(),
   vibeTags: z.array(z.string()).max(REVIEWS.vibeTags.length).optional(),
   comment: z.string().max(2000).optional(),
   isPublic: z.boolean().optional(),

@@ -133,14 +133,12 @@ export function reviewQueueStatuses(): string[] {
 
 // ============================================================================
 // Reviews — canonical config. The vibe-tag set + rating bounds live here (the
-// rule), the UI localises labels via i18n `vibe_*` keys. "Would go again" is a
-// derived signal: a review counts when its rating >= wouldGoAgainMinRating.
+// rule), the UI localises labels via i18n `vibe_*` keys. "Would go again" is an
+// EXPLICIT yes/no the reviewer taps (reviews.would_go_again) — not derived.
 // ============================================================================
 export const REVIEWS = {
   ratingMin: 1,
   ratingMax: 5,
-  /** A review counts toward the "would go again" tally at or above this rating. */
-  wouldGoAgainMinRating: 4,
   /** Canonical vibe-tag keys (order = display order). Labels are i18n `vibe_*`. */
   vibeTags: [
     'warm_welcome',

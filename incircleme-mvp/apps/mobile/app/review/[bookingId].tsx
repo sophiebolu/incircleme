@@ -45,6 +45,7 @@ export default function ReviewScreen() {
   const [similar, setSimilar] = useState<EventListItem[]>([]);
   const [step, setStep] = useState<Step>('prompt');
   const [rating, setRating] = useState(0);
+  const [wouldGoAgain, setWouldGoAgain] = useState<boolean | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [comment, setComment] = useState('');
   const [isPublic, setIsPublic] = useState(false); // off by default (host-only)
@@ -97,6 +98,7 @@ export default function ReviewScreen() {
       await api.createReview({
         bookingId: booking.id,
         rating,
+        wouldGoAgain: wouldGoAgain ?? undefined,
         vibeTags: tags,
         comment: comment.trim() || undefined,
         isPublic,
@@ -178,6 +180,27 @@ export default function ReviewScreen() {
               ))}
             </View>
             <Text style={styles.starCaption}>{rating > 0 ? `${rating} / 5` : t('rev_tapStar')}</Text>
+
+            {/* Explicit would-go-again — the product signal (not derived from stars) */}
+            <Text style={styles.rateQ}>{t('rev_wouldGoAgain')}</Text>
+            <View style={styles.yesNo}>
+              <Pressable
+                style={[styles.ynPill, wouldGoAgain === true && styles.ynPillOn]}
+                onPress={() => setWouldGoAgain((v) => (v === true ? null : true))}
+              >
+                <Text style={[styles.ynText, wouldGoAgain === true && styles.ynTextOn]}>
+                  {t('rev_yes')}
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[styles.ynPill, wouldGoAgain === false && styles.ynPillOn]}
+                onPress={() => setWouldGoAgain((v) => (v === false ? null : false))}
+              >
+                <Text style={[styles.ynText, wouldGoAgain === false && styles.ynTextOn]}>
+                  {t('rev_no')}
+                </Text>
+              </Pressable>
+            </View>
 
             <Text style={styles.rateQ}>
               {t('rev_stoodOutQ')} <Text style={styles.optional}>({t('rev_optional')})</Text>
@@ -303,6 +326,18 @@ const styles = StyleSheet.create({
   optional: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.text2 },
   starRow: { flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 4 },
   starCaption: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: tokens.color.text2, textAlign: 'center' },
+  yesNo: { flexDirection: 'row', gap: 8 },
+  ynPill: {
+    flex: 1,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  ynPillOn: { backgroundColor: tokens.color.forest, borderColor: tokens.color.forest },
+  ynText: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.text2 },
+  ynTextOn: { color: tokens.color.cream },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     borderColor: tokens.color.border,

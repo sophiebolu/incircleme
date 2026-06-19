@@ -16,6 +16,7 @@ function toReview(r: ReviewRow): Review {
     hostId: r.hostId,
     reviewerId: r.reviewerId,
     rating: r.rating,
+    wouldGoAgain: r.wouldGoAgain,
     vibeTags: r.vibeTags,
     comment: r.comment,
     isPublic: r.isPublic,
@@ -61,6 +62,7 @@ export async function createReview(
         eventId: booking.eventId,
         hostId: event.hostUserId,
         rating,
+        wouldGoAgain: input.wouldGoAgain ?? null,
         vibeTags,
         comment: input.comment?.trim() || null,
         isPublic: input.isPublic ?? false,
@@ -73,7 +75,9 @@ export async function createReview(
   }
 }
 
-function aggregate(rows: { rating: number; vibeTags: string[] }[]): ReviewAggregate {
+function aggregate(
+  rows: { rating: number; wouldGoAgain: boolean | null; vibeTags: string[] }[],
+): ReviewAggregate {
   const total = rows.length;
   if (total === 0) {
     return { count: 0, avgRating: 0, wouldGoAgainCount: 0, feltIncludedCount: 0, tagCounts: {} };
@@ -84,7 +88,7 @@ function aggregate(rows: { rating: number; vibeTags: string[] }[]): ReviewAggreg
   let feltIncludedCount = 0;
   for (const r of rows) {
     sum += r.rating;
-    if (r.rating >= REVIEWS.wouldGoAgainMinRating) wouldGoAgainCount += 1;
+    if (r.wouldGoAgain === true) wouldGoAgainCount += 1; // explicit, not derived
     for (const tag of r.vibeTags) {
       tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
       if (tag === 'felt_included') feltIncludedCount += 1;
@@ -102,7 +106,7 @@ function aggregate(rows: { rating: number; vibeTags: string[] }[]): ReviewAggreg
 /** Event-page aggregate — PUBLIC reviews only (host-only reviews never leak here). */
 export async function getEventPublicAggregate(eventId: string): Promise<ReviewAggregate> {
   const rows = await db
-    .select({ rating: reviews.rating, vibeTags: reviews.vibeTags })
+    .select({ rating: reviews.rating, wouldGoAgain: reviews.wouldGoAgain, vibeTags: reviews.vibeTags })
     .from(reviews)
     .where(and(eq(reviews.eventId, eventId), eq(reviews.isPublic, true)));
   return aggregate(rows);
@@ -111,7 +115,7 @@ export async function getEventPublicAggregate(eventId: string): Promise<ReviewAg
 /** Host/Passport aggregate — ALL reviews about a host (private + public). */
 export async function getHostAggregate(hostId: string): Promise<ReviewAggregate> {
   const rows = await db
-    .select({ rating: reviews.rating, vibeTags: reviews.vibeTags })
+    .select({ rating: reviews.rating, wouldGoAgain: reviews.wouldGoAgain, vibeTags: reviews.vibeTags })
     .from(reviews)
     .where(eq(reviews.hostId, hostId));
   return aggregate(rows);

@@ -443,6 +443,9 @@ export const reviews = pgTable(
       .notNull()
       .references(() => users.id),
     rating: integer('rating').notNull(), // 1..5 (validated in the API)
+    // Explicit yes/no the reviewer taps (product decision) — NOT derived from rating.
+    // Nullable: null when the reviewer didn't answer.
+    wouldGoAgain: boolean('would_go_again'),
     vibeTags: jsonb('vibe_tags').$type<string[]>().notNull().default([]),
     comment: text('comment'),
     isPublic: boolean('is_public').notNull().default(false),

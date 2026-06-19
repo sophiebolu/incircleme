@@ -91,6 +91,8 @@ export const strings = {
     sharedBy: 'Compartides per {x} de {y} persones',
     nCircleMessages: '{n} missatges del Cercle',
     sinceEnded: "Des que va acabar l'esdeveniment",
+    cap_avgRating: 'Valoració mitjana', // PROVISIONAL (capsule highlight, reviews aggregate)
+    cap_wouldGo: '{n} hi tornarien',
     shareCapsule: 'Comparteix la càpsula',
     save: 'Desa',
     capsulePrivacy:
@@ -286,6 +288,9 @@ export const strings = {
     rev_sharePublic: 'Comparteix-ho també a la pàgina de l’esdeveniment',
     rev_sharePublicSub:
       'Desactivat per defecte. Activa’l si vols que els futurs assistents la vegin.',
+    rev_wouldGoAgain: 'Tornaries a venir?',
+    rev_yes: 'Sí',
+    rev_no: 'No',
     rev_send: 'Envia-ho a {host}',
     rev_thanksTitle: '{host} ho veurà — gràcies.',
     rev_thanksSub:
@@ -313,7 +318,7 @@ export const strings = {
     pp_badgesSoon: 'Més insígnies en camí',
     pp_whyMatters: 'Per què importa',
     pp_whyMattersBody:
-      'El teu Passaport et segueix per cada esdeveniment, Cercle i Ritual. Els amfitrions el veuen abans d’acceptar la teva reserva. Els nivells alts desbloquegen accés prioritari i privilegis per organitzar.',
+      'El teu Passaport et segueix per cada esdeveniment, Cercle i Programa. Els amfitrions el veuen abans d’acceptar la teva reserva. Els nivells alts desbloquegen accés prioritari i privilegis per organitzar.',
     pp_privateDefault: 'Privat per defecte',
     pp_levelUp: 'Com pujar de nivell',
     pp_privacy: 'Privacitat',
@@ -394,6 +399,8 @@ export const strings = {
     sharedBy: 'Compartidas por {x} de {y} personas',
     nCircleMessages: '{n} mensajes del Círculo',
     sinceEnded: 'Desde que terminó el evento',
+    cap_avgRating: 'Valoración media', // PROVISIONAL (capsule highlight, reviews aggregate)
+    cap_wouldGo: '{n} volverían',
     shareCapsule: 'Comparte la cápsula',
     save: 'Guardar',
     capsulePrivacy:
@@ -588,6 +595,9 @@ export const strings = {
     rev_sharePublic: 'Compartir también en la página del evento',
     rev_sharePublicSub:
       'Desactivado por defecto. Actívalo si quieres que los futuros asistentes la vean.',
+    rev_wouldGoAgain: '¿Volverías?',
+    rev_yes: 'Sí',
+    rev_no: 'No',
     rev_send: 'Enviar a {host}',
     rev_thanksTitle: '{host} lo verá — gracias.',
     rev_thanksSub:
@@ -615,7 +625,7 @@ export const strings = {
     pp_badgesSoon: 'Más insignias en camino',
     pp_whyMatters: 'Por qué importa',
     pp_whyMattersBody:
-      'Tu Pasaporte te acompaña en cada evento, Círculo y Ritual. Los anfitriones lo ven antes de aceptar tu reserva. Los niveles altos desbloquean acceso prioritario y privilegios para organizar.',
+      'Tu Pasaporte te acompaña en cada evento, Círculo y Programa. Los anfitriones lo ven antes de aceptar tu reserva. Los niveles altos desbloquean acceso prioritario y privilegios para organizar.',
     pp_privateDefault: 'Privado por defecto',
     pp_levelUp: 'Cómo subir de nivel',
     pp_privacy: 'Privacidad',
@@ -695,6 +705,8 @@ export const strings = {
     sharedBy: 'Shared by {x} of {y} people',
     nCircleMessages: '{n} Circle messages',
     sinceEnded: 'Since the event ended',
+    cap_avgRating: 'Avg rating', // PROVISIONAL (capsule highlight, reviews aggregate)
+    cap_wouldGo: '{n} would go again',
     shareCapsule: 'Share capsule',
     save: 'Save',
     capsulePrivacy:
@@ -885,6 +897,9 @@ export const strings = {
     rev_sharePublic: 'Also share on the event page',
     rev_sharePublicSub:
       "Off by default. Turn on if you'd like future attendees to see your review.",
+    rev_wouldGoAgain: 'Would you go again?',
+    rev_yes: 'Yes',
+    rev_no: 'No',
     rev_send: 'Send to {host}',
     rev_thanksTitle: '{host} will see this — thank you.',
     rev_thanksSub:
@@ -912,7 +927,7 @@ export const strings = {
     pp_badgesSoon: 'More badges on the way',
     pp_whyMatters: 'Why this matters',
     pp_whyMattersBody:
-      'Your Passport travels with you across every event, Circle and Ritual. Hosts see it before accepting your booking. Higher levels unlock priority access and hosting privileges.',
+      'Your Passport travels with you across every event, Circle and Program. Hosts see it before accepting your booking. Higher levels unlock priority access and hosting privileges.',
     pp_privateDefault: 'Private by default',
     pp_levelUp: 'How to level up',
     pp_privacy: 'Privacy',

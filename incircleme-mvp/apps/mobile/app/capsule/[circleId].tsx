@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Camera, MessageCircle } from 'lucide-react-native';
-import type { Capsule } from '@incircleme/types';
+import { Camera, MessageCircle, Star } from 'lucide-react-native';
+import type { Capsule, ReviewAggregate } from '@incircleme/types';
 import {
   t,
   interpolate,
@@ -35,6 +35,7 @@ export default function CapsuleScreen() {
   const { circleId } = useLocalSearchParams<{ circleId: string }>();
   const router = useRouter();
   const [capsule, setCapsule] = useState<Capsule | null>(null);
+  const [reviews, setReviews] = useState<ReviewAggregate | null>(null);
   const [saved, setSaved] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const navClearance = useNavClearance();
@@ -50,6 +51,11 @@ export default function CapsuleScreen() {
   useEffect(() => {
     if (circleId) api.getCapsule(circleId).then(setCapsule).catch(() => setCapsule(null));
   }, [circleId]);
+
+  // Real avg rating for the highlight grid — the event's public review aggregate.
+  useEffect(() => {
+    if (capsule?.eventId) api.getEventReviews(capsule.eventId).then(setReviews).catch(() => {});
+  }, [capsule?.eventId]);
 
   if (!capsule) {
     // TODO(deferred, needs copy verdict): explicit not-found / loading empty state.
@@ -245,6 +251,22 @@ export default function CapsuleScreen() {
                 <Text style={styles.hlS}>{t('sinceEnded')}</Text>
               </View>
             </View>
+            {/* Real avg rating — Feature C reviews aggregate (public reviews) */}
+            {reviews && reviews.count > 0 ? (
+              <View style={styles.hlItem}>
+                <View style={styles.hlIc}>
+                  <Star size={16} color={tokens.color.forest} strokeWidth={2} />
+                </View>
+                <View style={styles.hlTx}>
+                  <Text style={styles.hlT}>
+                    {reviews.avgRating} · {t('cap_avgRating')}
+                  </Text>
+                  <Text style={styles.hlS}>
+                    {interpolate(t('cap_wouldGo'), { n: String(reviews.wouldGoAgainCount) })}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
           </View>
         </View>
 
@@ -420,9 +442,10 @@ const styles = StyleSheet.create({
   gridPhotoWide: { width: '100%', aspectRatio: 16 / 9 },
 
   // Highlights tiles
-  hlGrid: { flexDirection: 'row', gap: 10 },
+  hlGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   hlItem: {
-    flex: 1,
+    flexBasis: '47%',
+    flexGrow: 1,
     flexDirection: 'row',
     gap: 9,
     alignItems: 'center',

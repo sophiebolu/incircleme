@@ -9,6 +9,8 @@ export interface Review {
   hostId: string;
   reviewerId: string;
   rating: number;
+  /** Explicit yes/no the reviewer tapped; null if unanswered. Not derived from rating. */
+  wouldGoAgain: boolean | null;
   vibeTags: string[];
   comment: string | null;
   isPublic: boolean;
@@ -18,6 +20,8 @@ export interface Review {
 export interface CreateReviewRequest {
   bookingId: string;
   rating: number;
+  /** Explicit yes/no ("Would you go again?"). */
+  wouldGoAgain?: boolean;
   vibeTags?: string[];
   comment?: string;
   /** Opt-in to show on the event page; defaults false (host-only). */

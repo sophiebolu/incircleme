@@ -104,6 +104,7 @@ describe('reviews', () => {
     });
     expect(res.statusCode).toBe(201);
     expect(res.json().isPublic).toBe(false); // privacy default
+    expect(res.json().wouldGoAgain).toBe(null); // unanswered → null (not auto-derived)
     expect(res.json().hostId).toBe(host.user.id);
 
     // Event page = public reviews only → still empty.
@@ -117,26 +118,36 @@ describe('reviews', () => {
     expect(mine.given).toBe(1);
   });
 
-  it('is_public opt-in surfaces the review on the event page with tallies', async () => {
+  it('public tallies use EXPLICIT would-go-again (not derived from rating) + privacy', async () => {
     const host = await signIn('host@test.com');
     const ev = (await createEvent(host.accessToken)).json();
     const u1 = await signIn('u1@test.com');
     const u2 = await signIn('u2@test.com');
+    const u3 = await signIn('u3@test.com');
     const b1 = await confirmedBooking(u1.accessToken, ev.id);
     const b2 = await confirmedBooking(u2.accessToken, ev.id);
+    const b3 = await confirmedBooking(u3.accessToken, ev.id);
 
-    await postReview(u1.accessToken, { bookingId: b1, rating: 5, vibeTags: ['felt_included'], isPublic: true });
-    await postReview(u2.accessToken, { bookingId: b2, rating: 3, isPublic: false }); // private
+    // Both public + 5 stars, but only u1 tapped "would go again".
+    await postReview(u1.accessToken, {
+      bookingId: b1,
+      rating: 5,
+      wouldGoAgain: true,
+      vibeTags: ['felt_included'],
+      isPublic: true,
+    });
+    await postReview(u2.accessToken, { bookingId: b2, rating: 5, wouldGoAgain: false, isPublic: true });
+    // u3 said yes but stayed private → excluded from the public aggregate.
+    await postReview(u3.accessToken, { bookingId: b3, rating: 5, wouldGoAgain: true, isPublic: false });
 
     const pub = (await app.inject({ method: 'GET', url: `/events/${ev.id}/reviews` })).json();
-    expect(pub.count).toBe(1); // only the public one
+    expect(pub.count).toBe(2); // u1 + u2 (u3 private, excluded)
     expect(pub.avgRating).toBe(5);
-    expect(pub.wouldGoAgainCount).toBe(1); // rating 5 >= 4
+    expect(pub.wouldGoAgainCount).toBe(1); // EXPLICIT: only u1 — u2 is 5★ but said no
     expect(pub.feltIncludedCount).toBe(1);
 
-    // Host aggregate sees BOTH (private + public): avg (5+3)/2 = 4.
     const hostAgg = (await app.inject({ method: 'GET', url: '/me/reviews', headers: auth(host.accessToken) })).json();
-    expect(hostAgg.received).toBe(2);
+    expect(hostAgg.received).toBe(3); // host sees all three (private + public)
   });
 
   it('rejects a review for a booking that is not yours, not attended, or already reviewed', async () => {
