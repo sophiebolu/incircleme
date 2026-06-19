@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { CalendarHeart, ChevronRight, Compass, MessageCircle } from 'lucide-react-native';
+import { CalendarHeart, ChevronRight, Compass, MessageCircle, Star } from 'lucide-react-native';
 import type { BookingListItem } from '@incircleme/types';
 import { formatDateTime, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
@@ -128,6 +128,17 @@ export default function Bookings() {
                 </Text>
               </Pressable>
             ) : null}
+            {/* Past attended booking → invite a review */}
+            {item.status === 'confirmed' &&
+            new Date(item.event.endsAt).getTime() < Date.now() ? (
+              <Pressable
+                style={[styles.chip, styles.chipReview]}
+                onPress={() => router.push(`/review/${item.id}`)}
+              >
+                <Star size={11} color={tokens.color.coralInk} strokeWidth={2} />
+                <Text style={styles.chipReviewText}>{t('bk_leaveReview')}</Text>
+              </Pressable>
+            ) : null}
           </View>
         </View>
         <ChevronRight size={18} color={tokens.color.gray} strokeWidth={2} />
@@ -249,6 +260,14 @@ const styles = StyleSheet.create({
     borderColor: tokens.color.forestSoft,
   },
   chipCircleText: { fontFamily: fonts.bodySemi, fontSize: 10, color: tokens.color.forest },
+  chipReview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: tokens.color.goldGlow,
+    borderColor: tokens.color.goldBorder,
+  },
+  chipReviewText: { fontFamily: fonts.bodySemi, fontSize: 10, color: tokens.color.coralInk },
 
   // Empty state
   empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 24, gap: 8 },

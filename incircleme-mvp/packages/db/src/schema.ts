@@ -419,3 +419,37 @@ export type NewProgramRow = typeof programs.$inferInsert;
 export type ProgramCredentialRow = typeof programCredentials.$inferSelect;
 export type ProgramVoiceRow = typeof programVoices.$inferSelect;
 export type ProgramQuestionRow = typeof programQuestions.$inferSelect;
+
+// --- Reviews slice ---
+// One review per (booking, reviewer). Private to the host by default; is_public is
+// an explicit opt-in that surfaces it on the event page. vibe_tags holds canonical
+// keys from packages/config (VIBE_TAGS) — labels are localised in the UI.
+export const reviews = pgTable(
+  'reviews',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    bookingId: uuid('booking_id')
+      .notNull()
+      .references(() => bookings.id),
+    reviewerId: uuid('reviewer_id')
+      .notNull()
+      .references(() => users.id),
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => events.id),
+    hostId: uuid('host_id')
+      .notNull()
+      .references(() => users.id),
+    rating: integer('rating').notNull(), // 1..5 (validated in the API)
+    vibeTags: jsonb('vibe_tags').$type<string[]>().notNull().default([]),
+    comment: text('comment'),
+    isPublic: boolean('is_public').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique('reviews_booking_reviewer_uq').on(t.bookingId, t.reviewerId)],
+);
+
+export type ReviewRow = typeof reviews.$inferSelect;
+export type NewReviewRow = typeof reviews.$inferInsert;

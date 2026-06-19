@@ -85,6 +85,13 @@
       "when": 1781605435590,
       "tag": "0011_classy_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1781856749800,
+      "tag": "0012_thin_thunderbolt_ross",
+      "breakpoints": true
     }
   ]
 }

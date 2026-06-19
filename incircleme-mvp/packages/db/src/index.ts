@@ -18,6 +18,7 @@ export {
   programCredentials,
   programVoices,
   programQuestions,
+  reviews,
 } from './schema';
 export type {
   UserRow,
@@ -42,6 +43,8 @@ export type {
   ProgramCredentialRow,
   ProgramVoiceRow,
   ProgramQuestionRow,
+  ReviewRow,
+  NewReviewRow,
 } from './schema';
 export { db, pool } from './client';
 export type { DB } from './client';

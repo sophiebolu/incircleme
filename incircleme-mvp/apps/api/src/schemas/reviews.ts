@@ -1,0 +1,12 @@
+import { z } from 'zod';
+import { REVIEWS } from '@incircleme/config';
+
+// vibeTags accept any string here; the service drops non-canonical keys via
+// isVibeTag (config is the source of truth for the valid set).
+export const createReviewSchema = z.object({
+  bookingId: z.string().uuid(),
+  rating: z.number().int().min(REVIEWS.ratingMin).max(REVIEWS.ratingMax),
+  vibeTags: z.array(z.string()).max(REVIEWS.vibeTags.length).optional(),
+  comment: z.string().max(2000).optional(),
+  isPublic: z.boolean().optional(),
+});

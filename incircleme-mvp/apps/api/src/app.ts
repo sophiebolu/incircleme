@@ -15,6 +15,7 @@ import { arrivingRoutes } from './routes/arriving';
 import { programRoutes } from './routes/programs';
 import { adminProgramRoutes } from './routes/admin-programs';
 import { publicProgramRoutes } from './routes/public-programs';
+import { reviewRoutes } from './routes/reviews';
 import { devRoutes } from './routes/dev';
 import { createMailer } from './lib/mailer';
 import { createPayments } from './lib/payments';
@@ -64,6 +65,7 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   await app.register(programRoutes, { payments, storage });
   await app.register(adminProgramRoutes, { payments });
   await app.register(publicProgramRoutes);
+  await app.register(reviewRoutes);
   // DEV-ONLY quick sign-in — never registered in production.
   if (process.env.NODE_ENV !== 'production') await app.register(devRoutes);
   return app;
