@@ -13,7 +13,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Camera, MessageCircle } from 'lucide-react-native';
 import type { Capsule } from '@incircleme/types';
-import { t, interpolate, formatDate, formatTime } from '@incircleme/i18n';
+import {
+  t,
+  interpolate,
+  formatDate,
+  formatTime,
+  getActiveLocale,
+  type Locale,
+} from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { savePhotoToDevice } from '../../lib/savePhoto';
 import { BrandBar } from '../../components/BrandBar';
@@ -29,7 +36,16 @@ export default function CapsuleScreen() {
   const router = useRouter();
   const [capsule, setCapsule] = useState<Capsule | null>(null);
   const [saved, setSaved] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const navClearance = useNavClearance();
+
+  // Full-gallery screen is deferred — surface a brief "coming soon".
+  const comingSoon = () => {
+    setNotice(t('prof_comingSoon'));
+    setTimeout(() => setNotice(null), 1800);
+  };
+
+  const PHOTO_PREVIEW = 7; // cap the roll; the rest live behind "See all (N)"
 
   useEffect(() => {
     if (circleId) api.getCapsule(circleId).then(setCapsule).catch(() => setCapsule(null));
@@ -100,12 +116,21 @@ export default function CapsuleScreen() {
         {/* The difference — silent, not stigmatised: pairs only, no slots for skippers */}
         {capsule.differencePairs.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              {t('theDifference').split(' ')[0]}{' '}
-              <Text style={styles.sectionTitleEm}>
-                {t('theDifference').split(' ').slice(1).join(' ')}
+            <View style={styles.titleRow}>
+              <Text style={styles.sectionTitle}>
+                {t('theDifference').split(' ')[0]}{' '}
+                <Text style={styles.sectionTitleEm}>
+                  {t('theDifference').split(' ').slice(1).join(' ')}
+                </Text>
               </Text>
-            </Text>
+              {/* §10b warmth — the phrase in the other two languages */}
+              <Text style={styles.titleAside}>
+                {(['ca', 'es', 'en'] as Locale[])
+                  .filter((l) => l !== getActiveLocale())
+                  .map((l) => t('theDifference', l).toLowerCase())
+                  .join(' · ')}
+              </Text>
+            </View>
             {/* Featured pair (first), full-width with Arriving/Leaving + times */}
             {capsule.differencePairs[0] ? (
               <View style={styles.pairCard}>
@@ -167,9 +192,18 @@ export default function CapsuleScreen() {
         {/* Photo roll — grid (every 5th tile spans full-width for rhythm) */}
         {capsule.photos.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('photoRoll')}</Text>
+            <View style={styles.titleRow}>
+              <Text style={styles.sectionTitle}>{t('photoRoll')}</Text>
+              {capsule.photos.length > PHOTO_PREVIEW ? (
+                <Pressable onPress={comingSoon} hitSlop={8}>
+                  <Text style={styles.seeAll}>
+                    {interpolate(t('seeAll'), { n: String(capsule.photos.length) })}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
             <View style={styles.grid}>
-              {capsule.photos.map((p, i) => (
+              {capsule.photos.slice(0, PHOTO_PREVIEW).map((p, i) => (
                 <Image
                   key={`${p.url}-${i}`}
                   source={{ uri: abs(p.url) }}
@@ -260,6 +294,7 @@ export default function CapsuleScreen() {
         <Text style={styles.privacy}>
           {t('capsulePrivacy')} <Text style={styles.privacyLink}>{t('privacyLink')}</Text>
         </Text>
+        {notice ? <Text style={styles.notice}>{notice}</Text> : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -326,6 +361,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionTitleEm: { fontFamily: fonts.displayItalic, color: tokens.color.coralInk },
+  titleRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
+  titleAside: { fontFamily: fonts.body, fontSize: 10.5, color: tokens.color.text2, marginBottom: 10 },
+  seeAll: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: tokens.color.coralInk, marginBottom: 10 },
   pairCard: {
     backgroundColor: '#FFFFFF',
     borderColor: tokens.color.border,
@@ -450,4 +488,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   privacyLink: { fontFamily: fonts.bodySemi, color: tokens.color.coralInk },
+  notice: {
+    alignSelf: 'center',
+    fontFamily: fonts.bodySemi,
+    fontSize: 12.5,
+    color: tokens.color.ink,
+    backgroundColor: tokens.color.goldGlow,
+    borderColor: tokens.color.goldBorder,
+    borderWidth: 1,
+    borderRadius: 999,
+    overflow: 'hidden',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    marginTop: 12,
+  },
 });
