@@ -10,6 +10,7 @@ import {
 } from '@incircleme/db';
 import { and, eq, gte, isNotNull, isNull, lt, lte } from 'drizzle-orm';
 import { generateCapsule } from '../services/capsules/capsules';
+import { releaseExpiredHolds } from '../services/booking/booking';
 
 // Pure, idempotent tick handlers — BullMQ schedules them; tests call them directly
 // with a fixed `now`. Each returns how many rows it touched.
@@ -134,6 +135,14 @@ export async function afterlifeEvaluateTick(now: Date): Promise<number> {
     }
   }
   return flipped;
+}
+
+/**
+ * Every 5 min: release held bookings whose heldUntil has elapsed.
+ * Delegates to releaseExpiredHolds (same logic as releaseByPaymentIntent, batch-driven).
+ */
+export async function expiredHoldsTick(now: Date): Promise<number> {
+  return releaseExpiredHolds(now);
 }
 
 /** Hourly: events ended ≥12h ago with a Circle and no Capsule → generate + notify. */
