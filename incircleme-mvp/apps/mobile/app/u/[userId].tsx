@@ -11,7 +11,6 @@ import {
   MoreVertical,
   Repeat,
   Star,
-  UserPlus,
 } from 'lucide-react-native';
 import type { PublicProfile } from '@incircleme/types';
 import { formatDate, interpolate, t } from '@incircleme/i18n';
@@ -98,12 +97,6 @@ export default function PublicProfileScreen() {
               <Text style={styles.metaText}>{profile.language.toUpperCase()}</Text>
             </View>
           </View>
-
-          {/* Keep close — locked §1 verb (follow backend not built → coming soon) */}
-          <Pressable style={styles.keepClose} onPress={comingSoon}>
-            <UserPlus size={15} color={tokens.color.cream} strokeWidth={2} />
-            <Text style={styles.keepCloseText}>{t('keepClose')}</Text>
-          </Pressable>
         </View>
 
         {/* About */}
@@ -211,17 +204,6 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   metaText: { fontFamily: fonts.bodyMedium, fontSize: 12, color: tokens.color.text2 },
-  keepClose: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    backgroundColor: tokens.color.forest,
-    borderRadius: 999,
-    paddingHorizontal: 20,
-    paddingVertical: 11,
-    marginTop: 12,
-  },
-  keepCloseText: { fontFamily: fonts.bodySemi, fontSize: 14, color: tokens.color.cream },
 
   sectionTitle: {
     fontFamily: fonts.displaySemi,
