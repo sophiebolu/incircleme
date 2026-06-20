@@ -188,9 +188,12 @@ export default function Profile() {
             </View>
           </Pressable>
 
-          {/* Programs + sign out */}
+          {/* Programs + settings + sign out */}
           <Pressable style={styles.buttonGhost} onPress={() => router.push('/programs')}>
             <Text style={styles.buttonGhostText}>{t('prog_entry')} →</Text>
+          </Pressable>
+          <Pressable style={styles.buttonGhost} onPress={() => router.push('/settings')}>
+            <Text style={styles.buttonGhostText}>{t('set_title')} →</Text>
           </Pressable>
           <Pressable style={styles.buttonGhost} onPress={signOut}>
             <Text style={styles.buttonGhostText}>{t('signOut')}</Text>

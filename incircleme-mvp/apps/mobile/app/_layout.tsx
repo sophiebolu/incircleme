@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { getActiveLocale, subscribeLocale } from '@incircleme/i18n';
 import { applyDeviceLocale } from '../lib/deviceLocale';
 import { applyDevLocale } from '../lib/devLocale';
+import { applyStoredLocale } from '../lib/userLocale';
 import { DevLocaleSwitcher } from '../components/DevLocaleSwitcher';
 import { UniversalNav } from '../components/UniversalNav';
 import { fontMap } from '../theme/fonts';
@@ -21,6 +22,11 @@ export default function RootLayout() {
   // Dev locale change → re-render root (updates the switcher) + remount the
   // navigator via `key` so native screens re-read t(). Web reloads instead.
   const locale = useSyncExternalStore(subscribeLocale, getActiveLocale, getActiveLocale);
+
+  // Re-apply a saved manual language choice (async storage read) — overrides device default.
+  useEffect(() => {
+    void applyStoredLocale();
+  }, []);
 
   if (!fontsLoaded) {
     return <View style={{ flex: 1, backgroundColor: tokens.color.cream }} />;

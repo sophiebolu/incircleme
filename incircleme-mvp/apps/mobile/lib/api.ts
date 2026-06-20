@@ -25,6 +25,7 @@ import type {
   PublicProgramCard,
   PublicProgramDetail,
   SubmitProgramResult,
+  UpdateMeRequest,
   UpdateProgramRequest,
 } from '@incircleme/types';
 import { clearSession, getAccessToken, getRefreshToken, saveSession } from './auth';
@@ -124,6 +125,10 @@ export const api = {
     request<Review>('/reviews', { method: 'POST', body: JSON.stringify(body) }),
   getEventReviews: (eventId: string) => request<ReviewAggregate>(`/events/${eventId}/reviews`),
   me: () => request<MeResponse>('/me'),
+  updateMe: (body: UpdateMeRequest) =>
+    request<MeResponse>('/me', { method: 'PATCH', body: JSON.stringify(body) }),
+  deactivateMe: () => request<MeResponse>('/me/deactivate', { method: 'POST' }),
+  reactivateMe: () => request<MeResponse>('/me/reactivate', { method: 'POST' }),
   meStats: () => request<MeStats>('/me/stats'),
   getPassport: () => request<PassportSummary>('/me/passport'),
   getPublicProfile: (userId: string) => request<PublicProfile>(`/users/${userId}`),
