@@ -130,3 +130,28 @@ export function reviewGates(): ReviewGate[] {
 export function reviewQueueStatuses(): string[] {
   return TRUST_REVIEW.queueStatuses;
 }
+
+// ============================================================================
+// Reviews — canonical config. The vibe-tag set + rating bounds live here (the
+// rule), the UI localises labels via i18n `vibe_*` keys. "Would go again" is an
+// EXPLICIT yes/no the reviewer taps (reviews.would_go_again) — not derived.
+// ============================================================================
+export const REVIEWS = {
+  ratingMin: 1,
+  ratingMax: 5,
+  /** Canonical vibe-tag keys (order = display order). Labels are i18n `vibe_*`. */
+  vibeTags: [
+    'warm_welcome',
+    'well_organised',
+    'small_group',
+    'beautiful_space',
+    'easy_to_meet',
+    'felt_included',
+  ] as const,
+} as const;
+
+export type VibeTag = (typeof REVIEWS.vibeTags)[number];
+
+export function isVibeTag(v: string): v is VibeTag {
+  return (REVIEWS.vibeTags as readonly string[]).includes(v);
+}

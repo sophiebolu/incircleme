@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { CalendarHeart, ChevronRight, Compass, MessageCircle } from 'lucide-react-native';
+import { CalendarHeart, ChevronRight, Compass, MessageCircle, Star } from 'lucide-react-native';
 import type { BookingListItem } from '@incircleme/types';
 import { formatDateTime, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
@@ -95,8 +95,14 @@ export default function Bookings() {
       hour: '2-digit',
       minute: '2-digit',
     });
+    // A confirmed, not-yet-ended booking opens its ticket; everything else
+    // (held/past/cancelled/refunded) keeps routing to the event detail.
+    const isLiveTicket =
+      item.status === 'confirmed' && new Date(item.event.endsAt).getTime() >= Date.now();
+    const onPress = () =>
+      router.push(isLiveTicket ? `/ticket/${item.id}` : `/event/${item.event.id}`);
     return (
-      <Pressable style={styles.card} onPress={() => router.push(`/event/${item.event.id}`)}>
+      <Pressable style={styles.card} onPress={onPress}>
         <Image source={{ uri: item.event.photoUrls[0] ?? FALLBACK_PHOTO }} style={styles.thumb} />
         <View style={styles.cardBody}>
           <Text style={styles.cardTitle} numberOfLines={1}>
@@ -120,6 +126,17 @@ export default function Bookings() {
                 <Text style={styles.chipCircleText}>
                   {interpolate(t('bk_circleChip'), { n: String(item.circleMemberCount ?? 0) })}
                 </Text>
+              </Pressable>
+            ) : null}
+            {/* Past attended booking → invite a review */}
+            {item.status === 'confirmed' &&
+            new Date(item.event.endsAt).getTime() < Date.now() ? (
+              <Pressable
+                style={[styles.chip, styles.chipReview]}
+                onPress={() => router.push(`/review/${item.id}`)}
+              >
+                <Star size={11} color={tokens.color.coralInk} strokeWidth={2} />
+                <Text style={styles.chipReviewText}>{t('bk_leaveReview')}</Text>
               </Pressable>
             ) : null}
           </View>
@@ -243,6 +260,14 @@ const styles = StyleSheet.create({
     borderColor: tokens.color.forestSoft,
   },
   chipCircleText: { fontFamily: fonts.bodySemi, fontSize: 10, color: tokens.color.forest },
+  chipReview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: tokens.color.goldGlow,
+    borderColor: tokens.color.goldBorder,
+  },
+  chipReviewText: { fontFamily: fonts.bodySemi, fontSize: 10, color: tokens.color.coralInk },
 
   // Empty state
   empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 24, gap: 8 },

@@ -179,13 +179,11 @@ export default function Profile() {
 
           {/* Reputation Passport — honest summary (tier + member-since); full passport is Tier 3 */}
           <Text style={styles.sectionTitle}>{t('prof_passport')}</Text>
-          <Pressable style={styles.passport} onPress={comingSoon}>
+          <Pressable style={styles.passport} onPress={() => router.push('/passport')}>
             <Text style={styles.passportTier}>{tierLabel(me.trustTier)}</Text>
             <Text style={styles.passportMeta}>{joined}</Text>
             <View style={styles.passportView}>
-              <Text style={styles.passportViewText}>
-                {t('prof_passportView')} · {t('prof_comingSoon')}
-              </Text>
+              <Text style={styles.passportViewText}>{t('prof_passportView')}</Text>
               <ChevronRight size={15} color={tokens.color.coralInk} strokeWidth={2} />
             </View>
           </Pressable>
