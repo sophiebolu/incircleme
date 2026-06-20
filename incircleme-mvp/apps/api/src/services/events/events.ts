@@ -1,6 +1,6 @@
 import { db, events, users } from '@incircleme/db';
 import type { EventRow, UserRow } from '@incircleme/db';
-import { and, count, eq, gte, isNull, lte } from 'drizzle-orm';
+import { and, count, eq, gte, isNotNull, isNull, lte, notInArray } from 'drizzle-orm';
 import { seatHoldAmountCents } from '@incircleme/config';
 import type {
   CreateEventRequest,
@@ -48,7 +48,14 @@ function toHostSummary(u: UserRow, eventsHosted: number): HostSummary {
 }
 
 export async function listEvents(q: EventsQuery): Promise<EventListItem[]> {
-  const conds = [isNull(events.deletedAt)];
+  const conds = [
+    isNull(events.deletedAt),
+    // hide events hosted by deactivated accounts
+    notInArray(
+      events.hostUserId,
+      db.select({ id: users.id }).from(users).where(isNotNull(users.deactivatedAt)),
+    ),
+  ];
   if (q.category) conds.push(eq(events.category, q.category));
   if (q.neighbourhood) conds.push(eq(events.neighbourhood, q.neighbourhood));
   if (q.dateFrom) conds.push(gte(events.startsAt, new Date(q.dateFrom)));

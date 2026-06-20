@@ -29,5 +29,6 @@ export const updateMeSchema = z.object({
   displayName: z.string().min(1).max(120).optional(),
   bio: z.string().max(500).optional(),
   avatarUrl: z.string().url().optional(),
+  neighbourhood: z.string().min(1).max(80).optional(), // barrio (edit-profile)
   language: localeSchema.optional(),
 });

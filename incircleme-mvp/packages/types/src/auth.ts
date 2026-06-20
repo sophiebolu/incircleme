@@ -47,6 +47,7 @@ export interface UpdateMeRequest {
   displayName?: string;
   bio?: string;
   avatarUrl?: string;
+  neighbourhood?: string;
   language?: Locale;
 }
 
