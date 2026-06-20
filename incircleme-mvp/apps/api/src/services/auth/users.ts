@@ -20,6 +20,10 @@ export function toUser(row: UserRow): User {
     avatarUrl: row.avatarUrl,
     bio: row.bio,
     neighbourhood: row.neighbourhood,
+    intents: row.intents,
+    interests: row.interests,
+    notificationPrefs: row.notificationPrefs,
+    onboardingCompleted: row.onboardingCompleted,
     language: row.language as Locale,
     verified: row.verified,
     trustTier: row.trustTier as TrustTier,
@@ -74,6 +78,19 @@ export async function updateUser(id: string, patch: UpdateMeRequest): Promise<Us
   if (patch.bio !== undefined) set.bio = patch.bio;
   if (patch.avatarUrl !== undefined) set.avatarUrl = patch.avatarUrl;
   if (patch.language !== undefined) set.language = patch.language;
+  if (patch.neighbourhood !== undefined) set.neighbourhood = patch.neighbourhood;
+  if (patch.intents !== undefined) set.intents = patch.intents;
+  if (patch.interests !== undefined) set.interests = patch.interests;
+  if (patch.onboardingCompleted !== undefined) set.onboardingCompleted = patch.onboardingCompleted;
+  if (patch.notificationPrefs !== undefined) {
+    // Merge the partial toggle onto current prefs; `bookings` is always-on (locked true).
+    const current = await getUserById(id);
+    set.notificationPrefs = {
+      bookings: true,
+      circles: patch.notificationPrefs.circles ?? current?.notificationPrefs.circles ?? true,
+      nearby: patch.notificationPrefs.nearby ?? current?.notificationPrefs.nearby ?? true,
+    };
+  }
   const [row] = await db.update(users).set(set).where(eq(users.id, id)).returning();
   return row!;
 }

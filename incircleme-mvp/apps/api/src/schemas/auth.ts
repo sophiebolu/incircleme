@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isBarrio, isIntent, isInterest } from '@incircleme/config';
 
 export const localeSchema = z.enum(['ca', 'es', 'en']);
 
@@ -30,4 +31,12 @@ export const updateMeSchema = z.object({
   bio: z.string().max(500).optional(),
   avatarUrl: z.string().url().optional(),
   language: localeSchema.optional(),
+  // Onboarding step saves — picks validated against the canonical config taxonomies.
+  neighbourhood: z.string().refine(isBarrio, 'unknown_barrio').optional(),
+  intents: z.array(z.string().refine(isIntent, 'unknown_intent')).max(20).optional(),
+  interests: z.array(z.string().refine(isInterest, 'unknown_interest')).max(20).optional(),
+  notificationPrefs: z
+    .object({ circles: z.boolean().optional(), nearby: z.boolean().optional() })
+    .optional(),
+  onboardingCompleted: z.boolean().optional(),
 });
