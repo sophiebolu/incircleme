@@ -23,43 +23,62 @@ const citext = customType<{ data: string }>({
 // MVP table 1 of N — `users`. Soft-delete everywhere; timestamps are timestamptz.
 // id: sortable UUIDv7, generated app-side (Postgres 16 has no native uuidv7()).
 // email: citext, so the unique constraint is case-insensitive.
-export const users = pgTable('users', {
-  id: uuid('id')
-    .primaryKey()
-    .$defaultFn(() => uuidv7()),
-  email: citext('email').notNull().unique(),
-  phone: text('phone'),
-  displayName: text('display_name'),
-  handle: text('handle').unique(),
-  avatarUrl: text('avatar_url'),
-  bio: text('bio'),
-  neighbourhood: text('neighbourhood'),
-  // Onboarding preferences — captured during the welcome→intent→interests→barrio→notifications
-  // flow and saved step by step via PATCH /me. `neighbourhood` above doubles as the chosen barrio.
-  intents: text('intents').array().notNull().default([]), // intent mood-tiles + "I'm here to…" goals
-  interests: text('interests').array().notNull().default([]), // canonical interest hashtags
-  notificationPrefs: jsonb('notification_prefs')
-    .$type<{ bookings: boolean; circles: boolean; nearby: boolean }>()
-    .notNull()
-    .default({ bookings: true, circles: true, nearby: true }), // bookings always-on; circles/nearby opt-out
-  onboardingCompleted: boolean('onboarding_completed').notNull().default(false),
-  verified: boolean('verified').notNull().default(false),
-  language: text('language').notNull().default('ca'), // 'ca' | 'es' | 'en'
-  trustTier: text('trust_tier').notNull().default('newcomer'),
-  trustScore: integer('trust_score').notNull().default(0),
-  // Host pricing tier (Pricing v2) — gates Program submission. Default basic; dev sets premium by hand.
-  hostTier: text('host_tier').notNull().default('basic'), // 'basic' | 'pro' | 'premium'
-  // Free Program credits (Premium includes 1). Consumed on submission before any fee.
-  freeProgramCredits: integer('free_program_credits').notNull().default(0),
-  // Internal role — 'trust_reviewer' may use the admin review queue. Dev sets by hand.
-  role: text('role').notNull().default('member'), // 'member' | 'trust_reviewer'
-  joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
-  lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
-  // Reversible self-deactivation (NOT a GDPR erasure — all data is retained). Null = active;
-  // set = deactivated (hidden from public, blocked from booking/hosting). Cleared on next sign-in.
-  deactivatedAt: timestamp('deactivated_at', { withTimezone: true }),
-  deletedAt: timestamp('deleted_at', { withTimezone: true }),
-});
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    email: citext('email').notNull().unique(),
+    phone: text('phone'),
+    displayName: text('display_name'),
+    handle: text('handle').unique(),
+    avatarUrl: text('avatar_url'),
+    bio: text('bio'),
+    neighbourhood: text('neighbourhood'),
+    // Onboarding preferences — captured during the welcome→intent→interests→barrio→notifications
+    // flow and saved step by step via PATCH /me. `neighbourhood` above doubles as the chosen barrio.
+    intents: text('intents').array().notNull().default([]), // intent mood-tiles + "I'm here to…" goals
+    interests: text('interests').array().notNull().default([]), // canonical interest hashtags
+    notificationPrefs: jsonb('notification_prefs')
+      .$type<{ bookings: boolean; circles: boolean; nearby: boolean }>()
+      .notNull()
+      .default({ bookings: true, circles: true, nearby: true }), // bookings always-on; circles/nearby opt-out
+    onboardingCompleted: boolean('onboarding_completed').notNull().default(false),
+    verified: boolean('verified').notNull().default(false),
+    language: text('language').notNull().default('ca'), // 'ca' | 'es' | 'en'
+    trustTier: text('trust_tier').notNull().default('newcomer'),
+    trustScore: integer('trust_score').notNull().default(0),
+    // Host pricing tier (Pricing v2) — gates Program submission. Default basic; dev sets premium by hand.
+    hostTier: text('host_tier').notNull().default('basic'), // 'basic' | 'pro' | 'premium'
+    // Free Program credits (Premium includes 1). Consumed on submission before any fee.
+    freeProgramCredits: integer('free_program_credits').notNull().default(0),
+    // Internal role — 'trust_reviewer' may use the admin review queue. Dev sets by hand.
+    role: text('role').notNull().default('member'), // 'member' | 'trust_reviewer'
+
+    // ── Founding-host badge ──────────────────────────────────────────────────
+    // Nullable: null founding_status == not a founding host. The badge is DERIVED at
+    // read time — never set manually. users_founding_grant_uq on (id, founding_cohort)
+    // is the DB-level backstop ensuring one grant per (user, cohort) under concurrent
+    // job ticks (the app also uses SELECT … FOR UPDATE inside a transaction).
+    foundingCohort: text('founding_cohort'), // 'gracia' | null
+    foundingStatus: text('founding_status'), // null | 'founding_active' | 'founding_lapsed'
+    foundingGrantedAt: timestamp('founding_granted_at', { withTimezone: true }),
+
+    joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
+    // Reversible self-deactivation (NOT a GDPR erasure — all data is retained). Null = active;
+    // set = deactivated (hidden from public, blocked from booking/hosting). Cleared on next sign-in.
+    deactivatedAt: timestamp('deactivated_at', { withTimezone: true }),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  },
+  (t) => [
+    // Backstop for atomic slot acquisition: one founding grant per (user, cohort).
+    // NULLs are distinct in Postgres unique indexes, so non-founding hosts (cohort=NULL)
+    // are not constrained — only actual grants are unique.
+    unique('users_founding_grant_uq').on(t.id, t.foundingCohort),
+  ],
+);
 
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
