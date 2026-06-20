@@ -10,7 +10,12 @@ import type {
   CircleMessage,
   CircleSummary,
   CreateProgramRequest,
+  CreateReviewRequest,
   CredentialKind,
+  PassportSummary,
+  PublicProfile,
+  Review,
+  ReviewAggregate,
   EventDetail,
   EventListItem,
   MeResponse,
@@ -115,8 +120,13 @@ export const api = {
       body: JSON.stringify({ seatCount }),
     }),
   myBookings: () => request<BookingListItem[]>('/me/bookings'),
+  createReview: (body: CreateReviewRequest) =>
+    request<Review>('/reviews', { method: 'POST', body: JSON.stringify(body) }),
+  getEventReviews: (eventId: string) => request<ReviewAggregate>(`/events/${eventId}/reviews`),
   me: () => request<MeResponse>('/me'),
   meStats: () => request<MeStats>('/me/stats'),
+  getPassport: () => request<PassportSummary>('/me/passport'),
+  getPublicProfile: (userId: string) => request<PublicProfile>(`/users/${userId}`),
   requestMagicLink: (email: string) =>
     request<{ ok: boolean }>('/auth/email-magic-link', {
       method: 'POST',

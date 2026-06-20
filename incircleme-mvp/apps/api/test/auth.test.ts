@@ -29,6 +29,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
+  await redis?.flushdb(); // reset rate-limit counters so reused emails don't trip 429
   await db.execute(
     sql`truncate table sessions, magic_link_tokens, oauth_accounts, users restart identity cascade`,
   );

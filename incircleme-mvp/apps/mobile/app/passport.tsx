@@ -1,0 +1,323 @@
+import { useEffect, useState, type ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import {
+  BadgeCheck,
+  CalendarCheck,
+  Lock,
+  MessageSquare,
+  Shield,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+} from 'lucide-react-native';
+import type { PassportSummary } from '@incircleme/types';
+import { formatDate, interpolate, t } from '@incircleme/i18n';
+import { api } from '../lib/api';
+import { tierLabel } from '../lib/trustTier';
+import { BrandBar } from '../components/BrandBar';
+import { useNavClearance } from '../lib/useNavClearance';
+import { tokens } from '../theme/tokens';
+import { fonts } from '../theme/fonts';
+
+const TRAITS: { key: 'pp_reliable' | 'pp_hospitable' | 'pp_curious' }[] = [
+  { key: 'pp_reliable' },
+  { key: 'pp_hospitable' },
+  { key: 'pp_curious' },
+];
+
+export default function PassportScreen() {
+  const router = useRouter();
+  const [pp, setPp] = useState<PassportSummary | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const navClearance = useNavClearance();
+
+  useEffect(() => {
+    api.getPassport().then(setPp).catch(() => setPp(null));
+  }, []);
+
+  const comingSoon = () => {
+    setNotice(t('prof_comingSoon'));
+    setTimeout(() => setNotice(null), 1800);
+  };
+
+  if (!pp) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <BrandBar />
+      </SafeAreaView>
+    );
+  }
+
+  const memberSince = interpolate(t('prof_joined'), {
+    date: formatDate(pp.joinedAt, { month: 'long', year: 'numeric' }),
+  });
+  const r = pp.reviewsReceived;
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar />
+      <Pressable onPress={() => router.back()} hitSlop={10}>
+        <Text style={styles.back}>←</Text>
+      </Pressable>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navClearance }]}>
+        {/* Passport card — tier WORD (shared); the NUMBERS below are self-only */}
+        <View style={styles.card}>
+          <View style={styles.capRow}>
+            <Text style={styles.capTitle}>
+              {t('prof_passport').split(' ')[0]}{' '}
+              <Text style={styles.capTitleEm}>
+                {t('prof_passport').split(' ').slice(1).join(' ')}
+              </Text>
+            </Text>
+            <Text style={styles.tier}>{tierLabel(pp.trustTier)}</Text>
+          </View>
+          <Text style={styles.name}>{pp.displayName ?? '—'}</Text>
+          <Text style={styles.member}>
+            {memberSince}
+            {pp.neighbourhood ? ` · ${pp.neighbourhood}` : ''}
+          </Text>
+
+          {/* Trait rings — scores not computed yet (Tier 3): honest "—" stubs */}
+          <View style={styles.rings}>
+            {TRAITS.map((tr) => (
+              <View key={tr.key} style={styles.ring}>
+                <View style={styles.donut}>
+                  <Text style={styles.donutVal}>—</Text>
+                </View>
+                <Text style={styles.ringLabel}>{t(tr.key)}</Text>
+              </View>
+            ))}
+          </View>
+          <Text style={styles.traitNote}>{t('pp_traitsSoon')}</Text>
+        </View>
+
+        {/* How your score is built — only the rows we truly have data for */}
+        <Text style={styles.sectionLabel}>{t('pp_scoreBuilt')}</Text>
+
+        <StatRow
+          icon={<MessageSquare size={16} color={tokens.color.forest} strokeWidth={2} />}
+          title={t('pp_reviewsReceived')}
+          sub={interpolate(t('pp_reviewsSub'), {
+            avg: String(r.avgRating),
+            again: String(r.wouldGoAgainCount),
+            incl: String(r.feltIncludedCount),
+          })}
+          value={r.count > 0 ? String(r.avgRating) : '—'}
+        />
+        <StatRow
+          icon={<Users size={16} color={tokens.color.forest} strokeWidth={2} />}
+          title={t('pp_circlesActive')}
+          value={String(pp.activeCircles)}
+        />
+        <StatRow
+          icon={<BadgeCheck size={16} color={tokens.color.forest} strokeWidth={2} />}
+          title={t('pp_contributions')}
+          sub={interpolate(t('pp_contributionsSub'), { n: String(pp.reviewsGiven) })}
+          value={String(pp.reviewsGiven)}
+        />
+        <StatRow
+          icon={<CalendarCheck size={16} color={tokens.color.forest} strokeWidth={2} />}
+          title={t('prof_statAttended')}
+          value={String(pp.attended)}
+        />
+
+        {/* Badges — only the verified badge is backed today; the rest are deferred */}
+        <Text style={styles.sectionLabel}>{t('pp_badges')}</Text>
+        <View style={styles.badgeRow}>
+          <View style={[styles.badge, styles.badgeEarned]}>
+            <ShieldCheck size={18} color={tokens.color.forest} strokeWidth={2} />
+            <Text style={styles.badgeText}>{t('prof_verified')}</Text>
+          </View>
+          <View style={styles.badge}>
+            <Lock size={16} color={tokens.color.gray} strokeWidth={2} />
+            <Text style={styles.badgeTextLocked}>{t('pp_badgesSoon')}</Text>
+          </View>
+        </View>
+
+        {/* Why this matters */}
+        <Text style={styles.sectionLabel}>{t('pp_whyMatters')}</Text>
+        <View style={styles.whyCard}>
+          <Text style={styles.whyBody}>{t('pp_whyMattersBody')}</Text>
+          <View style={styles.whyFoot}>
+            <Lock size={12} color={tokens.color.coralInk} strokeWidth={2} />
+            <Text style={styles.whyFootText}>{t('pp_privateDefault')}</Text>
+          </View>
+        </View>
+
+        <View style={styles.actions}>
+          <Pressable style={styles.cta} onPress={comingSoon}>
+            <TrendingUp size={15} color={tokens.color.cream} strokeWidth={2} />
+            <Text style={styles.ctaText}>{t('pp_levelUp')}</Text>
+          </Pressable>
+          <Pressable style={styles.ghost} onPress={comingSoon}>
+            <Shield size={15} color={tokens.color.ink} strokeWidth={2} />
+            <Text style={styles.ghostText}>{t('pp_privacy')}</Text>
+          </Pressable>
+        </View>
+        {notice ? <Text style={styles.notice}>{notice}</Text> : null}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function StatRow({
+  icon,
+  title,
+  sub,
+  value,
+}: {
+  icon: ReactNode;
+  title: string;
+  sub?: string;
+  value: string;
+}) {
+  return (
+    <View style={styles.statRow}>
+      <View style={styles.statIc}>{icon}</View>
+      <View style={styles.statBody}>
+        <Text style={styles.statTitle}>{title}</Text>
+        {sub ? <Text style={styles.statSub}>{sub}</Text> : null}
+      </View>
+      <Text style={styles.statValue}>{value}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: tokens.color.cream },
+  back: { fontSize: 22, color: tokens.color.ink, paddingHorizontal: 16, paddingTop: 4 },
+  content: { padding: 16, gap: 8 },
+
+  card: {
+    backgroundColor: tokens.color.forest,
+    borderRadius: 18,
+    padding: 16,
+  },
+  capRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  capTitle: { fontFamily: fonts.display, fontSize: 18, color: tokens.color.cream },
+  capTitleEm: { fontFamily: fonts.displayItalic, color: tokens.color.coralSoft },
+  tier: { fontFamily: fonts.bodySemi, fontSize: 12, color: tokens.color.coralSoft },
+  name: { fontFamily: fonts.displaySemi, fontSize: 20, color: tokens.color.cream, marginTop: 10 },
+  member: { fontFamily: fonts.body, fontSize: 11.5, color: 'rgba(247,243,237,0.78)', marginTop: 2 },
+  rings: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 16 },
+  ring: { alignItems: 'center', gap: 6 },
+  donut: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 3,
+    borderColor: 'rgba(247,243,237,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  donutVal: { fontFamily: fonts.displaySemi, fontSize: 16, color: tokens.color.cream },
+  ringLabel: { fontFamily: fonts.bodyMedium, fontSize: 11, color: tokens.color.cream },
+  traitNote: {
+    fontFamily: fonts.body,
+    fontSize: 10,
+    color: 'rgba(247,243,237,0.6)',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+
+  sectionLabel: {
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 10,
+    letterSpacing: 1,
+    color: tokens.color.coralInk,
+    textTransform: 'uppercase',
+    marginTop: 14,
+    marginBottom: 2,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 11,
+    backgroundColor: '#FFFFFF',
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+  },
+  statIc: {
+    width: 30,
+    height: 30,
+    borderRadius: 999,
+    backgroundColor: tokens.color.forestSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statBody: { flex: 1, gap: 1 },
+  statTitle: { fontFamily: fonts.bodySemi, fontSize: 13.5, color: tokens.color.ink },
+  statSub: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.text2, lineHeight: 15 },
+  statValue: { fontFamily: fonts.displaySemi, fontSize: 18, color: tokens.color.forest },
+
+  badgeRow: { flexDirection: 'row', gap: 10 },
+  badge: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: tokens.color.bg2,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+  },
+  badgeEarned: { backgroundColor: tokens.color.forestSoft, borderColor: tokens.color.forestSoft },
+  badgeText: { fontFamily: fonts.bodySemi, fontSize: 12, color: tokens.color.forest, flexShrink: 1 },
+  badgeTextLocked: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: tokens.color.text2, flexShrink: 1 },
+
+  whyCard: {
+    backgroundColor: tokens.color.goldGlow,
+    borderColor: tokens.color.goldBorder,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 14,
+    gap: 10,
+  },
+  whyBody: { fontFamily: fonts.body, fontSize: 12.5, lineHeight: 19, color: tokens.color.ink },
+  whyFoot: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  whyFootText: { fontFamily: fonts.bodySemi, fontSize: 11, color: tokens.color.coralInk },
+
+  actions: { flexDirection: 'row', gap: 10, marginTop: 14 },
+  cta: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: tokens.color.forest,
+    borderRadius: 999,
+    paddingVertical: 12,
+  },
+  ctaText: { fontFamily: fonts.bodySemi, fontSize: 13.5, color: tokens.color.cream },
+  ghost: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 7,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingVertical: 12,
+  },
+  ghostText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: tokens.color.ink },
+  notice: {
+    alignSelf: 'center',
+    fontFamily: fonts.bodySemi,
+    fontSize: 12.5,
+    color: tokens.color.ink,
+    backgroundColor: tokens.color.goldGlow,
+    borderColor: tokens.color.goldBorder,
+    borderWidth: 1,
+    borderRadius: 999,
+    overflow: 'hidden',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    marginTop: 12,
+  },
+});

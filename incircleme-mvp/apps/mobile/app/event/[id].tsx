@@ -28,7 +28,6 @@ export default function Event() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [event, setEvent] = useState<EventDetail | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const navClearance = useNavClearance();
 
   useEffect(() => {
@@ -39,12 +38,6 @@ export default function Event() {
     // TODO(deferred, needs copy verdict): explicit not-found / loading empty state.
     return <SafeAreaView style={styles.safe} />;
   }
-
-  // The host profile (passport) is Tier 3 — surface a brief "coming soon".
-  const comingSoon = () => {
-    setNotice(t('prof_comingSoon'));
-    setTimeout(() => setNotice(null), 1800);
-  };
 
   const when = formatDateTime(event.startsAt, {
     weekday: 'long',
@@ -85,9 +78,9 @@ export default function Event() {
           {barri} · {price}
         </Text>
 
-        {/* Host trust row — tappable to the (Tier 3) passport */}
+        {/* Host trust row — taps to the host's public profile */}
         <View style={styles.section}>
-          <HostRow host={event.host} onPress={comingSoon} />
+          <HostRow host={event.host} onPress={() => router.push(`/u/${event.host.id}`)} />
         </View>
 
         {/* "Already coming" — count + decorative (anonymous) avatars + privacy note */}
@@ -225,7 +218,6 @@ export default function Event() {
           <Text style={styles.ghostText}>{t('ev_goTogether')}</Text>
         </Pressable>
 
-        {notice ? <Text style={styles.notice}>{notice}</Text> : null}
       </ScrollView>
     </SafeAreaView>
   );
