@@ -4,8 +4,12 @@ import { bookSchema, createEventSchema, eventsQuerySchema } from '../schemas/eve
 import { createEvent, getEventDetail, listEvents } from '../services/events/events';
 import {
   book,
+  checkIn,
+  BookingNotFoundError,
   EventNotFoundError,
+  InvalidStatusError,
   listMyBookings,
+  NotHostError,
   RoomFullError,
 } from '../services/booking/booking';
 import type { Payments } from '../lib/payments';
@@ -52,5 +56,27 @@ export async function eventRoutes(
 
   app.get('/me/bookings', { preHandler: requireAuth }, async (req) => {
     return listMyBookings(req.userId!);
+  });
+
+  /**
+   * POST /bookings/:id/checkin
+   * The event host scans an attendee's QR (which encodes the booking id) to record check-in.
+   * - Requires auth (the caller must be the host of the booking's event).
+   * - Only 'confirmed' bookings can be checked in.
+   * - Idempotent: a second call on an already-checked-in booking returns 200 with the
+   *   original checkedInAt timestamp unchanged.
+   */
+  app.post('/bookings/:id/checkin', { preHandler: requireAuth }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    try {
+      const result = await checkIn(id, req.userId!);
+      return reply.code(200).send(result);
+    } catch (err) {
+      if (err instanceof BookingNotFoundError) return reply.code(404).send({ error: 'not_found' });
+      if (err instanceof NotHostError) return reply.code(403).send({ error: 'not_host' });
+      if (err instanceof InvalidStatusError)
+        return reply.code(409).send({ error: 'invalid_status', status: err.status });
+      throw err;
+    }
   });
 }
