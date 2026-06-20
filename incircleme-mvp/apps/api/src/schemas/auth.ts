@@ -12,7 +12,7 @@ export const verifyRequestSchema = z.object({
   token: z.string().min(1),
 });
 
-export const oauthProviderSchema = z.enum(['google', 'apple']);
+export const oauthProviderSchema = z.enum(['google', 'apple', 'linkedin']);
 
 export const oauthRequestSchema = z.object({
   idToken: z.string().min(1),

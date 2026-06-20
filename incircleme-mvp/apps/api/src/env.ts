@@ -27,7 +27,8 @@ const schema = z.object({
 
   // OAuth (Phase 2 — paths exist, IDs wired later)
   GOOGLE_CLIENT_ID: z.string().optional(),
-  APPLE_CLIENT_ID: z.string().optional(),
+  APPLE_CLIENT_ID: z.string().optional(), // Apple Service ID (the id_token audience)
+  LINKEDIN_CLIENT_ID: z.string().optional(), // LinkedIn OIDC app client id (the id_token audience)
 
   // Payments (Stripe TEST mode for this slice; Connect in Phase 2)
   STRIPE_SECRET_KEY: z.string().optional(),
