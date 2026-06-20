@@ -790,6 +790,16 @@ Enriching the Home Programs strip (keys `prog_pub_*`). The eyebrow is the alread
 
 ---
 
+## 33. Auth — Google sign-in (locked 2026-06-16)
+
+The sign-in button on Profile (staging onward — Google is the only sign-in; the dev paste box is `__DEV__`-only). Mirrored in `incircleme-mvp/packages/i18n` (`signInWithGoogle`). ES uses the infinitive to match the locked §15 *Entrar*. *(Renumbered from §25 during the staging→main rebase — main had already taken §25–§32.)*
+
+| EN | CA | ES |
+|---|---|---|
+| Sign in with Google | Entra amb Google | Entrar con Google |
+
+---
+
 ## 34. Ticket screen (Tier 2 · locked 2026-06-20)
 
 The booking ticket screen (Ticket+Circle brief 2026-06-19). Mirrored in `packages/i18n` (`ticket_*`). Approved by Alina **as-is**: `ticket_admitOne` stays **singular** ("Admit 1" — one ticket per booking in the MVP), and the util line (Wallet / Share / Calendar / Directions) is **icon-only** — no labels locked. `{event}` / `{host}` / `{amount}` interpolate; the cancel sub-line carries the "no impact on your Passport" promise. Currency follows the locked rule (EN €25 · CA/ES 25 €).

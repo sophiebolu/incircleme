@@ -9,6 +9,7 @@ import { api } from '../../lib/api';
 import { clearSession, isSignedIn, saveSession } from '../../lib/auth';
 import { tierLabel } from '../../lib/trustTier';
 import { useNavClearance } from '../../lib/useNavClearance';
+import { signInWithGoogle } from '../../lib/googleAuth';
 import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
@@ -25,6 +26,22 @@ export default function Profile() {
   const [token, setToken] = useState('');
   // 'error-verify' keeps the token field visible so a fresh code can be pasted.
   const [phase, setPhase] = useState<'idle' | 'sent' | 'error-request' | 'error-verify'>('idle');
+  const [googleError, setGoogleError] = useState(false);
+
+  const googleSignIn = async () => {
+    setGoogleError(false);
+    const result = await signInWithGoogle();
+    if (result.ok) {
+      try {
+        setMe(await api.me());
+      } catch {
+        setGoogleError(true);
+      }
+    } else {
+      // Promise-Delivery rule: a failed sign-in must say so, visibly.
+      if (result.error !== 'cancelled') setGoogleError(true);
+    }
+  };
 
   const loadStats = () => {
     api
@@ -186,39 +203,50 @@ export default function Profile() {
           <Text style={styles.heading}>{t('profile')}</Text>
           <View style={styles.card}>
             <Text style={styles.label}>{t('signIn')}</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="correu@exemple.cat"
-              placeholderTextColor={tokens.color.gray}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-            />
-            <Pressable style={styles.button} onPress={requestLink}>
-              <Text style={styles.buttonText}>{t('continueLabel')}</Text>
+            <Pressable style={styles.button} onPress={googleSignIn}>
+              <Text style={styles.buttonText}>{t('signInWithGoogle')}</Text>
             </Pressable>
-            {phase === 'sent' || phase === 'error-verify' ? (
+            {googleError ? <Text style={styles.error}>{t('verifyFailed')}</Text> : null}
+
+            {/* Dev-only magic-link paste (the stub mailer logs the token). Absent in
+                staging/prod builds — Google is the only sign-in there. */}
+            {__DEV__ ? (
               <>
-                <Text style={styles.hint}>Token (vegeu el registre del servidor en dev):</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="token"
+                  placeholder="correu@exemple.cat"
                   placeholderTextColor={tokens.color.gray}
                   autoCapitalize="none"
-                  value={token}
-                  onChangeText={setToken}
+                  keyboardType="email-address"
+                  value={email}
+                  onChangeText={setEmail}
                 />
-                <Pressable style={styles.button} onPress={verify}>
-                  <Text style={styles.buttonText}>{t('signIn')}</Text>
+                <Pressable style={styles.buttonGhost} onPress={requestLink}>
+                  <Text style={styles.buttonGhostText}>{t('continueLabel')} (dev)</Text>
                 </Pressable>
+                {phase === 'sent' || phase === 'error-verify' ? (
+                  <>
+                    <Text style={styles.hint}>Token (vegeu el registre del servidor en dev):</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="token"
+                      placeholderTextColor={tokens.color.gray}
+                      autoCapitalize="none"
+                      value={token}
+                      onChangeText={setToken}
+                    />
+                    <Pressable style={styles.buttonGhost} onPress={verify}>
+                      <Text style={styles.buttonGhostText}>{t('signIn')} (dev)</Text>
+                    </Pressable>
+                  </>
+                ) : null}
+                {phase === 'error-verify' ? (
+                  <Text style={styles.error}>{t('verifyFailed')}</Text>
+                ) : null}
+                {phase === 'error-request' ? (
+                  <Text style={styles.error}>{t('requestFailed')}</Text>
+                ) : null}
               </>
-            ) : null}
-            {phase === 'error-verify' ? (
-              <Text style={styles.error}>{t('verifyFailed')}</Text>
-            ) : null}
-            {phase === 'error-request' ? (
-              <Text style={styles.error}>{t('requestFailed')}</Text>
             ) : null}
           </View>
         </>

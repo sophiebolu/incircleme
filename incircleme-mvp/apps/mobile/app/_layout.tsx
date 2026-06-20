@@ -4,13 +4,16 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { View } from 'react-native';
 import { getActiveLocale, subscribeLocale } from '@incircleme/i18n';
+import { applyDeviceLocale } from '../lib/deviceLocale';
 import { applyDevLocale } from '../lib/devLocale';
 import { DevLocaleSwitcher } from '../components/DevLocaleSwitcher';
 import { UniversalNav } from '../components/UniversalNav';
 import { fontMap } from '../theme/fonts';
 import { tokens } from '../theme/tokens';
 
-// DEV-only: pick up ?lang= / EXPO_PUBLIC_DEV_LOCALE before first paint. No-op in prod.
+// Resolve the real device language (ca/es/en, fallback ca) before first paint…
+applyDeviceLocale();
+// …then the DEV-only ?lang= / EXPO_PUBLIC_DEV_LOCALE override, which wins in dev. No-op in prod.
 applyDevLocale();
 
 export default function RootLayout() {
