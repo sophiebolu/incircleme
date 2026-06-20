@@ -13,6 +13,7 @@
     "@expo-google-fonts/fraunces": "^0.4.1",
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/metro-runtime": "~6.1.2",
+    "@incircleme/config": "workspace:*",
     "@incircleme/i18n": "workspace:*",
     "@incircleme/types": "workspace:*",
     "@react-native-google-signin/google-signin": "^16.1.2",

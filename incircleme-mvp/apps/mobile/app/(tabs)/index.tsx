@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import type { EventListItem } from '@incircleme/types';
 import { t, interpolate } from '@incircleme/i18n';
 import { api } from '../../lib/api';
@@ -18,26 +19,46 @@ import { fonts } from '../../theme/fonts';
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default function Home() {
+  const router = useRouter();
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [name, setName] = useState('Marta'); // prototype demo persona until signed in
   const [refreshing, setRefreshing] = useState(false);
   const navClearance = useNavClearance();
 
   const load = useCallback(async () => {
+    // Onboarding gate (sign-in FIRST): no session → the welcome front door; signed in but
+    // not yet onboarded → resume the flow; onboarded → straight to Home.
+    let mine: Awaited<ReturnType<typeof api.me>> | null = null;
     try {
-      setEvents(await api.listEvents());
+      if (!(await isSignedIn())) {
+        router.replace('/onboarding/welcome');
+        return;
+      }
+      mine = await api.me();
+      if (!mine.onboardingCompleted) {
+        router.replace('/onboarding/intent');
+        return;
+      }
+      if (mine.displayName) setName(mine.displayName);
+    } catch {
+      // network hiccup on /me — stay on Home rather than bounce the user out
+    }
+    try {
+      const list = await api.listEvents();
+      // Shape the feed by the attendee's picked interests (== EventCategory): matching
+      // categories float to the top, order otherwise preserved. Honest, not faked.
+      const interests = new Set(mine?.interests ?? []);
+      setEvents(
+        interests.size
+          ? [...list].sort(
+              (a, b) => Number(interests.has(b.category)) - Number(interests.has(a.category)),
+            )
+          : list,
+      );
     } catch {
       // keep last data; Home stays calm on network errors
     }
-    try {
-      if (await isSignedIn()) {
-        const me = await api.me();
-        if (me.displayName) setName(me.displayName);
-      }
-    } catch {
-      // signed-out fallback stays
-    }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     void load();
