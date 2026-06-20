@@ -91,7 +91,7 @@ export const strings = {
     sharedBy: 'Compartides per {x} de {y} persones',
     nCircleMessages: '{n} missatges del Cercle',
     sinceEnded: "Des que va acabar l'esdeveniment",
-    cap_avgRating: 'Valoració mitjana', // PROVISIONAL (capsule highlight, reviews aggregate)
+    cap_avgRating: 'Valoració mitjana', // §35 capsule highlight (reviews aggregate)
     cap_wouldGo: '{n} hi tornarien',
     shareCapsule: 'Comparteix la càpsula',
     save: 'Desa',
@@ -243,8 +243,7 @@ export const strings = {
     fil_thisWeek: 'Aquesta setmana',
     fil_weekend: 'Cap de setmana',
     fil_allBarrios: 'Tots els barris',
-    // Ticket screen — PROVISIONAL (Ticket+Circle brief 2026-06-19). Pending a §-lock
-    // sign-off + free section number (brief says "§26" but that's Trust-tier labels).
+    // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'La teva entrada',
     ticket_subtitle: "confirmació · ensenya-la a l'entrada",
     ticket_badgeConfirmed: 'Confirmada',
@@ -263,7 +262,7 @@ export const strings = {
     ticket_cancelSub:
       "reemborsament segons la política de l'amfitrió/ona · sense impacte al teu Passaport",
     ticket_footer: 'El teu Cercle compta amb tu',
-    // Reviews flow + vibe tags — PROVISIONAL (Reviews brief 2026-06-19).
+    // §35 Reviews flow + vibe tags (locked 2026-06-20)
     vibe_warmWelcome: 'Benvinguda càlida',
     vibe_wellOrganised: 'Ben organitzat',
     vibe_smallGroup: 'El grup reduït anava bé',
@@ -303,7 +302,7 @@ export const strings = {
     rev_privateNote:
       'La teva ressenya és privada per a {host}. No has activat la compartició pública — només ella la llegirà.',
     bk_leaveReview: 'Deixa una ressenya',
-    // Reputation Passport — PROVISIONAL (Passport brief 2026-06-19).
+    // §36 Reputation Passport (locked 2026-06-20)
     pp_reliable: 'Fiable',
     pp_hospitable: 'Hospitalari/ària',
     pp_curious: 'Curiós/osa',
@@ -322,7 +321,7 @@ export const strings = {
     pp_privateDefault: 'Privat per defecte',
     pp_levelUp: 'Com pujar de nivell',
     pp_privacy: 'Privacitat',
-    // Public host/creator profile — keepClose is locked §1; the rest PROVISIONAL.
+    // §37 Public host/creator profile (up_* locked 2026-06-20; keepClose stays §1)
     keepClose: 'Mantén-te a prop',
     up_about: 'Presentació',
     up_theirEvents: 'Les seves sales',
@@ -405,7 +404,7 @@ export const strings = {
     sharedBy: 'Compartidas por {x} de {y} personas',
     nCircleMessages: '{n} mensajes del Círculo',
     sinceEnded: 'Desde que terminó el evento',
-    cap_avgRating: 'Valoración media', // PROVISIONAL (capsule highlight, reviews aggregate)
+    cap_avgRating: 'Valoración media', // §35 capsule highlight (reviews aggregate)
     cap_wouldGo: '{n} volverían',
     shareCapsule: 'Comparte la cápsula',
     save: 'Guardar',
@@ -557,7 +556,7 @@ export const strings = {
     fil_thisWeek: 'Esta semana',
     fil_weekend: 'Fin de semana',
     fil_allBarrios: 'Todos los barrios',
-    // Ticket screen — PROVISIONAL (Ticket+Circle brief 2026-06-19).
+    // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'Tu entrada',
     ticket_subtitle: 'confirmación · enséñala en la puerta',
     ticket_badgeConfirmed: 'Confirmada',
@@ -576,7 +575,7 @@ export const strings = {
     ticket_cancelSub:
       'reembolso según la política del anfitrión/a · sin impacto en tu Pasaporte',
     ticket_footer: 'Tu Círculo cuenta contigo',
-    // Reviews flow + vibe tags — PROVISIONAL (Reviews brief 2026-06-19).
+    // §35 Reviews flow + vibe tags (locked 2026-06-20)
     vibe_warmWelcome: 'Bienvenida cálida',
     vibe_wellOrganised: 'Bien organizado',
     vibe_smallGroup: 'El grupo reducido iba bien',
@@ -616,7 +615,7 @@ export const strings = {
     rev_privateNote:
       'Tu reseña es privada para {host}. No activaste la compartición pública — solo ella la leerá.',
     bk_leaveReview: 'Dejar una reseña',
-    // Reputation Passport — PROVISIONAL (Passport brief 2026-06-19).
+    // §36 Reputation Passport (locked 2026-06-20)
     pp_reliable: 'Fiable',
     pp_hospitable: 'Hospitalario/a',
     pp_curious: 'Curioso/a',
@@ -635,7 +634,7 @@ export const strings = {
     pp_privateDefault: 'Privado por defecto',
     pp_levelUp: 'Cómo subir de nivel',
     pp_privacy: 'Privacidad',
-    // Public host/creator profile — keepClose is locked §1; the rest PROVISIONAL.
+    // §37 Public host/creator profile (up_* locked 2026-06-20; keepClose stays §1)
     keepClose: 'Mantente cerca',
     up_about: 'Presentación',
     up_theirEvents: 'Sus salas',
@@ -717,7 +716,7 @@ export const strings = {
     sharedBy: 'Shared by {x} of {y} people',
     nCircleMessages: '{n} Circle messages',
     sinceEnded: 'Since the event ended',
-    cap_avgRating: 'Avg rating', // PROVISIONAL (capsule highlight, reviews aggregate)
+    cap_avgRating: 'Avg rating', // §35 capsule highlight (reviews aggregate)
     cap_wouldGo: '{n} would go again',
     shareCapsule: 'Share capsule',
     save: 'Save',
@@ -866,7 +865,7 @@ export const strings = {
     fil_thisWeek: 'This week',
     fil_weekend: 'Weekend',
     fil_allBarrios: 'All barrios',
-    // Ticket screen — PROVISIONAL (Ticket+Circle brief 2026-06-19).
+    // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'Your ticket',
     ticket_subtitle: 'confirmation · show at the door',
     ticket_badgeConfirmed: 'Confirmed',
@@ -884,7 +883,7 @@ export const strings = {
     ticket_cancelCta: 'Cancel this booking',
     ticket_cancelSub: "refund per the host's policy · no impact on your Passport",
     ticket_footer: 'Your Circle is counting on you',
-    // Reviews flow + vibe tags — PROVISIONAL (Reviews brief 2026-06-19).
+    // §35 Reviews flow + vibe tags (locked 2026-06-20)
     vibe_warmWelcome: 'Warm welcome',
     vibe_wellOrganised: 'Well organised',
     vibe_smallGroup: 'Small group felt right',
@@ -924,7 +923,7 @@ export const strings = {
     rev_privateNote:
       'Your review is private to {host}. You didn’t turn on public sharing — only she will read it.',
     bk_leaveReview: 'Leave a review',
-    // Reputation Passport — PROVISIONAL (Passport brief 2026-06-19).
+    // §36 Reputation Passport (locked 2026-06-20)
     pp_reliable: 'Reliable',
     pp_hospitable: 'Hospitable',
     pp_curious: 'Curious',
@@ -943,7 +942,7 @@ export const strings = {
     pp_privateDefault: 'Private by default',
     pp_levelUp: 'How to level up',
     pp_privacy: 'Privacy',
-    // Public host/creator profile — keepClose is locked §1; the rest PROVISIONAL.
+    // §37 Public host/creator profile (up_* locked 2026-06-20; keepClose stays §1)
     keepClose: 'Keep close',
     up_about: 'About',
     up_theirEvents: 'Their rooms',

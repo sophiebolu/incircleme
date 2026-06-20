@@ -790,4 +790,115 @@ Enriching the Home Programs strip (keys `prog_pub_*`). The eyebrow is the alread
 
 ---
 
+## 34. Ticket screen (Tier 2 · locked 2026-06-20)
+
+The booking ticket screen (Ticket+Circle brief 2026-06-19). Mirrored in `packages/i18n` (`ticket_*`). Approved by Alina **as-is**: `ticket_admitOne` stays **singular** ("Admit 1" — one ticket per booking in the MVP), and the util line (Wallet / Share / Calendar / Directions) is **icon-only** — no labels locked. `{event}` / `{host}` / `{amount}` interpolate; the cancel sub-line carries the "no impact on your Passport" promise. Currency follows the locked rule (EN €25 · CA/ES 25 €).
+
+| key | EN | CA | ES |
+|---|---|---|---|
+| `ticket_title` | Your ticket | La teva entrada | Tu entrada |
+| `ticket_subtitle` | confirmation · show at the door | confirmació · ensenya-la a l'entrada | confirmación · enséñala en la puerta |
+| `ticket_badgeConfirmed` | Confirmed | Confirmada | Confirmada |
+| `ticket_startsIn` | starts in | comença en | empieza en |
+| `ticket_remind` | We'll remind you 24h ahead | T'avisem 24 h abans | Te avisamos 24 h antes |
+| `ticket_showAtDoor` | Show at the door | Ensenya-la a l'entrada | Enséñala en la puerta |
+| `ticket_admitOne` | Admit 1 | Admet 1 | Admite 1 |
+| `ticket_detailsTitle` | The details | Els detalls | Los detalles |
+| `ticket_detailsDatetime` | Date & time | Data i hora | Fecha y hora |
+| `ticket_detailsLocation` | Location | Ubicació | Ubicación |
+| `ticket_detailsSmallGroup` | Small group | Grup reduït | Grupo reducido |
+| `ticket_detailsPaid` | Paid | Pagat | Pagado |
+| `ticket_circleActive` | Circle is active | El Cercle és actiu | El Círculo está activo |
+| `ticket_late` | Running late? | Fas tard? | ¿Llegas tarde? |
+| `ticket_cancelCta` | Cancel this booking | Cancel·la la reserva | Cancelar la reserva |
+| `ticket_cancelSub` | refund per the host's policy · no impact on your Passport | reemborsament segons la política de l'amfitrió/ona · sense impacte al teu Passaport | reembolso según la política del anfitrión/a · sin impacto en tu Pasaporte |
+| `ticket_footer` | Your Circle is counting on you | El teu Cercle compta amb tu | Tu Círculo cuenta contigo |
+
+---
+
+## 35. Reviews flow + vibe tags (Tier 2 · locked 2026-06-20)
+
+The reviews flow (Reviews brief 2026-06-19). Mirrored in `packages/i18n` (`vibe_*`, `rev_*`, `bk_leaveReview`, `cap_avgRating`/`cap_wouldGo`). **"Would you go again?"** (`rev_wouldGoAgain`) is an **explicit yes/no** the reviewer taps — never derived from the star rating. The six **vibe tags** are the selectable chips (canonical keys in `packages/config`). Public sharing is **off by default** (`rev_sharePublic*`). `cap_avgRating`/`cap_wouldGo` surface the reviews aggregate on the Memory Capsule highlights. CTAs: CA imperative (Comparteix / Envia-ho) · ES infinitive (Compartir / Enviar). `{event}`/`{host}`/`{avg}`/`{n}` interpolate.
+
+| key | EN | CA | ES |
+|---|---|---|---|
+| `vibe_warmWelcome` | Warm welcome | Benvinguda càlida | Bienvenida cálida |
+| `vibe_wellOrganised` | Well organised | Ben organitzat | Bien organizado |
+| `vibe_smallGroup` | Small group felt right | El grup reduït anava bé | El grupo reducido iba bien |
+| `vibe_beautifulSpace` | Beautiful space | Espai bonic | Espacio bonito |
+| `vibe_easyToMeet` | Easy to meet people | Fàcil conèixer gent | Fácil conocer gente |
+| `vibe_feltIncluded` | Felt included | M'hi vaig sentir inclòs/osa | Me sentí incluido/a |
+| `rev_promptTitle` | Share how it felt | Comparteix com va anar | Comparte cómo fue |
+| `rev_promptSub` | Only the host sees this by default | Només l'amfitrió/ona ho veu, per defecte | Solo el anfitrión/a lo ve, por defecto |
+| `rev_memoryFrom` | Memory from | Record de | Recuerdo de |
+| `rev_inviteQ` | How was your time at {event}? | Com va anar a {event}? | ¿Cómo fue en {event}? |
+| `rev_inviteSub` | {host} reads every word. Your review stays private between you two — unless you choose to share it on the event page. | {host} llegeix cada paraula. La teva ressenya queda privada entre vosaltres — tret que decideixis compartir-la a la pàgina de l’esdeveniment. | {host} lee cada palabra. Tu reseña queda privada entre vosotros — salvo que decidas compartirla en la página del evento. |
+| `rev_maybeLater` | Maybe later | Potser més tard | Quizá más tarde |
+| `rev_noReminders` | No reminders. We'll ask once, then leave it alone. Promise. | Sense recordatoris. T’ho preguntem un cop i prou. Promès. | Sin recordatorios. Te lo preguntamos una vez y ya está. Prometido. |
+| `rev_rateTitle` | Rating | Valoració | Valoración |
+| `rev_overallQ` | Overall, how did it feel? | En general, com et va fer sentir? | En general, ¿cómo te hizo sentir? |
+| `rev_tapStar` | Tap a star to begin | Toca una estrella per començar | Toca una estrella para empezar |
+| `rev_stoodOutQ` | What stood out? | Què va destacar? | ¿Qué destacó? |
+| `rev_optional` | Optional | Opcional | Opcional |
+| `rev_hearQ` | Anything you'd like {host} to hear? | Vols dir alguna cosa a {host}? | ¿Quieres decirle algo a {host}? |
+| `rev_commentPlaceholder` | A sentence is plenty. What made it feel like yours? | Amb una frase n’hi ha prou. Què el va fer teu? | Con una frase basta. ¿Qué lo hizo tuyo? |
+| `rev_sharePublic` | Also share on the event page | Comparteix-ho també a la pàgina de l’esdeveniment | Compartir también en la página del evento |
+| `rev_sharePublicSub` | Off by default. Turn on if you'd like future attendees to see your review. | Desactivat per defecte. Activa’l si vols que els futurs assistents la vegin. | Desactivado por defecto. Actívalo si quieres que los futuros asistentes la vean. |
+| `rev_wouldGoAgain` | Would you go again? | Tornaries a venir? | ¿Volverías? |
+| `rev_yes` | Yes | Sí | Sí |
+| `rev_no` | No | No | No |
+| `rev_send` | Send to {host} | Envia-ho a {host} | Enviar a {host} |
+| `rev_thanksTitle` | {host} will see this — thank you. | {host} ho veurà — gràcies. | {host} lo verá — gracias. |
+| `rev_thanksSub` | Reviews are how small hosts get better. And how our community keeps its shape. | Les ressenyes són com els amfitrions petits milloren. I com la comunitat manté la seva forma. | Las reseñas son cómo los anfitriones pequeños mejoran. Y cómo la comunidad mantiene su forma. |
+| `rev_passportNudge` | +1 review earned on your Passport | +1 ressenya al teu Passaport | +1 reseña en tu Pasaporte |
+| `rev_passportNudgeSub` | Hosts can see it when you book. | Els amfitrions ho veuen quan reserves. | Los anfitriones lo ven cuando reservas. |
+| `rev_similar` | Events with a similar feel this week | Esdeveniments amb un aire semblant aquesta setmana | Eventos con un aire parecido esta semana |
+| `rev_keepExploring` | Keep exploring | Segueix explorant | Seguir explorando |
+| `rev_backToBookings` | Back to My Bookings | Torna a les meves reserves | Volver a mis reservas |
+| `rev_privateNote` | Your review is private to {host}. You didn’t turn on public sharing — only she will read it. | La teva ressenya és privada per a {host}. No has activat la compartició pública — només ella la llegirà. | Tu reseña es privada para {host}. No activaste la compartición pública — solo ella la leerá. |
+| `bk_leaveReview` | Leave a review | Deixa una ressenya | Dejar una reseña |
+| `cap_avgRating` | Avg rating | Valoració mitjana | Valoración media |
+| `cap_wouldGo` | {n} would go again | {n} hi tornarien | {n} volverían |
+
+---
+
+## 36. Reputation Passport (Tier 2 · locked 2026-06-20)
+
+The Reputation Passport screen (Passport brief 2026-06-19). Mirrored in `packages/i18n` (`pp_*`). **Self-only** screen — per the §7 split, the tier **word** shows to others but the **numbers** only to self. Trait scores and badges are honest stubs (`pp_traitsSoon` / `pp_badgesSoon`) until those signals are computed. The body says **"Program"** (the live multi-week concept is Programs — there is no Ritual feature). `{avg}`/`{again}`/`{incl}`/`{n}` interpolate.
+
+| key | EN | CA | ES |
+|---|---|---|---|
+| `pp_reliable` | Reliable | Fiable | Fiable |
+| `pp_hospitable` | Hospitable | Hospitalari/ària | Hospitalario/a |
+| `pp_curious` | Curious | Curiós/osa | Curioso/a |
+| `pp_traitsSoon` | Trait scores are coming soon | Les puntuacions de trets arriben aviat | Las puntuaciones de rasgos llegan pronto |
+| `pp_scoreBuilt` | How your score is built | Com es construeix la teva puntuació | Cómo se construye tu puntuación |
+| `pp_reviewsReceived` | Reviews received | Ressenyes rebudes | Reseñas recibidas |
+| `pp_reviewsSub` | {avg} avg · {again} would go again · {incl} felt included | {avg} de mitjana · {again} repetirien · {incl} s’hi van sentir inclosos | {avg} de media · {again} repetirían · {incl} se sintieron incluidos |
+| `pp_circlesActive` | Active Circles | Cercles actius | Círculos activos |
+| `pp_contributions` | Contributions | Contribucions | Contribuciones |
+| `pp_contributionsSub` | {n} reviews written for others | {n} ressenyes escrites per a altres | {n} reseñas escritas para otros |
+| `pp_badges` | Badges | Insígnies | Insignias |
+| `pp_badgesSoon` | More badges on the way | Més insígnies en camí | Más insignias en camino |
+| `pp_whyMatters` | Why this matters | Per què importa | Por qué importa |
+| `pp_whyMattersBody` | Your Passport travels with you across every event, Circle and Program. Hosts see it before accepting your booking. Higher levels unlock priority access and hosting privileges. | El teu Passaport et segueix per cada esdeveniment, Cercle i Programa. Els amfitrions el veuen abans d’acceptar la teva reserva. Els nivells alts desbloquegen accés prioritari i privilegis per organitzar. | Tu Pasaporte te acompaña en cada evento, Círculo y Programa. Los anfitriones lo ven antes de aceptar tu reserva. Los niveles altos desbloquean acceso prioritario y privilegios para organizar. |
+| `pp_privateDefault` | Private by default | Privat per defecte | Privado por defecto |
+| `pp_levelUp` | How to level up | Com pujar de nivell | Cómo subir de nivel |
+| `pp_privacy` | Privacy | Privacitat | Privacidad |
+
+---
+
+## 37. Public host/creator profile (Tier 2 · locked 2026-06-20)
+
+Section labels on the public host profile (`/u/:id`). Mirrored in `packages/i18n` (`up_*`). **"Keep close" stays §1** (parked) — the affordance was removed from the live UI (people layer retired in Pass 40); the verb is reserved for later, so it is **not** re-locked here. "Their rooms" uses the brand word **rooms / sales / salas**.
+
+| key | EN | CA | ES |
+|---|---|---|---|
+| `up_about` | About | Presentació | Presentación |
+| `up_theirEvents` | Their rooms | Les seves sales | Sus salas |
+| `up_reputation` | Reputation | Reputació | Reputación |
+| `up_report` | Report | Denuncia | Denunciar |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*
