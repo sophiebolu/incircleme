@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { getActiveLocale, t } from '@incircleme/i18n';
 import type { Locale, StringKey } from '@incircleme/i18n';
+import type { NotificationPrefs } from '@incircleme/types';
 import { api } from '../../lib/api';
 import { clearSession } from '../../lib/auth';
 import { setUserLocale } from '../../lib/userLocale';
@@ -19,6 +21,20 @@ const LANGS: { code: Locale; label: StringKey }[] = [
 export default function Settings() {
   const router = useRouter();
   const active = getActiveLocale();
+  const [notif, setNotif] = useState<NotificationPrefs>({ bookings: true, circles: true, nearby: true });
+
+  useEffect(() => {
+    api
+      .me()
+      .then((m) => setNotif(m.notificationPrefs))
+      .catch(() => {});
+  }, []);
+
+  // Circles + nearby are opt-out toggles; bookings is always-on (locked server-side too).
+  function toggleNotif(key: 'circles' | 'nearby', value: boolean) {
+    setNotif((p) => ({ ...p, [key]: value })); // optimistic
+    api.updateMe({ notificationPrefs: { [key]: value } }).catch(() => {});
+  }
 
   async function pickLanguage(code: Locale) {
     if (code === active) return;
@@ -43,14 +59,13 @@ export default function Settings() {
         <View style={styles.barSpacer} />
       </View>
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-        {/* Notifications — reuses onboarding notification_prefs (parallel branch). */}
+        {/* Notifications — live, backed by the user's notification_prefs. */}
         <Text style={styles.section}>{t('set_notifications')}</Text>
         <View style={styles.card}>
           <NotifRow label="set_notif_bookings" always />
-          <NotifRow label="set_notif_circles" />
-          <NotifRow label="set_notif_nearby" last />
+          <NotifRow label="set_notif_circles" value={notif.circles} onChange={(v) => toggleNotif('circles', v)} />
+          <NotifRow label="set_notif_nearby" value={notif.nearby} onChange={(v) => toggleNotif('nearby', v)} last />
         </View>
-        <Text style={styles.note}>{t('set_notifManaged')}</Text>
 
         {/* Language — in-app picker, applies live + persists, overrides device default. */}
         <Text style={styles.section}>{t('set_language')}</Text>
@@ -88,15 +103,31 @@ export default function Settings() {
   );
 }
 
-function NotifRow({ label, always, last }: { label: StringKey; always?: boolean; last?: boolean }) {
+function NotifRow({
+  label,
+  always,
+  value,
+  onChange,
+  last,
+}: {
+  label: StringKey;
+  always?: boolean;
+  value?: boolean;
+  onChange?: (v: boolean) => void;
+  last?: boolean;
+}) {
   return (
     <View style={[styles.row, !last && styles.rowDivider]}>
       <Text style={styles.rowLabel}>{t(label)}</Text>
       {always ? (
         <Text style={styles.always}>{t('set_notif_always')}</Text>
       ) : (
-        // Disabled until onboarding's notification_prefs lands on this branch (no faked persistence).
-        <Switch value disabled />
+        <Switch
+          value={value}
+          onValueChange={onChange}
+          accessibilityLabel={t(label)}
+          trackColor={{ true: tokens.color.coral, false: tokens.color.border }}
+        />
       )}
     </View>
   );
