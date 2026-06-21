@@ -14,6 +14,7 @@ const TIERS: readonly TrustTier[] = ['newcomer', 'regular', 'trusted', 'pillar',
 export async function getPublicProfile(userId: string): Promise<PublicProfile | null> {
   const [u] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
   if (!u) return null;
+  if (u.deactivatedAt) return null; // deactivated accounts are hidden from public view
 
   const tier: TrustTier = (TIERS as readonly string[]).includes(u.trustTier)
     ? (u.trustTier as TrustTier)

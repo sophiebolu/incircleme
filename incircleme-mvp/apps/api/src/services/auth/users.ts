@@ -33,6 +33,7 @@ export function toUser(row: UserRow): User {
     role: row.role as UserRole,
     joinedAt: row.joinedAt.toISOString(),
     lastSeenAt: row.lastSeenAt ? row.lastSeenAt.toISOString() : null,
+    deactivatedAt: row.deactivatedAt ? row.deactivatedAt.toISOString() : null,
   };
 }
 
@@ -43,9 +44,39 @@ export async function getUserById(id: string): Promise<UserRow | undefined> {
 
 export async function findOrCreateByEmail(email: string): Promise<UserRow> {
   const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  if (existing) return existing;
+  if (existing) {
+    // Signing back in reactivates a deactivated account (the reversible-deactivation promise).
+    if (existing.deactivatedAt) {
+      const [reactivated] = await db
+        .update(users)
+        .set({ deactivatedAt: null })
+        .where(eq(users.id, existing.id))
+        .returning();
+      return reactivated!;
+    }
+    return existing;
+  }
   const [created] = await db.insert(users).values({ email, verified: true }).returning();
   return created!;
+}
+
+/** Reversible self-deactivation. Data is fully retained — this is NOT a GDPR erasure. */
+export async function deactivateUser(id: string): Promise<UserRow> {
+  const [row] = await db
+    .update(users)
+    .set({ deactivatedAt: new Date() })
+    .where(eq(users.id, id))
+    .returning();
+  return row!;
+}
+
+export async function reactivateUser(id: string): Promise<UserRow> {
+  const [row] = await db
+    .update(users)
+    .set({ deactivatedAt: null })
+    .where(eq(users.id, id))
+    .returning();
+  return row!;
 }
 
 export async function findOrCreateByOAuth(

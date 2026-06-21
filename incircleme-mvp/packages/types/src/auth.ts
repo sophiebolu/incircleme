@@ -48,7 +48,7 @@ export interface UpdateMeRequest {
   bio?: string;
   avatarUrl?: string;
   language?: Locale;
-  // Onboarding step saves (each step PATCHes its slice).
+  // Onboarding step saves (each step PATCHes its slice). `neighbourhood` doubles as barrio.
   neighbourhood?: string;
   intents?: string[];
   interests?: string[];

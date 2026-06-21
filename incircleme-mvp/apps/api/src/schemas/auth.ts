@@ -32,6 +32,7 @@ export const updateMeSchema = z.object({
   avatarUrl: z.string().url().optional(),
   language: localeSchema.optional(),
   // Onboarding step saves — picks validated against the canonical config taxonomies.
+  // (barrio doubles as the edit-profile neighbourhood field.)
   neighbourhood: z.string().refine(isBarrio, 'unknown_barrio').optional(),
   intents: z.array(z.string().refine(isIntent, 'unknown_intent')).max(20).optional(),
   interests: z.array(z.string().refine(isInterest, 'unknown_interest')).max(20).optional(),

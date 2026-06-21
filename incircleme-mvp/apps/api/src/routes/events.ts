@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { requireAuth } from '../plugins/auth';
+import { requireActive, requireAuth } from '../plugins/auth';
 import { bookSchema, createEventSchema, eventsQuerySchema } from '../schemas/events';
 import { createEvent, getEventDetail, listEvents } from '../services/events/events';
 import {
@@ -27,7 +27,7 @@ export async function eventRoutes(
     return detail;
   });
 
-  app.post('/events', { preHandler: requireAuth }, async (req, reply) => {
+  app.post('/events', { preHandler: [requireAuth, requireActive] }, async (req, reply) => {
     const parsed = createEventSchema.safeParse(req.body);
     if (!parsed.success) {
       return reply.code(400).send({ error: 'invalid_request' });
@@ -36,7 +36,7 @@ export async function eventRoutes(
     return reply.code(201).send(detail);
   });
 
-  app.post('/events/:id/book', { preHandler: requireAuth }, async (req, reply) => {
+  app.post('/events/:id/book', { preHandler: [requireAuth, requireActive] }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const parsed = bookSchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });

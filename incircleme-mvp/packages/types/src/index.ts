@@ -55,6 +55,8 @@ export interface User {
   role: UserRole;
   joinedAt: string;
   lastSeenAt: string | null;
+  /** Reversible self-deactivation — ISO timestamp when deactivated, else null (active). */
+  deactivatedAt: string | null;
 }
 
 /** Profile stat counts (GET /me/stats). No overlap between attended and bookings. */

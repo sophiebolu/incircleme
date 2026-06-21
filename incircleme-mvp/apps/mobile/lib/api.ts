@@ -129,6 +129,8 @@ export const api = {
   updateMe: (body: UpdateMeRequest) =>
     request<MeResponse>('/me', { method: 'PATCH', body: JSON.stringify(body) }),
   authProviders: () => request<{ email: boolean; oauth: OAuthProvider[] }>('/auth/providers'),
+  deactivateMe: () => request<MeResponse>('/me/deactivate', { method: 'POST' }),
+  reactivateMe: () => request<MeResponse>('/me/reactivate', { method: 'POST' }),
   meStats: () => request<MeStats>('/me/stats'),
   getPassport: () => request<PassportSummary>('/me/passport'),
   getPublicProfile: (userId: string) => request<PublicProfile>(`/users/${userId}`),

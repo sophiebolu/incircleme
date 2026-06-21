@@ -55,6 +55,9 @@ export const users = pgTable('users', {
   role: text('role').notNull().default('member'), // 'member' | 'trust_reviewer'
   joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
+  // Reversible self-deactivation (NOT a GDPR erasure — all data is retained). Null = active;
+  // set = deactivated (hidden from public, blocked from booking/hosting). Cleared on next sign-in.
+  deactivatedAt: timestamp('deactivated_at', { withTimezone: true }),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 
