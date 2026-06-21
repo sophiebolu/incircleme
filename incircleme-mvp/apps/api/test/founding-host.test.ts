@@ -15,7 +15,7 @@
  *   Concurrency — race guard commentary (see note at bottom; requires pgbench / k6).
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { sql, eq, count as drizzleCount, and as drizzleAnd, isNotNull as drizzleIsNotNull } from 'drizzle-orm';
 import { db, pool, bookings, circles, circleKeepVotes, events, users } from '@incircleme/db';
 import { buildApp } from '../src/app';
@@ -383,6 +383,31 @@ describe('B. Integration — grantFoundingBadgeIfEligible direct', () => {
     expect(row!.foundingStatus).toBe('founding_active');
     expect(row!.foundingCohort).toBe('gracia');
     expect(row!.foundingGrantedAt).not.toBeNull();
+  });
+
+  it('emits a measurable founding_host_granted analytics event on grant', async () => {
+    const { host, circle } = await setupEndedEvent({
+      hostEmail: 'evhost@test.com',
+      attendeeEmail: 'evatt@test.com',
+    });
+    await db.update(circles).set({ keptAt: new Date() }).where(eq(circles.id, circle.id));
+
+    const spy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const outcome = await grantFoundingBadgeIfEligible(host.user.id, new Date());
+    const lines = spy.mock.calls.map((c) => String(c[0]));
+    spy.mockRestore();
+
+    expect(outcome).toBe('granted');
+    const evtLine = lines.find((l) => l.includes('founding_host_granted'));
+    expect(evtLine).toBeTruthy();
+    const payload = JSON.parse(evtLine!);
+    expect(payload.evt).toBe('founding_host_granted');
+    expect(payload.hostUserId).toBe(host.user.id);
+    expect(payload.cohort).toBe('gracia');
+    expect(payload.cohortLabel).toBe('Gràcia');
+    expect(payload.cap).toBeGreaterThan(0);
+    expect(payload.slotsFilled).toBeGreaterThanOrEqual(1);
+    expect(typeof payload.ts).toBe('string');
   });
 
   it('returns "already_has_badge" when re-run for the same host (idempotency)', async () => {

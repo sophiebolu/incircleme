@@ -7,6 +7,7 @@ import {
   foundingKeptRoomsRequired,
   type FoundingCohortKey,
 } from '@incircleme/config';
+import { trackEvent } from '../../lib/analytics';
 
 // ============================================================================
 // Founding-host grant logic — hooked into afterlifeEvaluateTick (handlers.ts).
@@ -146,8 +147,9 @@ export async function grantFoundingBadgeIfEligible(
         ),
       );
 
-    // ── Signal / audit log ────────────────────────────────────────────────
-    console.info('[founding_host.granted]', {
+    // ── Emit the grant as a measurable analytics event ────────────────────
+    // (promoted from a bare console.info; single seam, ready for an SDK later)
+    trackEvent('founding_host_granted', {
       hostUserId,
       cohort,
       cohortLabel: foundingCohortLabel(cohort as FoundingCohortKey),
