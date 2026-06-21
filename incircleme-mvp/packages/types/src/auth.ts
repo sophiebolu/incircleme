@@ -1,6 +1,6 @@
-import type { Locale, User } from './index';
+import type { Locale, NotificationPrefs, User } from './index';
 
-export type OAuthProvider = 'google' | 'apple';
+export type OAuthProvider = 'google' | 'apple' | 'linkedin';
 
 export interface AuthTokens {
   accessToken: string;
@@ -48,6 +48,12 @@ export interface UpdateMeRequest {
   bio?: string;
   avatarUrl?: string;
   language?: Locale;
+  // Onboarding step saves (each step PATCHes its slice). `neighbourhood` doubles as barrio.
+  neighbourhood?: string;
+  intents?: string[];
+  interests?: string[];
+  notificationPrefs?: Partial<NotificationPrefs>;
+  onboardingCompleted?: boolean;
 }
 
 export type MeResponse = User;

@@ -1,7 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../plugins/auth';
 import { updateMeSchema } from '../schemas/auth';
-import { getUserById, toUser, updateUser } from '../services/auth/users';
+import {
+  deactivateUser,
+  getUserById,
+  reactivateUser,
+  toUser,
+  updateUser,
+} from '../services/auth/users';
 import { getUserStats } from '../services/me/stats';
 import { getPassport } from '../services/me/passport';
 
@@ -25,5 +31,16 @@ export async function meRoutes(app: FastifyInstance): Promise<void> {
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });
     const row = await updateUser(req.userId!, parsed.data);
     return toUser(row);
+  });
+
+  // Reversible self-deactivation. Data is fully RETAINED — this is NOT a GDPR erasure
+  // (true deletion/anonymisation is a later privacy arc). The client signs the user out;
+  // signing back in (or POST /me/reactivate) restores the account.
+  app.post('/me/deactivate', { preHandler: requireAuth }, async (req) => {
+    return toUser(await deactivateUser(req.userId!));
+  });
+
+  app.post('/me/reactivate', { preHandler: requireAuth }, async (req) => {
+    return toUser(await reactivateUser(req.userId!));
   });
 }

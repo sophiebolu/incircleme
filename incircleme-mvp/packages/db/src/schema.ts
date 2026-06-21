@@ -34,6 +34,15 @@ export const users = pgTable('users', {
   avatarUrl: text('avatar_url'),
   bio: text('bio'),
   neighbourhood: text('neighbourhood'),
+  // Onboarding preferences — captured during the welcome→intent→interests→barrio→notifications
+  // flow and saved step by step via PATCH /me. `neighbourhood` above doubles as the chosen barrio.
+  intents: text('intents').array().notNull().default([]), // intent mood-tiles + "I'm here to…" goals
+  interests: text('interests').array().notNull().default([]), // canonical interest hashtags
+  notificationPrefs: jsonb('notification_prefs')
+    .$type<{ bookings: boolean; circles: boolean; nearby: boolean }>()
+    .notNull()
+    .default({ bookings: true, circles: true, nearby: true }), // bookings always-on; circles/nearby opt-out
+  onboardingCompleted: boolean('onboarding_completed').notNull().default(false),
   verified: boolean('verified').notNull().default(false),
   language: text('language').notNull().default('ca'), // 'ca' | 'es' | 'en'
   trustTier: text('trust_tier').notNull().default('newcomer'),
@@ -46,6 +55,9 @@ export const users = pgTable('users', {
   role: text('role').notNull().default('member'), // 'member' | 'trust_reviewer'
   joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
+  // Reversible self-deactivation (NOT a GDPR erasure — all data is retained). Null = active;
+  // set = deactivated (hidden from public, blocked from booking/hosting). Cleared on next sign-in.
+  deactivatedAt: timestamp('deactivated_at', { withTimezone: true }),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 

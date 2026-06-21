@@ -26,6 +26,13 @@ export type EventCategory =
   | 'nature'
   | 'learning';
 
+/** Per-channel push/notification consent. `bookings` is always-on (locked true). */
+export interface NotificationPrefs {
+  bookings: boolean;
+  circles: boolean;
+  nearby: boolean;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -34,6 +41,11 @@ export interface User {
   avatarUrl: string | null;
   bio: string | null;
   neighbourhood: string | null;
+  /** Onboarding picks. `intents` = mood-tiles + "I'm here to…" goals; `interests` == EventCategory keys. */
+  intents: string[];
+  interests: string[];
+  notificationPrefs: NotificationPrefs;
+  onboardingCompleted: boolean;
   language: Locale;
   verified: boolean;
   trustTier: TrustTier;
@@ -43,6 +55,8 @@ export interface User {
   role: UserRole;
   joinedAt: string;
   lastSeenAt: string | null;
+  /** Reversible self-deactivation — ISO timestamp when deactivated, else null (active). */
+  deactivatedAt: string | null;
 }
 
 /** Profile stat counts (GET /me/stats). No overlap between attended and bookings. */

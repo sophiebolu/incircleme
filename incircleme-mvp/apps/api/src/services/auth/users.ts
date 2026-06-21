@@ -20,6 +20,10 @@ export function toUser(row: UserRow): User {
     avatarUrl: row.avatarUrl,
     bio: row.bio,
     neighbourhood: row.neighbourhood,
+    intents: row.intents,
+    interests: row.interests,
+    notificationPrefs: row.notificationPrefs,
+    onboardingCompleted: row.onboardingCompleted,
     language: row.language as Locale,
     verified: row.verified,
     trustTier: row.trustTier as TrustTier,
@@ -29,6 +33,7 @@ export function toUser(row: UserRow): User {
     role: row.role as UserRole,
     joinedAt: row.joinedAt.toISOString(),
     lastSeenAt: row.lastSeenAt ? row.lastSeenAt.toISOString() : null,
+    deactivatedAt: row.deactivatedAt ? row.deactivatedAt.toISOString() : null,
   };
 }
 
@@ -39,9 +44,39 @@ export async function getUserById(id: string): Promise<UserRow | undefined> {
 
 export async function findOrCreateByEmail(email: string): Promise<UserRow> {
   const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  if (existing) return existing;
+  if (existing) {
+    // Signing back in reactivates a deactivated account (the reversible-deactivation promise).
+    if (existing.deactivatedAt) {
+      const [reactivated] = await db
+        .update(users)
+        .set({ deactivatedAt: null })
+        .where(eq(users.id, existing.id))
+        .returning();
+      return reactivated!;
+    }
+    return existing;
+  }
   const [created] = await db.insert(users).values({ email, verified: true }).returning();
   return created!;
+}
+
+/** Reversible self-deactivation. Data is fully retained — this is NOT a GDPR erasure. */
+export async function deactivateUser(id: string): Promise<UserRow> {
+  const [row] = await db
+    .update(users)
+    .set({ deactivatedAt: new Date() })
+    .where(eq(users.id, id))
+    .returning();
+  return row!;
+}
+
+export async function reactivateUser(id: string): Promise<UserRow> {
+  const [row] = await db
+    .update(users)
+    .set({ deactivatedAt: null })
+    .where(eq(users.id, id))
+    .returning();
+  return row!;
 }
 
 export async function findOrCreateByOAuth(
@@ -74,6 +109,19 @@ export async function updateUser(id: string, patch: UpdateMeRequest): Promise<Us
   if (patch.bio !== undefined) set.bio = patch.bio;
   if (patch.avatarUrl !== undefined) set.avatarUrl = patch.avatarUrl;
   if (patch.language !== undefined) set.language = patch.language;
+  if (patch.neighbourhood !== undefined) set.neighbourhood = patch.neighbourhood;
+  if (patch.intents !== undefined) set.intents = patch.intents;
+  if (patch.interests !== undefined) set.interests = patch.interests;
+  if (patch.onboardingCompleted !== undefined) set.onboardingCompleted = patch.onboardingCompleted;
+  if (patch.notificationPrefs !== undefined) {
+    // Merge the partial toggle onto current prefs; `bookings` is always-on (locked true).
+    const current = await getUserById(id);
+    set.notificationPrefs = {
+      bookings: true,
+      circles: patch.notificationPrefs.circles ?? current?.notificationPrefs.circles ?? true,
+      nearby: patch.notificationPrefs.nearby ?? current?.notificationPrefs.nearby ?? true,
+    };
+  }
   const [row] = await db.update(users).set(set).where(eq(users.id, id)).returning();
   return row!;
 }

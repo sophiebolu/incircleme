@@ -155,3 +155,53 @@ export type VibeTag = (typeof REVIEWS.vibeTags)[number];
 export function isVibeTag(v: string): v is VibeTag {
   return (REVIEWS.vibeTags as readonly string[]).includes(v);
 }
+
+// ============================================================================
+// Onboarding — canonical preference taxonomies. The CANONICAL KEYS live here
+// (the rule); the UI localises labels via i18n `onb_*` keys. Picks persist on
+// the user (users.intents / users.interests / users.neighbourhood /
+// users.notification_prefs). `interests` deliberately mirrors EventCategory so
+// they can shape the Home feed directly.
+// ============================================================================
+export const ONBOARDING = {
+  /** Intent mood-tiles (order = display order). Labels are i18n `onb_intent_*`. */
+  intents: ['slow_down', 'meet_people', 'learn', 'get_outside', 'make_things', 'try_bold'] as const,
+  /** "I'm here to…" goals on the interests step. Labels are i18n `onb_goal_*`. Persisted in intents[]. */
+  goals: ['show_up', 'meet_faces', 'host'] as const,
+  /** Canonical interest hashtags (== EventCategory). Labels are i18n `onb_interest_*`. */
+  interests: ['food_drink', 'wellness', 'art_craft', 'music', 'nature', 'learning'] as const,
+  /** Canonical Barcelona barrios (order = display order). Labels are i18n `onb_barrio_*`. */
+  barrios: [
+    'eixample',
+    'gracia',
+    'born',
+    'gothic',
+    'sant_antoni',
+    'poblenou',
+    'barceloneta',
+    'raval',
+    'sants',
+    'sarria',
+  ] as const,
+  /** Sentinel the picker stores for "my barrio isn't on the list". */
+  barrioOther: 'other' as const,
+  /** Minimum interests we ask the attendee to pick (prototype: "at least 3"). */
+  minInterests: 3,
+} as const;
+
+export type Intent = (typeof ONBOARDING.intents)[number];
+export type OnboardingGoal = (typeof ONBOARDING.goals)[number];
+export type Interest = (typeof ONBOARDING.interests)[number];
+export type Barrio = (typeof ONBOARDING.barrios)[number];
+
+// Intents persisted on the user combine the mood-tiles and the "I'm here to…" goals.
+const ALL_INTENT_KEYS: readonly string[] = [...ONBOARDING.intents, ...ONBOARDING.goals];
+export function isIntent(v: string): boolean {
+  return ALL_INTENT_KEYS.includes(v);
+}
+export function isInterest(v: string): v is Interest {
+  return (ONBOARDING.interests as readonly string[]).includes(v);
+}
+export function isBarrio(v: string): boolean {
+  return (ONBOARDING.barrios as readonly string[]).includes(v) || v === ONBOARDING.barrioOther;
+}

@@ -10,7 +10,11 @@ import {
   verifyRequestSchema,
 } from '../schemas/auth';
 import { requestMagicLink, verifyMagicLink } from '../services/auth/magicLink';
-import { verifyOAuthIdToken } from '../services/auth/oauth';
+import {
+  enabledProviders,
+  ProviderNotConfiguredError,
+  verifyOAuthIdToken,
+} from '../services/auth/oauth';
 import { createSession, refreshSession, revokeSession } from '../services/auth/session';
 import { findOrCreateByEmail, findOrCreateByOAuth, toUser } from '../services/auth/users';
 import type { Mailer } from '../lib/mailer';
@@ -77,10 +81,20 @@ export async function authRoutes(
       });
       return reply.send({ ...tokens, user: toUser(user) });
     } catch (err) {
+      // Credentials not provided yet → tell the client cleanly so it can gate the
+      // button, rather than logging anyone in or returning a generic auth failure.
+      if (err instanceof ProviderNotConfiguredError) {
+        return reply.code(503).send({ error: 'provider_not_configured', provider: err.provider });
+      }
       req.log.warn({ err }, 'oauth verification failed');
       return reply.code(401).send({ error: 'oauth_verification_failed' });
     }
   });
+
+  // GET /auth/providers — which sign-in methods are wired right now. Email magic-link is
+  // always on; an OAuth provider appears only once its client ID is configured, so the
+  // sign-in screen can gate Apple/LinkedIn gracefully instead of faking a login.
+  app.get('/auth/providers', async () => ({ email: true, oauth: enabledProviders() }));
 
   // POST /auth/refresh — rotate the refresh token, issue a fresh pair.
   app.post('/auth/refresh', async (req, reply) => {
