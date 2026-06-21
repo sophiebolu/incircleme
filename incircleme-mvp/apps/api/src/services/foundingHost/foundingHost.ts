@@ -107,10 +107,15 @@ export async function grantFoundingBadgeIfEligible(
       return 'insufficient_kept_rooms';
     }
 
-    // ── Atomic slot acquisition: count granted + lapsed in this cohort ─────
-    // SELECT … FOR UPDATE on the cohort counter (we lock the users table rows
-    // with founding_cohort='gracia' to prevent two concurrent ticks both
-    // reading "49 granted" and both taking slot #50).
+    // ── Atomic slot acquisition ───────────────────────────────────────────
+    // Serialise grants per cohort with an advisory xact lock so the cap check +
+    // insert are atomic across concurrent ticks. (Postgres disallows FOR UPDATE
+    // with an aggregate, and a row-lock on existing grants would NOT cover a
+    // not-yet-inserted grant — so it can't prevent two ticks both taking slot
+    // #50. The advisory lock keyed on the cohort does, and auto-releases at
+    // transaction end.)
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`founding-cohort:${cohort}`}))`);
+
     const [filled] = await tx
       .select({ n: count() })
       .from(users)
@@ -120,8 +125,7 @@ export async function grantFoundingBadgeIfEligible(
           // Both active and lapsed consume a slot (Decision 2).
           isNotNull(users.foundingStatus),
         ),
-      )
-      .for('update');
+      );
 
     const cap = foundingHostCap(cohort);
     if ((filled?.n ?? 0) >= cap) return 'cap_reached';

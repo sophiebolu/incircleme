@@ -462,29 +462,15 @@ describe('B. Integration — grantFoundingBadgeIfEligible direct', () => {
       });
     }
 
-    // New eligible host.
-    const host = await signIn('caphost@test.com');
-    await db.update(users).set({ neighbourhood: 'Gràcia' }).where(eq(users.id, host.user.id));
-
-    // Give them a Kept Circle.
-    const evRes = await app.inject({
-      method: 'POST',
-      url: '/events',
-      headers: auth(host.accessToken),
-      payload: {
-        title: 'Cap test',
-        category: 'wellness',
-        neighbourhood: 'Gràcia',
-        address: 'Addr',
-        startsAt: new Date(Date.now() - 10 * 86_400_000).toISOString(),
-        endsAt: new Date(Date.now() - 9 * 86_400_000).toISOString(),
-        seatCount: 6,
-        priceCents: 0,
-      },
+    // New FULLY-ELIGIBLE host: real confirmed attendee → auto-created Circle,
+    // which we then mark Kept. (setupEndedEvent creates the booking so the
+    // Circle exists; without a booking no Circle is created and the host would
+    // fail the kept-rooms gate before ever reaching the cap check.)
+    const { host, circle } = await setupEndedEvent({
+      hostEmail: 'caphost@test.com',
+      attendeeEmail: 'capatt@test.com',
     });
-    const ev = evRes.json() as { id: string };
-    const [c] = await db.select().from(circles).where(eq(circles.eventId, ev.id));
-    if (c) await db.update(circles).set({ keptAt: new Date() }).where(eq(circles.id, c.id));
+    await db.update(circles).set({ keptAt: new Date() }).where(eq(circles.id, circle.id));
 
     const outcome = await grantFoundingBadgeIfEligible(host.user.id, new Date());
     expect(outcome).toBe('cap_reached');
