@@ -147,7 +147,7 @@ export const strings = {
     bookTotal: 'Total',
     bookUnavailable: 'Aquesta sala ja no hi és.',
     signOut: 'Surt',
-    // --- Settings & Account (PROVISIONAL — pending §-lock sign-off) ---
+    // --- Settings & Account — locked §39 (2026-06-22) ---
     set_title: 'Configuració',
     set_notifications: 'Notificacions',
     set_language: 'Idioma',
@@ -282,7 +282,7 @@ export const strings = {
     fil_allBarrios: 'Tots els barris',
     // §33 auth — Google sign-in (locked 2026-06-16)
     signInWithGoogle: 'Entra amb Google',
-    // --- Onboarding (PROVISIONAL — pending §-lock sign-off) ---
+    // --- Onboarding — locked §38 (2026-06-22) ---
     onb_stepOf: 'Pas {n} de {total}',
     onb_back: 'Enrere',
     onb_welcome_kicker: 'Vida real · A propòsit',
@@ -360,7 +360,7 @@ export const strings = {
       'Quan algú del teu grup publica — una foto, un gràcies, un pla per a la propera.',
     onb_notif_nearby: 'Nou al teu barri',
     onb_notif_nearby_sub:
-      'Un grapat per setmana — només de qui segueixes o vibracions que has triat. Mai una allau.',
+      'Un grapat per setmana — només de qui mantens a prop o vibracions que has triat. Mai una allau.',
     onb_notif_settings: 'Ho pots canviar quan vulguis a Configuració.',
     onb_notif_cta: 'Em sembla bé',
     onb_notif_minimal: 'Ho deixo al mínim — només reserves',
@@ -581,7 +581,7 @@ export const strings = {
     bookTotal: 'Total',
     bookUnavailable: 'Esta sala ya no está.',
     signOut: 'Salir',
-    // --- Settings & Account (PROVISIONAL — pending §-lock sign-off) ---
+    // --- Settings & Account — locked §39 (2026-06-22) ---
     set_title: 'Ajustes',
     set_notifications: 'Notificaciones',
     set_language: 'Idioma',
@@ -716,7 +716,7 @@ export const strings = {
     fil_allBarrios: 'Todos los barrios',
     // §33 auth — Google sign-in (locked 2026-06-16)
     signInWithGoogle: 'Entrar con Google',
-    // --- Onboarding (PROVISIONAL — pending §-lock sign-off) ---
+    // --- Onboarding — locked §38 (2026-06-22) ---
     onb_stepOf: 'Paso {n} de {total}',
     onb_back: 'Atrás',
     onb_welcome_kicker: 'Vida real · A propósito',
@@ -794,7 +794,7 @@ export const strings = {
       'Cuando alguien de tu grupo publica — una foto, un gracias, un plan para la próxima.',
     onb_notif_nearby: 'Nuevo en tu barrio',
     onb_notif_nearby_sub:
-      'Un puñado por semana — solo de quien sigues o vibras que has elegido. Nunca una avalancha.',
+      'Un puñado por semana — solo de quien mantienes cerca o vibras que has elegido. Nunca una avalancha.',
     onb_notif_settings: 'Puedes cambiarlo cuando quieras en Ajustes.',
     onb_notif_cta: 'Me parece bien',
     onb_notif_minimal: 'Lo dejo al mínimo — solo reservas',
@@ -1014,7 +1014,7 @@ export const strings = {
     bookTotal: 'Total',
     bookUnavailable: 'This room is no longer available.',
     signOut: 'Sign out',
-    // --- Settings & Account (PROVISIONAL — pending §-lock sign-off) ---
+    // --- Settings & Account — locked §39 (2026-06-22) ---
     set_title: 'Settings',
     set_notifications: 'Notifications',
     set_language: 'Language',
@@ -1146,7 +1146,7 @@ export const strings = {
     fil_allBarrios: 'All barrios',
     // §33 auth — Google sign-in (locked 2026-06-16)
     signInWithGoogle: 'Sign in with Google',
-    // --- Onboarding (PROVISIONAL — pending §-lock sign-off) ---
+    // --- Onboarding — locked §38 (2026-06-22) ---
     onb_stepOf: 'Step {n} of {total}',
     onb_back: 'Back',
     onb_welcome_kicker: 'Real life · On purpose',
@@ -1226,7 +1226,7 @@ export const strings = {
       'When someone in your small group chat posts — a photo, a thank-you, a plan for next time.',
     onb_notif_nearby: 'New in your neighbourhood',
     onb_notif_nearby_sub:
-      'A handful per week — only from creators you follow or vibes you picked. Never a flood.',
+      'A handful per week — only from creators you keep close or vibes you picked. Never a flood.',
     onb_notif_settings: 'You can change this any time in Settings.',
     onb_notif_cta: 'That sounds good',
     onb_notif_minimal: 'I’ll keep it minimal — bookings only',
