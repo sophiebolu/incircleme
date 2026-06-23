@@ -17,7 +17,7 @@
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { sql, eq, count as drizzleCount, and as drizzleAnd, isNotNull as drizzleIsNotNull } from 'drizzle-orm';
-import { db, pool, bookings, circles, circleKeepVotes, events, users } from '@incircleme/db';
+import { db, pool, bookings, circles, circleKeepVotes, users } from '@incircleme/db';
 import { buildApp } from '../src/app';
 import { redis } from '../src/lib/redis';
 import { FakePayments } from '../src/lib/payments';
@@ -185,7 +185,7 @@ async function setupEndedEvent(opts: {
  * Seeds N keep-votes (threshold is 4) on a circle and runs afterlifeEvaluateTick.
  * Returns the updated circle row and the tick return value.
  */
-async function keepCircleViaJob(circleId: string, voterIds: string[]) {
+async function _keepCircleViaJob(circleId: string, voterIds: string[]) {
   for (const userId of voterIds) {
     await db.insert(circleKeepVotes).values({ circleId, userId, vote: true }).onConflictDoNothing();
   }
