@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { sql, eq } from 'drizzle-orm';
-import { db, pool, bookings, events } from '@incircleme/db';
+import { db, pool, bookings } from '@incircleme/db';
 import { buildApp } from '../src/app';
 import { redis } from '../src/lib/redis';
 import { FakePayments } from '../src/lib/payments';
