@@ -11,6 +11,10 @@ import {
 import { and, eq, gte, isNotNull, isNull, lt, lte } from 'drizzle-orm';
 import { generateCapsule } from '../services/capsules/capsules';
 import { releaseExpiredHolds } from '../services/booking/booking';
+import {
+  grantFoundingBadgeIfEligible,
+  hostHadRealAttendee,
+} from '../services/foundingHost/foundingHost';
 
 // Pure, idempotent tick handlers — BullMQ schedules them; tests call them directly
 // with a fixed `now`. Each returns how many rows it touched.
@@ -115,25 +119,62 @@ export async function chatPhotoExpiryTick(now: Date): Promise<number> {
 
 /** Daily: circles whose event ended ≥7 days ago, not kept — evaluate the vote tally. */
 export async function afterlifeEvaluateTick(now: Date): Promise<number> {
+  // Step 1: fetch candidates — circles not yet kept whose event ended ≥7 days ago.
   const rows = await db
-    .select({ circleId: circles.id })
+    .select({ circleId: circles.id, eventId: circles.eventId })
     .from(circles)
     .innerJoin(events, eq(circles.eventId, events.id))
     .where(and(isNull(circles.keptAt), lt(events.endsAt, new Date(now.getTime() - 7 * DAY))));
+
   let flipped = 0;
-  for (const { circleId } of rows) {
+
+  for (const { circleId, eventId } of rows) {
     const votes = await db
       .select()
       .from(circleKeepVotes)
       .where(eq(circleKeepVotes.circleId, circleId));
+
     if (votes.filter((v) => v.vote).length >= KEEP_THRESHOLD) {
+      // Step 2: flip keptAt (idempotent guard: only if still null).
       await db
         .update(circles)
         .set({ keptAt: now })
         .where(and(eq(circles.id, circleId), isNull(circles.keptAt)));
       flipped++;
+
+      // ── Founding-host grant evaluation ───────────────────────────────────
+      // Decision 1: a Circle becoming Kept triggers the founding-host check.
+      // We need the event's host to evaluate the predicate.
+      const [ev] = await db
+        .select({ hostUserId: events.hostUserId, endsAt: events.endsAt })
+        .from(events)
+        .where(eq(events.id, eventId))
+        .limit(1);
+
+      if (
+        ev &&
+        ev.endsAt < now && // condition (2): event has ended
+        (await hostHadRealAttendee(eventId, ev.hostUserId)) // condition (3): real attendee
+      ) {
+        const outcome = await grantFoundingBadgeIfEligible(ev.hostUserId, now);
+        // Outcomes other than 'granted' are expected and silent:
+        //   'already_has_badge' → idempotent, host already counted
+        //   'cap_reached'       → cohort is full, closes silently (Decision 2)
+        //   'no_cohort_match'   → neighbourhood not in any active cohort
+        //   'insufficient_kept_rooms' → shouldn't happen here (we just Kept one),
+        //                              but harmless if the gate raises.
+        if (outcome !== 'granted' && outcome !== 'already_has_badge') {
+          console.debug('[afterlifeEvaluateTick] founding grant skipped', {
+            circleId,
+            eventId,
+            hostUserId: ev.hostUserId,
+            outcome,
+          });
+        }
+      }
     }
   }
+
   return flipped;
 }
 

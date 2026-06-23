@@ -1,8 +1,11 @@
 import { db, users, events } from '@incircleme/db';
 import { and, asc, eq, gte, isNull } from 'drizzle-orm';
 import type { PublicProfile, TrustTier } from '@incircleme/types';
+import type { FoundingHostBadge } from '@incircleme/types';
 import { toEventListItem } from '../events/events';
 import { getHostAggregate } from '../reviews/reviews';
+import { foundingCohortLabel, type FoundingCohortKey } from '@incircleme/config';
+import { getCohortStats } from '../foundingHost/foundingHost';
 
 // Canonical tier ladder (low → high). Level = index + 1.
 const TIERS: readonly TrustTier[] = ['newcomer', 'regular', 'trusted', 'pillar', 'legend'];
@@ -39,6 +42,22 @@ export async function getPublicProfile(userId: string): Promise<PublicProfile | 
     getHostAggregate(userId),
   ]);
 
+  // Derive founding badge — present when founding_status is set (active or lapsed).
+  // Cohort label is resolved from config at read time so it's always current.
+  // Perk-suspension is never exposed here — callers see the badge only.
+  let foundingHost: FoundingHostBadge | undefined;
+  if (u.foundingStatus && u.foundingCohort && u.foundingGrantedAt) {
+    const stats = await getCohortStats(u.foundingCohort as FoundingCohortKey);
+    foundingHost = {
+      status: u.foundingStatus as FoundingHostBadge['status'],
+      cohortLabel: foundingCohortLabel(u.foundingCohort as FoundingCohortKey),
+      grantedAt: u.foundingGrantedAt.toISOString(),
+      filled: stats.filled,
+      cap: stats.cap,
+      slotsRemaining: stats.slotsRemaining,
+    };
+  }
+
   return {
     id: u.id,
     displayName: u.displayName,
@@ -53,5 +72,6 @@ export async function getPublicProfile(userId: string): Promise<PublicProfile | 
     eventsHosted: hosted.length,
     reviews,
     upcomingEvents: upcoming.map(toEventListItem),
+    foundingHost,
   };
 }

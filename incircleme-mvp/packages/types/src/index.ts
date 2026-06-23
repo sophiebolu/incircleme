@@ -15,6 +15,18 @@ export type TrustTier = 'newcomer' | 'regular' | 'trusted' | 'pillar' | 'legend'
 
 export type HostTier = 'basic' | 'pro' | 'premium';
 
+/**
+ * Founding-host lifecycle status stored on users.founding_status.
+ * null/absent  → not a founding host.
+ * 'founding_active' → granted and currently in good standing.
+ * 'founding_lapsed' → was granted; upkeep bar not met (Facet B, deferred).
+ * Schema supports both so lapse drops in with no migration rework.
+ */
+export type FoundingStatus = 'founding_active' | 'founding_lapsed';
+
+/** Cohort keys mirroring ECONOMICS.foundingHost.cohorts keys in @incircleme/config. */
+export type FoundingCohortKey = 'gracia';
+
 /** Internal role — 'trust_reviewer' may use the admin review queue. */
 export type UserRole = 'member' | 'trust_reviewer';
 

@@ -53,12 +53,61 @@ export const ECONOMICS = {
     premium: { monthlyPriceCents: 8000, transactionFeePct: 0 },
   } as Record<HostTier, TierEconomics>,
 
-  /** Founding-host perks (first 50 hosts). Detection (a founding flag) is not yet
-   *  wired — the values are configured and ready for when it is. */
+  /** Founding-host badge — Gràcia cohort v1. Badge is granted by the daily
+   *  afterlife-evaluate job once a host earns a Kept Circle with ≥1 real attendee.
+   *  Detection is LIVE as of the founding-host feature branch. */
   foundingHost: {
+    // ── Cohorts ──────────────────────────────────────────────────────────────
+    cohorts: {
+      gracia: {
+        /** Hard cap: slot consumed atomically at grant; never returned on lapse. */
+        cap: 50,
+        /** ISO-8601 wall-clock bounds for the grant window (null = open-ended). */
+        opensAt: null as string | null,
+        closesAt: null as string | null,
+        /** Days a reserved slot is held before lapsing (not yet used in v1). */
+        slotReservationDays: 14,
+      },
+    },
+
+    // ── Entry gate ───────────────────────────────────────────────────────────
+    entryGate: {
+      /** Number of Kept Circles required before a grant can be evaluated. */
+      keptRoomsRequired: 1,
+    },
+
+    // ── Upkeep bar (Facet B — wired in schema/counts; automation deferred) ──
+    // Keep this in sync with the legacy `bar` shape so existing call-sites
+    // (none in v1) can migrate cleanly. The daily upkeep recompute will read
+    // exclusively from `upkeepBar` when it lands.
+    upkeepBar: {
+      /** Min total check-ins in the trailing 12 months. */
+      checkins: 300,
+      /** Min Kept Circles in the trailing 12 months. */
+      keptCircles: 6,
+      /** Min average host rating in the trailing 12 months. */
+      minRating: 4.5,
+      windowMonths: 12,
+    },
+
+    // ── Perks ─────────────────────────────────────────────────────────────────
+    perks: {
+      /** Founding hosts pay no Program-submission fee. */
+      programFeeWaived: true,
+      /** Free program credits granted per year (on top of tier credits). */
+      freeProgramsPerYear: 1,
+      /** Override transaction-fee %; null = use host tier's normal rate. */
+      feeOverridePct: null as number | null,
+    },
+
+    // ── Legacy aliases (keep callers of the old shape compiling) ─────────────
+    // These mirror perks.* so code written before the cohort refactor still
+    // resolves. Do NOT write new call-sites against these; use perks.* instead.
+    /** @deprecated Use ECONOMICS.foundingHost.perks.programFeeWaived */
     submissionFeeWaived: true,
+    /** @deprecated Use ECONOMICS.foundingHost.perks.freeProgramsPerYear */
     freeProgramsPerYear: 1,
-    /** Annual free-Program contingency: all three must hold over the prior 12 months. */
+    /** @deprecated Use ECONOMICS.foundingHost.upkeepBar */
     bar: { minCheckIns: 300, minKeptCircles: 6, minAvgRating: 4.5 },
   },
 } as const;
@@ -87,6 +136,58 @@ export function seatHoldAmountCents(): number {
 
 export function bookingHoldWindowMs(): number {
   return ECONOMICS.booking.holdWindowMinutes * 60 * 1000;
+}
+
+// ============================================================================
+// Founding-host typed accessors
+// ============================================================================
+
+/** All valid cohort keys (derived from config so the type stays in sync). */
+export type FoundingCohortKey = keyof typeof ECONOMICS.foundingHost.cohorts;
+
+/** Canonical human-readable label for each cohort key. */
+const COHORT_LABELS: Record<FoundingCohortKey, string> = {
+  gracia: 'Gràcia',
+};
+
+/**
+ * Free-text neighbourhood strings that normalise to the 'gracia' cohort.
+ * Add variants here as the neighbourhood list grows.
+ */
+const NEIGHBOURHOOD_TO_COHORT: Record<string, FoundingCohortKey> = {
+  'gràcia': 'gracia',
+  'gracia': 'gracia',
+  'vila de gràcia': 'gracia',
+  'vila de gracia': 'gracia',
+  'la vila de gràcia': 'gracia',
+  'la vila de gracia': 'gracia',
+};
+
+/**
+ * Normalise a free-text neighbourhood string (e.g. from users.neighbourhood)
+ * to a cohort key.  Returns undefined when the string doesn't map to any
+ * active cohort — the caller must treat that as NO grant.
+ */
+export function cohortKeyForNeighbourhood(
+  neighbourhood: string | null | undefined,
+): FoundingCohortKey | undefined {
+  if (!neighbourhood) return undefined;
+  return NEIGHBOURHOOD_TO_COHORT[neighbourhood.trim().toLowerCase()];
+}
+
+/** Slot cap for a given cohort (config-driven). */
+export function foundingHostCap(cohort: FoundingCohortKey): number {
+  return ECONOMICS.foundingHost.cohorts[cohort].cap;
+}
+
+/** Human-readable label for a cohort key, e.g. 'gracia' → 'Gràcia'. */
+export function foundingCohortLabel(cohort: FoundingCohortKey): string {
+  return COHORT_LABELS[cohort];
+}
+
+/** Minimum number of Kept Circles required to qualify for the founding badge. */
+export function foundingKeptRoomsRequired(): number {
+  return ECONOMICS.foundingHost.entryGate.keptRoomsRequired;
 }
 
 // ============================================================================

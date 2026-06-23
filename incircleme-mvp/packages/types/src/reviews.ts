@@ -61,4 +61,9 @@ export interface PassportSummary {
   /** Reviews this user has written for others. */
   reviewsGiven: number;
   activeCircles: number;
+  /**
+   * Founding-host badge, present when founding_status is set (active or lapsed).
+   * Absent (undefined) for non-founding hosts.
+   */
+  foundingHost?: import('./users').FoundingHostBadge;
 }
