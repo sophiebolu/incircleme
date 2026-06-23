@@ -1,9 +1,10 @@
 import { db, bookings, circles, events } from '@incircleme/db';
 import type { BookingRow, EventRow } from '@incircleme/db';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, isNull, lt } from 'drizzle-orm';
 import type { BookingListItem, BookingStatus, BookResult } from '@incircleme/types';
 import type { Payments } from '../../lib/payments';
 import { toEventListItem } from '../events/events';
+import { bookingHoldWindowMs } from '@incircleme/config';
 
 export class RoomFullError extends Error {
   constructor() {
@@ -15,8 +16,21 @@ export class EventNotFoundError extends Error {
     super('event_not_found');
   }
 }
-
-const HOLD_MINUTES = 30;
+export class BookingNotFoundError extends Error {
+  constructor() {
+    super('booking_not_found');
+  }
+}
+export class NotHostError extends Error {
+  constructor() {
+    super('not_host');
+  }
+}
+export class InvalidStatusError extends Error {
+  constructor(public readonly status: string) {
+    super(`invalid_status:${status}`);
+  }
+}
 
 export async function book(
   eventId: string,
@@ -48,7 +62,7 @@ export async function book(
         status: 'held',
         seatCount,
         amountCents,
-        heldUntil: new Date(Date.now() + HOLD_MINUTES * 60 * 1000),
+        heldUntil: new Date(Date.now() + bookingHoldWindowMs()),
       })
       .returning();
     return { booking: b!, currency: e.currency, amountCents };
@@ -112,6 +126,91 @@ export async function releaseByPaymentIntent(piId: string): Promise<void> {
         .where(eq(events.id, e.id));
     }
   });
+}
+
+/**
+ * Records a check-in for a booking. Called by the event host scanning an attendee QR.
+ * - Caller must be the host of the booking's event.
+ * - Only 'confirmed' bookings can be checked in.
+ * - Idempotent: if already checked in, returns success without overwriting checkedInAt.
+ */
+export async function checkIn(
+  bookingId: string,
+  callerUserId: string,
+): Promise<{ checkedInAt: string }> {
+  return db.transaction(async (tx) => {
+    const [b] = await tx.select().from(bookings).where(eq(bookings.id, bookingId)).limit(1);
+    if (!b) throw new BookingNotFoundError();
+
+    // Look up the event to verify host ownership.
+    const [e] = await tx.select().from(events).where(eq(events.id, b.eventId)).limit(1);
+    if (!e || e.hostUserId !== callerUserId) throw new NotHostError();
+
+    // Idempotent: already checked in → return the original timestamp unchanged.
+    if (b.checkedInAt) {
+      return { checkedInAt: b.checkedInAt.toISOString() };
+    }
+
+    // Only confirmed bookings may be checked in.
+    if (b.status !== 'confirmed') throw new InvalidStatusError(b.status);
+
+    const now = new Date();
+    await tx.update(bookings).set({ checkedInAt: now }).where(eq(bookings.id, bookingId));
+    return { checkedInAt: now.toISOString() };
+  });
+}
+
+/**
+ * Releases held bookings whose heldUntil has elapsed. Mirrors releaseByPaymentIntent
+ * but operates on expired holds identified by time, not by PI event.
+ * Returns the count of bookings released.
+ */
+export async function releaseExpiredHolds(now: Date): Promise<number> {
+  // Find all held bookings where heldUntil is in the past.
+  const expired = await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.status, 'held'),
+        isNotNull(bookings.heldUntil),
+        lt(bookings.heldUntil, now),
+      ),
+    );
+
+  let released = 0;
+  for (const b of expired) {
+    await db.transaction(async (tx) => {
+      // Re-read inside transaction to guard against races.
+      const [fresh] = await tx
+        .select()
+        .from(bookings)
+        .where(eq(bookings.id, b.id))
+        .for('update')
+        .limit(1);
+      if (!fresh || fresh.status !== 'held') return;
+
+      await tx
+        .update(bookings)
+        .set({ status: 'cancelled', cancelledAt: now })
+        .where(eq(bookings.id, fresh.id));
+
+      const [e] = await tx
+        .select()
+        .from(events)
+        .where(eq(events.id, fresh.eventId))
+        .for('update')
+        .limit(1);
+      if (e) {
+        await tx
+          .update(events)
+          .set({ seatsHeld: Math.max(0, e.seatsHeld - fresh.seatCount) })
+          .where(eq(events.id, e.id));
+      }
+    });
+    released++;
+  }
+  return released;
 }
 
 export async function listMyBookings(userId: string): Promise<BookingListItem[]> {

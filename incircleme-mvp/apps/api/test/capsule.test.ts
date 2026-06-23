@@ -158,8 +158,10 @@ describe('capsule generation', () => {
     expect(
       cap.differencePairs.some((p: { userId: string }) => p.userId === host.user.id),
     ).toBe(false);
-    // roll: 1 chat photo + 3 arriving photos
-    expect(cap.photos.length).toBe(4);
+    // roll: 3 arriving photos only (chat photos are excluded — no consent for permanent storage).
+    // Chat photo attachments are stripped at T+48h; including them before the strip would
+    // persist attendee faces without consent (GDPR + Spain LO 1/1982).
+    expect(cap.photos.length).toBe(3);
     expect(cap.stats.members).toBe(2);
     expect(cap.stats.sharedBoth).toBe(1);
     expect(cap.stats.messages).toBe(1);
@@ -189,10 +191,13 @@ describe('capsule generation', () => {
     expect(denied.statusCode).toBe(403);
   });
 
-  it('capsule photos survive the 48h chat strip (snapshot)', async () => {
+  it('chat photo attachments are NOT in the capsule roll (consent/GDPR fix)', async () => {
+    // Chat photos sent in the Circle are never snapshotted into the capsule.
+    // They are stripped at T+48h (chatPhotoExpiryTick). Including them at T+12h
+    // would persist attendee faces permanently without consent.
     const { marta, circle } = await setupEndedEvent();
     await capsuleGenerationTick(new Date());
-    // age the chat message past 48h and strip
+    // age the chat message past 48h and run the strip
     await db.execute(sql`update circle_messages set created_at = now() - interval '3 days'`);
     expect(await chatPhotoExpiryTick(new Date())).toBe(1);
     const cap = (
@@ -202,7 +207,10 @@ describe('capsule generation', () => {
         headers: auth(marta.accessToken),
       })
     ).json();
-    expect(cap.photos.some((p: { url: string }) => p.url === '/uploads/chat-pic.jpg')).toBe(true);
+    // The chat photo URL must NOT appear in the capsule roll.
+    expect(cap.photos.some((p: { url: string }) => p.url === '/uploads/chat-pic.jpg')).toBe(false);
+    // Only arriving-moment photos (3) are present.
+    expect(cap.photos.length).toBe(3);
   });
 
   it('notifies members capsule_ready once', async () => {

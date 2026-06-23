@@ -40,6 +40,12 @@ export const ECONOMICS = {
   /** Refundable seat-hold (creator-optional, default off per event). Returned at check-in. */
   seatHold: { amountCents: 500 },
 
+  /** Booking hold window before an unpaid hold is released. */
+  booking: {
+    /** Minutes a seat is held after `book()` before the hold is released. */
+    holdWindowMinutes: 30,
+  },
+
   /** Tier subscription pricing + booking transaction fee. */
   tiers: {
     basic: { monthlyPriceCents: 0, transactionFeePct: 5 },
@@ -77,6 +83,10 @@ export function isSubmissionFeeRefundable(): boolean {
 
 export function seatHoldAmountCents(): number {
   return ECONOMICS.seatHold.amountCents;
+}
+
+export function bookingHoldWindowMs(): number {
+  return ECONOMICS.booking.holdWindowMinutes * 60 * 1000;
 }
 
 // ============================================================================

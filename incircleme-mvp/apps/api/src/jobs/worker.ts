@@ -7,6 +7,7 @@ import {
   chatPhotoExpiryTick,
   afterlifeEvaluateTick,
   capsuleGenerationTick,
+  expiredHoldsTick,
 } from './handlers';
 
 // Scheduled-jobs worker (Brief cadences). Run separately: `pnpm --filter @incircleme/api worker`.
@@ -36,6 +37,7 @@ const SCHEDULES: Record<string, string> = {
   'chat-photo-expiry': '30 * * * *', // hourly
   'afterlife-evaluate': '0 4 * * *', // daily
   'capsule-generation': '15 * * * *', // hourly (Brief: ends_at + 12h)
+  'expired-holds': '*/5 * * * *', // every 5 min — release unpaid holds past heldUntil
 };
 
 const HANDLERS: Record<string, (now: Date) => Promise<number>> = {
@@ -45,6 +47,7 @@ const HANDLERS: Record<string, (now: Date) => Promise<number>> = {
   'chat-photo-expiry': chatPhotoExpiryTick,
   'afterlife-evaluate': afterlifeEvaluateTick,
   'capsule-generation': capsuleGenerationTick,
+  'expired-holds': expiredHoldsTick,
 };
 
 for (const [name, pattern] of Object.entries(SCHEDULES)) {

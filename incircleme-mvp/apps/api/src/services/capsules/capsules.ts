@@ -16,7 +16,6 @@ import type {
   CapsulePhoto,
   CapsuleStats,
   DifferencePair,
-  MessageAttachment,
 } from '@incircleme/types';
 import { requireMembership } from '../circles/circles';
 
@@ -61,18 +60,14 @@ export async function generateCapsule(eventId: string): Promise<CapsuleRow | nul
       afterAt: v.after!.takenAt.toISOString(),
     }));
 
-  // Chat photo attachments (snapshot before the 48h strip) + arriving photos → the roll.
-  const msgs = await db
-    .select()
-    .from(circleMessages)
-    .where(and(eq(circleMessages.circleId, circle.id), isNull(circleMessages.deletedAt)))
-    .orderBy(asc(circleMessages.createdAt));
+  // Photo roll: ONLY arriving moments are snapshotted permanently.
+  // Chat photo attachments are intentionally excluded: they are stripped at T+48h
+  // (chatPhotoExpiryTick) and those faces never consented to permanent capsule storage.
+  // Including them before the strip window would persist attendee faces indefinitely
+  // without consent (GDPR + Spain LO 1/1982). Arriving moments are a deliberate,
+  // creator-opt-in feature where users choose to share a before/after — they are
+  // the appropriate source for the permanent photo roll.
   const roll: CapsulePhoto[] = [];
-  for (const m of msgs) {
-    for (const a of (m.attachments as MessageAttachment[] | null) ?? []) {
-      if (a.url) roll.push({ url: a.url, userId: m.userId });
-    }
-  }
   for (const m of moments) roll.push({ url: m.photoUrl, userId: m.userId });
 
   const [{ value: messageCount }] = (await db
