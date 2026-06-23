@@ -17,6 +17,15 @@ export interface FoundingHostBadge {
   cohortLabel: string;
   /** ISO-8601 timestamp when the badge was granted (users.founding_granted_at). */
   grantedAt: string;
+  /**
+   * Live cohort fill — hosts GRANTED in this cohort, counting active AND lapsed
+   * (lapsed never returns a slot). Drives the "{filled} of {cap}" counter.
+   */
+  filled: number;
+  /** Cohort cap from config (foundingHost.cohorts.<cohort>.cap) — never hardcoded. */
+  cap: number;
+  /** max(cap - filled, 0) — never negative. */
+  slotsRemaining: number;
 }
 
 /**

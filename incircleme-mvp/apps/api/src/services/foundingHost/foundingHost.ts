@@ -163,6 +163,24 @@ export async function grantFoundingBadgeIfEligible(
 }
 
 // ----------------------------------------------------------------------------
+// Live cohort fill stats for the public "{filled} of {cap}" counter.
+// Read-only (no lock) — must be truthful + current (consumer-law commitment).
+// filled = hosts GRANTED in the cohort, counting active AND lapsed (Decision 2:
+// lapsed still consume a slot). cap is config-driven; slotsRemaining never < 0.
+// ----------------------------------------------------------------------------
+export async function getCohortStats(
+  cohort: FoundingCohortKey,
+): Promise<{ filled: number; cap: number; slotsRemaining: number }> {
+  const [row] = await db
+    .select({ n: count() })
+    .from(users)
+    .where(and(eq(users.foundingCohort, cohort), isNotNull(users.foundingStatus)));
+  const filled = row?.n ?? 0;
+  const cap = foundingHostCap(cohort);
+  return { filled, cap, slotsRemaining: Math.max(cap - filled, 0) };
+}
+
+// ----------------------------------------------------------------------------
 // FACET B STUB — upkeep recompute (deferred, Decision 3).
 //
 // When the trailing-12-month bar ships, attach the daily recompute here.

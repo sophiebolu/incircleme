@@ -5,6 +5,7 @@ import { getUserStats } from './stats';
 import { getHostAggregate, getMyReviewCounts } from '../reviews/reviews';
 import { listMyCircles } from '../circles/circles';
 import { foundingCohortLabel, type FoundingCohortKey } from '@incircleme/config';
+import { getCohortStats } from '../foundingHost/foundingHost';
 
 // Read-only Passport aggregate — composes existing signals (no new storage):
 // identity + stats (attended/hosted/bookings) + reviews-received aggregate +
@@ -28,10 +29,14 @@ export async function getPassport(userId: string): Promise<PassportSummary | nul
   // Cohort label is resolved from config at read time so it's always current.
   let foundingHost: FoundingHostBadge | undefined;
   if (row.foundingStatus && row.foundingCohort && row.foundingGrantedAt) {
+    const stats = await getCohortStats(row.foundingCohort as FoundingCohortKey);
     foundingHost = {
       status: row.foundingStatus as FoundingHostBadge['status'],
       cohortLabel: foundingCohortLabel(row.foundingCohort as FoundingCohortKey),
       grantedAt: row.foundingGrantedAt.toISOString(),
+      filled: stats.filled,
+      cap: stats.cap,
+      slotsRemaining: stats.slotsRemaining,
     };
   }
 

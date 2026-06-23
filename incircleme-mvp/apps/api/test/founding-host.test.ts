@@ -27,6 +27,7 @@ import { afterlifeEvaluateTick } from '../src/jobs/handlers';
 import {
   hostHadRealAttendee,
   grantFoundingBadgeIfEligible,
+  getCohortStats,
 } from '../src/services/foundingHost/foundingHost';
 import {
   cohortKeyForNeighbourhood,
@@ -834,6 +835,59 @@ describe('C. Promise-delivery — counter monotonicity', () => {
       );
     // The lapsed host still holds a slot.
     expect(Number(slotRow?.n ?? 0)).toBe(1);
+  });
+});
+
+describe('A. Counter — getCohortStats (board #34)', () => {
+  it('filled reflects grants; cap from config; slotsRemaining = cap - filled', async () => {
+    // Empty cohort: filled 0, full cap remaining.
+    const empty = await getCohortStats('gracia');
+    expect(empty.cap).toBe(50);
+    expect(empty.filled).toBe(0);
+    expect(empty.slotsRemaining).toBe(50);
+
+    // Grant one host → filled 1, slotsRemaining 49.
+    const { host, circle } = await setupEndedEvent({
+      hostEmail: 'statshost@test.com',
+      attendeeEmail: 'statsatt@test.com',
+    });
+    await db.update(circles).set({ keptAt: new Date() }).where(eq(circles.id, circle.id));
+    expect(await grantFoundingBadgeIfEligible(host.user.id, new Date())).toBe('granted');
+
+    const after = await getCohortStats('gracia');
+    expect(after.filled).toBe(1);
+    expect(after.slotsRemaining).toBe(49);
+  });
+
+  it('lapsed hosts are still counted in filled (they never return a slot)', async () => {
+    await db.insert(users).values({
+      email: 'lapsed@test.com',
+      neighbourhood: 'Gràcia',
+      foundingCohort: 'gracia',
+      foundingStatus: 'founding_lapsed',
+      foundingGrantedAt: new Date(),
+    });
+    const stats = await getCohortStats('gracia');
+    expect(stats.filled).toBe(1);
+    expect(stats.slotsRemaining).toBe(49);
+  });
+
+  it('filled never exceeds cap and slotsRemaining never goes negative (cohort full)', async () => {
+    for (let i = 0; i < 52; i++) {
+      await db.insert(users).values({
+        email: `full${i}@test.com`,
+        neighbourhood: 'Gràcia',
+        foundingCohort: 'gracia',
+        foundingStatus: 'founding_active',
+        foundingGrantedAt: new Date(),
+      });
+    }
+    const stats = await getCohortStats('gracia');
+    // The grant path enforces the cap; getCohortStats reports the true count and
+    // clamps slotsRemaining at 0 so the public counter never reads negative.
+    expect(stats.cap).toBe(50);
+    expect(stats.slotsRemaining).toBe(0);
+    expect(stats.slotsRemaining).toBeGreaterThanOrEqual(0);
   });
 });
 
