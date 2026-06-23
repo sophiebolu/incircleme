@@ -24,8 +24,14 @@ function toReview(r: ReviewRow): Review {
   };
 }
 
-const isUniqueViolation = (err: unknown): boolean =>
-  typeof err === 'object' && err !== null && (err as { code?: string }).code === '23505';
+// Postgres unique-violation = SQLSTATE 23505. drizzle-orm 0.45 wraps driver
+// errors (DrizzleQueryError) and exposes the original pg error on `.cause`, so
+// check both the error itself and its cause.
+const isUniqueViolation = (err: unknown): boolean => {
+  const has23505 = (e: unknown): boolean =>
+    typeof e === 'object' && e !== null && (e as { code?: string }).code === '23505';
+  return has23505(err) || has23505((err as { cause?: unknown })?.cause);
+};
 
 /**
  * Create a review for one of the reviewer's own *confirmed* bookings. Private to
