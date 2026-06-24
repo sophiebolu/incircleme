@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { t } from '@incircleme/i18n';
+import { interpolate, t } from '@incircleme/i18n';
 import type { StringKey } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { tokens } from '../../theme/tokens';
@@ -35,11 +35,18 @@ export default function Interests() {
     <OnbScaffold
       step={2}
       footer={
-        <OnbButton
-          label={t('onb_interests_continue')}
-          onPress={next}
-          disabled={busy || interests.length < MIN_INTERESTS}
-        />
+        <View style={styles.footerCol}>
+          {interests.length < MIN_INTERESTS ? (
+            <Text style={styles.need}>
+              {interpolate(t('onb_interests_need'), { n: String(MIN_INTERESTS - interests.length) })}
+            </Text>
+          ) : null}
+          <OnbButton
+            label={t('onb_interests_continue')}
+            onPress={next}
+            disabled={busy || interests.length < MIN_INTERESTS}
+          />
+        </View>
       }
     >
       <Text style={styles.title}>{t('onb_interests_title')}</Text>
@@ -94,4 +101,6 @@ const styles = StyleSheet.create({
   pillText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: tokens.color.ink },
   pillTextOn: { color: tokens.color.cream },
   footerNote: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.gray, textAlign: 'center', marginTop: 24 },
+  footerCol: { gap: 8 },
+  need: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.text2, textAlign: 'center' },
 });

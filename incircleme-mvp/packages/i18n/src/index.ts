@@ -324,6 +324,8 @@ export const strings = {
     onb_interests_sub: 'Tria’n almenys 3 que t’estirin.',
     onb_interests_continue: 'Continua',
     onb_interests_footer: 'Sense pressa — ho pots repensar més tard.',
+    onb_interests_need: 'Tria’n {n} més', // §38 addendum (2026-06-24) — remaining-count helper
+
     onb_interest_food_drink: 'Menjar i beure',
     onb_interest_wellness: 'Benestar',
     onb_interest_art_craft: 'Art i ofici',
@@ -758,6 +760,8 @@ export const strings = {
     onb_interests_sub: 'Elige al menos 3 que te tiren.',
     onb_interests_continue: 'Continuar',
     onb_interests_footer: 'Sin presión — puedes repensarlas más tarde.',
+    onb_interests_need: 'Elige {n} más', // §38 addendum (2026-06-24) — remaining-count helper
+
     onb_interest_food_drink: 'Comer y beber',
     onb_interest_wellness: 'Bienestar',
     onb_interest_art_craft: 'Arte y oficio',
@@ -1189,6 +1193,8 @@ export const strings = {
     onb_interests_sub: 'Pick at least 3 that pull you.',
     onb_interests_continue: 'Continue',
     onb_interests_footer: 'No pressure — you can rethink these later.',
+    onb_interests_need: 'Pick {n} more', // §38 addendum (2026-06-24) — remaining-count helper
+
     onb_interest_food_drink: 'Food & Drink',
     onb_interest_wellness: 'Wellness',
     onb_interest_art_craft: 'Art & Craft',

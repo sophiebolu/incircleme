@@ -1,6 +1,7 @@
-// Shared onboarding chrome — step dots, primary button, and the screen scaffold
-// (brand bar + optional back + scrollable body). Colours/fonts come from theme tokens;
-// text/labels are passed in already localised via t().
+// Shared onboarding chrome — a STEADY top wordmark (centred, identical size/weight/
+// position on every step), step dots (centred, below the CTA), the primary button, and
+// the screen scaffold. Colours/fonts from theme tokens; labels passed in already
+// localised via t().
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +10,41 @@ import { t } from '@incircleme/i18n';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 import { ONB_TOTAL_STEPS } from '../lib/onboarding';
+
+/** The IncircleMe wordmark — ONE definition, rendered identically on every onboarding screen. */
+export function OnbWordmark() {
+  return (
+    <Text style={styles.brand} allowFontScaling={false}>
+      Incircle<Text style={styles.brandMe}>Me</Text>
+    </Text>
+  );
+}
+
+/**
+ * Top bar: the wordmark is CENTRED and never shifted by the back arrow (which is an
+ * absolutely-positioned, separate left control). Identical on welcome / sign-in / every
+ * step, so the logo stays steady across the whole flow.
+ */
+export function OnbHeader({ onBack, showBack }: { onBack?: () => void; showBack?: boolean }) {
+  const router = useRouter();
+  const canBack = showBack ?? router.canGoBack();
+  return (
+    <View style={styles.bar}>
+      {canBack ? (
+        <Pressable
+          onPress={onBack ?? (() => router.back())}
+          accessibilityRole="button"
+          accessibilityLabel={t('onb_back')}
+          hitSlop={10}
+          style={styles.backAbs}
+        >
+          <Text style={styles.back}>←</Text>
+        </Pressable>
+      ) : null}
+      <OnbWordmark />
+    </View>
+  );
+}
 
 export function StepDots({ step, total = ONB_TOTAL_STEPS }: { step: number; total?: number }) {
   return (
@@ -59,27 +95,9 @@ export function OnbScaffold({
   children: ReactNode;
   footer?: ReactNode;
 }) {
-  const router = useRouter();
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.bar}>
-        {onBack || router.canGoBack() ? (
-          <Pressable
-            onPress={onBack ?? (() => router.back())}
-            accessibilityRole="button"
-            accessibilityLabel={t('onb_back')}
-            hitSlop={10}
-          >
-            <Text style={styles.back}>←</Text>
-          </Pressable>
-        ) : (
-          <View style={styles.backSpacer} />
-        )}
-        <Text style={styles.brand}>
-          Incircle<Text style={styles.brandMe}>Me</Text>
-        </Text>
-        {step ? <StepDots step={step} /> : <View style={styles.backSpacer} />}
-      </View>
+      <OnbHeader onBack={onBack} />
       <ScrollView
         contentContainerStyle={styles.body}
         showsVerticalScrollIndicator={false}
@@ -87,7 +105,13 @@ export function OnbScaffold({
       >
         {children}
       </ScrollView>
-      {footer ? <View style={styles.footer}>{footer}</View> : null}
+      {footer || step ? (
+        <View style={styles.footer}>
+          {footer}
+          {/* Step dots: centred, directly below the Continue CTA. */}
+          {step ? <StepDots step={step} /> : null}
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -97,15 +121,16 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 20,
     paddingVertical: 12,
   },
-  back: { fontFamily: fonts.body, fontSize: 22, color: tokens.color.ink, width: 44 },
-  backSpacer: { width: 44 },
-  brand: { fontFamily: fonts.displaySemi, fontSize: 17, color: tokens.color.forest },
+  // Absolute so the wordmark stays dead-centre regardless of the back button.
+  backAbs: { position: 'absolute', left: 20, top: 0, bottom: 0, justifyContent: 'center', zIndex: 1 },
+  back: { fontFamily: fonts.body, fontSize: 22, color: tokens.color.ink },
+  brand: { fontFamily: fonts.displaySemi, fontSize: 18, color: tokens.color.forest },
   brandMe: { color: tokens.color.coralInk, fontFamily: fonts.displayItalic },
-  dots: { flexDirection: 'row', gap: 5, width: 44, justifyContent: 'flex-end' },
+  dots: { flexDirection: 'row', gap: 5, justifyContent: 'center', marginTop: 14 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: tokens.color.border },
   dotOn: { backgroundColor: tokens.color.coral },
   body: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24 },

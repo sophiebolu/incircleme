@@ -4,17 +4,16 @@ import { useRouter } from 'expo-router';
 import { t } from '@incircleme/i18n';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
-import { OnbButton } from '../../components/Onb';
+import { OnbButton, OnbHeader } from '../../components/Onb';
 
 export default function Welcome() {
   const router = useRouter();
   const toSignIn = () => router.push('/onboarding/sign-in');
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      {/* Same steady, centred wordmark as every other onboarding step (no back here). */}
+      <OnbHeader showBack={false} />
       <View style={styles.body}>
-        <Text style={styles.brand}>
-          Incircle<Text style={styles.brandMe}>Me</Text>
-        </Text>
         <Text style={styles.greeting}>
           {t('onb_welcome_greeting')} <Text style={styles.greetingTag}>{t('onb_welcome_greetingTag')}</Text>
         </Text>
@@ -39,8 +38,6 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: tokens.color.cream },
   body: { flex: 1, justifyContent: 'center', paddingHorizontal: 28 },
-  brand: { fontFamily: fonts.displaySemi, fontSize: 20, color: tokens.color.forest, marginBottom: 24 },
-  brandMe: { color: tokens.color.coralInk, fontFamily: fonts.displayItalic },
   greeting: { fontFamily: fonts.displayItalic, fontSize: 22, color: tokens.color.coralInk, marginBottom: 16 },
   greetingTag: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.text2 },
   kicker: {
