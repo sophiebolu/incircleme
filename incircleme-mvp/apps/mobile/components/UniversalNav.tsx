@@ -36,6 +36,12 @@ export function UniversalNav() {
   const router = useRouter();
   const active = activeTab(pathname);
 
+  // Onboarding is full-screen with no app chrome: hide the floating tab nav on every
+  // onb_* screen (welcome / sign-in / intent / interests / barrio / notifications) so it
+  // neither shows the tab bar nor overlaps the Continue CTA. Tabs reappear only once the
+  // user completes onboarding and lands on a (tabs) route.
+  if (pathname === '/onboarding' || pathname.startsWith('/onboarding/')) return null;
+
   return (
     <View pointerEvents="box-none" style={styles.overlay}>
       <View
