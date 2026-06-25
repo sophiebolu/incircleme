@@ -2,7 +2,7 @@
 // the single source of truth) paired with their i18n label keys + intent emoji.
 // The picks persist on the profile via PATCH /me as each step is completed.
 import { ONBOARDING } from '@incircleme/config';
-import type { StringKey } from '@incircleme/i18n';
+import { t, type StringKey } from '@incircleme/i18n';
 
 export interface IntentTile {
   key: string;
@@ -52,6 +52,32 @@ export const BARRIOS: { key: string; label: StringKey }[] = ONBOARDING.barrios.m
   key,
   label: BARRIO_LABELS[key]!,
 }));
+
+// Render a stored neighbourhood (canonical key OR free text, any casing/accents) as a
+// Catalan proper noun — "eixample" / "gràcia" → "Eixample" / "Gràcia". Never lowercased.
+const foldBarrio = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+let _barrioLookup: Record<string, StringKey> | null = null;
+function barrioLookup(): Record<string, StringKey> {
+  if (_barrioLookup) return _barrioLookup;
+  const m: Record<string, StringKey> = {};
+  for (const { key, label } of BARRIOS) {
+    m[foldBarrio(key)] = label; // canonical key, e.g. "gothic"
+    m[foldBarrio(t(label))] = label; // folded proper noun, e.g. "gotic" ← "Gòtic"
+  }
+  _barrioLookup = m;
+  return m;
+}
+export function barrioLabel(value: string | null | undefined): string {
+  if (!value) return '';
+  const hit = barrioLookup()[foldBarrio(value)];
+  if (hit) return t(hit);
+  // Unknown / free-text barrio — surface it, but never lowercased.
+  if (/[A-ZÀ-Þ]/.test(value)) return value;
+  return value
+    .split(/\s+/)
+    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+    .join(' ');
+}
 
 export const BARRIO_OTHER = ONBOARDING.barrioOther;
 export const MIN_INTENTS = ONBOARDING.minIntents; // intent-step gate (config-sourced)

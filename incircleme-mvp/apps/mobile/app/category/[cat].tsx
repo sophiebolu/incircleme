@@ -7,6 +7,7 @@ import { t, interpolate, type StringKey } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { EventCard } from '../../components/EventCard';
 import { BrandBar } from '../../components/BrandBar';
+import { barrioLabel } from '../../lib/onboarding';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
@@ -21,52 +22,43 @@ const LABEL: Record<string, StringKey> = {
   learning: 'catLearning',
 };
 
-type When = 'anytime' | 'thisWeek' | 'weekend';
-const WHEN_KEYS: { key: When; label: StringKey }[] = [
-  { key: 'anytime', label: 'fil_anytime' },
-  { key: 'thisWeek', label: 'fil_thisWeek' },
+// Spec filter pills (single-select). Date/price filters run client-side over the
+// upcoming set, so no API change is needed.
+type Filter = 'all' | 'weekend' | 'weekday' | 'free' | 'paid';
+const FILTERS: { key: Filter; label: StringKey }[] = [
+  { key: 'all', label: 'fil_all' },
   { key: 'weekend', label: 'fil_weekend' },
+  { key: 'weekday', label: 'fil_weekday' },
+  { key: 'free', label: 'fil_free' },
+  { key: 'paid', label: 'fil_paid' },
 ];
 
-// When-chips → date window on the existing /events query. "Anytime" is upcoming-
-// only (dateFrom = now) so the discovery feed never shows past events.
-function whenRange(when: When): { dateFrom?: string; dateTo?: string } {
-  const now = new Date();
-  if (when === 'thisWeek') {
-    const to = new Date(now);
-    to.setDate(to.getDate() + 7);
-    return { dateFrom: now.toISOString(), dateTo: to.toISOString() };
+function matchesFilter(e: EventListItem, f: Filter): boolean {
+  if (f === 'free') return e.priceCents === 0;
+  if (f === 'paid') return e.priceCents > 0;
+  if (f === 'weekend' || f === 'weekday') {
+    const day = new Date(e.startsAt).getDay(); // 0 Sun … 6 Sat
+    const isWeekend = day === 0 || day === 6;
+    return f === 'weekend' ? isWeekend : !isWeekend;
   }
-  if (when === 'weekend') {
-    const day = now.getDay(); // 0 Sun … 6 Sat
-    const sat = new Date(now);
-    sat.setHours(0, 0, 0, 0);
-    sat.setDate(sat.getDate() + (day === 0 ? -1 : 6 - day)); // nearest weekend's Saturday
-    const sunEnd = new Date(sat);
-    sunEnd.setDate(sunEnd.getDate() + 1);
-    sunEnd.setHours(23, 59, 59, 999);
-    const from = sat.getTime() < now.getTime() ? now : sat; // never reach into the past
-    return { dateFrom: from.toISOString(), dateTo: sunEnd.toISOString() };
-  }
-  return { dateFrom: now.toISOString() }; // anytime = upcoming only
+  return true; // all
 }
 
 export default function Category() {
   const { cat } = useLocalSearchParams<{ cat: string }>();
   const router = useRouter();
   const [events, setEvents] = useState<EventListItem[]>([]);
-  const [when, setWhen] = useState<When>('anytime');
+  const [filter, setFilter] = useState<Filter>('all');
   const [barri, setBarri] = useState<string | null>(null);
   const [allBarrios, setAllBarrios] = useState<string[]>([]);
   const navClearance = useNavClearance();
 
   useEffect(() => {
-    const range = whenRange(when);
     api
       .listEvents({
         ...(cat && cat !== 'all' ? { category: cat } : {}),
         ...(barri ? { neighbourhood: barri } : {}),
-        ...range,
+        dateFrom: new Date().toISOString(), // upcoming only — never surface past events
       })
       .then((rows) => {
         setEvents(rows);
@@ -77,32 +69,41 @@ export default function Category() {
         }
       })
       .catch(() => setEvents([]));
-  }, [cat, when, barri]);
+  }, [cat, barri]);
 
   const label = LABEL[cat ?? ''] ? t(LABEL[cat!]!) : t('catAll');
+  const shown = events.filter((e) => matchesFilter(e, filter));
+  const resetFilters = () => {
+    setFilter('all');
+    setBarri(null);
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <BrandBar />
-      <Pressable onPress={() => router.back()} hitSlop={10}>
+      <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button">
         <Text style={styles.back}>←</Text>
       </Pressable>
       {/* Category title pattern per vocab lock §4 — locale-aware connector */}
       <Text style={styles.heading}>{interpolate(t('inBarcelona'), { cat: label })}</Text>
 
-      {/* Filter row — when chips · barri chips (single-select each, re-queries on change) */}
+      {/* Filter pills (spec): All · Weekend · Weekday · Free · Paid. Barri chips follow as a
+          secondary, data-driven group (single-select each). */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filters}
       >
-        {WHEN_KEYS.map(({ key, label: l }) => (
+        {FILTERS.map(({ key, label: l }) => (
           <Pressable
             key={key}
-            style={[styles.chip, when === key && styles.chipOn]}
-            onPress={() => setWhen(key)}
+            style={[styles.chip, filter === key && styles.chipOn]}
+            onPress={() => setFilter(key)}
+            hitSlop={{ top: 8, bottom: 8 }}
+            accessibilityRole="button"
+            accessibilityState={{ selected: filter === key }}
           >
-            <Text style={[styles.chipText, when === key && styles.chipTextOn]}>{t(l)}</Text>
+            <Text style={[styles.chipText, filter === key && styles.chipTextOn]}>{t(l)}</Text>
           </Pressable>
         ))}
         {allBarrios.length > 0 ? <View style={styles.sep} /> : null}
@@ -110,6 +111,9 @@ export default function Category() {
           <Pressable
             style={[styles.chip, barri === null && styles.chipOn]}
             onPress={() => setBarri(null)}
+            hitSlop={{ top: 8, bottom: 8 }}
+            accessibilityRole="button"
+            accessibilityState={{ selected: barri === null }}
           >
             <Text style={[styles.chipText, barri === null && styles.chipTextOn]}>
               {t('fil_allBarrios')}
@@ -121,18 +125,34 @@ export default function Category() {
             key={b}
             style={[styles.chip, barri === b && styles.chipOn]}
             onPress={() => setBarri(b)}
+            hitSlop={{ top: 8, bottom: 8 }}
+            accessibilityRole="button"
+            accessibilityState={{ selected: barri === b }}
           >
-            <Text style={[styles.chipText, barri === b && styles.chipTextOn]}>{b}</Text>
+            <Text style={[styles.chipText, barri === b && styles.chipTextOn]}>{barrioLabel(b)}</Text>
           </Pressable>
         ))}
       </ScrollView>
 
+      {/* Never blank: real rows when events exist, a warm + specific empty state otherwise. */}
       <FlatList
-        data={events}
+        data={shown}
         keyExtractor={(e) => e.id}
-        contentContainerStyle={[styles.list, { paddingBottom: navClearance }]}
+        contentContainerStyle={[
+          styles.list,
+          { paddingBottom: navClearance },
+          shown.length === 0 && styles.listEmpty,
+        ]}
         renderItem={({ item }) => <EventCard event={item} />}
-        ListEmptyComponent={<Text style={styles.empty}>—</Text>}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyTitle}>{t('cat_emptyTitle')}</Text>
+            <Text style={styles.emptySub}>{t('cat_emptySub')}</Text>
+            <Pressable style={styles.emptyCta} onPress={resetFilters} accessibilityRole="button">
+              <Text style={styles.emptyCtaText}>{t('cat_emptyCta')}</Text>
+            </Pressable>
+          </View>
+        }
       />
     </SafeAreaView>
   );
@@ -146,20 +166,44 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: tokens.color.ink,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   filters: { paddingHorizontal: 16, paddingBottom: 12, gap: 8, alignItems: 'center' },
   chip: {
     borderColor: tokens.color.border,
     borderWidth: 1,
     borderRadius: 999,
-    paddingHorizontal: 13,
-    paddingVertical: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   chipOn: { backgroundColor: tokens.color.forest, borderColor: tokens.color.forest },
   chipText: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: tokens.color.text2 },
   chipTextOn: { color: tokens.color.cream },
-  sep: { width: 1, height: 22, backgroundColor: tokens.color.border, marginHorizontal: 2 },
+  sep: { width: 1, height: 24, backgroundColor: tokens.color.border, marginHorizontal: 4 },
   list: { paddingHorizontal: 16, paddingBottom: 24 },
-  empty: { fontFamily: fonts.body, color: tokens.color.text2 },
+  listEmpty: { flexGrow: 1, justifyContent: 'center' },
+  empty: { alignItems: 'center', paddingVertical: 40, paddingHorizontal: 24, gap: 8 },
+  emptyTitle: {
+    fontFamily: fonts.displaySemi,
+    fontSize: 17,
+    color: tokens.color.ink,
+    textAlign: 'center',
+  },
+  emptySub: {
+    fontFamily: fonts.body,
+    fontSize: 13.5,
+    lineHeight: 20,
+    color: tokens.color.text2,
+    textAlign: 'center',
+  },
+  emptyCta: {
+    marginTop: 8,
+    backgroundColor: tokens.color.forest,
+    borderRadius: 999,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  emptyCtaText: { fontFamily: fonts.bodySemi, fontSize: 13.5, color: tokens.color.cream },
 });

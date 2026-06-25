@@ -280,6 +280,20 @@ export const strings = {
     fil_thisWeek: 'Aquesta setmana',
     fil_weekend: 'Cap de setmana',
     fil_allBarrios: 'Tots els barris',
+    // PROVISIONAL — Brief B live-screens (events filters/empty state, profile, free price). Pending §-table sign-off.
+    fil_all: 'Tot',
+    fil_weekday: 'Entre setmana',
+    fil_free: 'Gratis',
+    fil_paid: 'De pagament',
+    ev_free: 'Gratis',
+    cat_emptyTitle: 'Encara no hi ha res en aquesta categoria.',
+    cat_emptySub: 'Estem omplint Barcelona barri a barri. Prova un altre filtre o torna aviat.',
+    cat_emptyCta: 'Veure-ho tot',
+    prof_nameFallback: 'Membre d’IncircleMe',
+    prof_edit: 'Edita el perfil',
+    prof_share: 'Comparteix',
+    prof_shareMessage: '{name} és a IncircleMe — Barcelona en petit comitè.',
+    prof_aboutEmpty: 'Encara no has escrit res sobre tu.',
     // §33 auth — Google sign-in (locked 2026-06-16)
     signInWithGoogle: 'Entra amb Google',
     // --- Onboarding — locked §38 (2026-06-22) ---
@@ -718,6 +732,20 @@ export const strings = {
     fil_thisWeek: 'Esta semana',
     fil_weekend: 'Fin de semana',
     fil_allBarrios: 'Todos los barrios',
+    // PROVISIONAL — Brief B live-screens. Pending §-table sign-off.
+    fil_all: 'Todo',
+    fil_weekday: 'Entre semana',
+    fil_free: 'Gratis',
+    fil_paid: 'De pago',
+    ev_free: 'Gratis',
+    cat_emptyTitle: 'Todavía no hay nada en esta categoría.',
+    cat_emptySub: 'Estamos llenando Barcelona barrio a barrio. Prueba otro filtro o vuelve pronto.',
+    cat_emptyCta: 'Ver todo',
+    prof_nameFallback: 'Miembro de IncircleMe',
+    prof_edit: 'Editar perfil',
+    prof_share: 'Compartir',
+    prof_shareMessage: '{name} está en IncircleMe — Barcelona en petit comité.',
+    prof_aboutEmpty: 'Aún no has escrito nada sobre ti.',
     // §33 auth — Google sign-in (locked 2026-06-16)
     signInWithGoogle: 'Entrar con Google',
     // --- Onboarding — locked §38 (2026-06-22) ---
@@ -1152,6 +1180,20 @@ export const strings = {
     fil_thisWeek: 'This week',
     fil_weekend: 'Weekend',
     fil_allBarrios: 'All barrios',
+    // PROVISIONAL — Brief B live-screens. Pending §-table sign-off.
+    fil_all: 'All',
+    fil_weekday: 'Weekday',
+    fil_free: 'Free',
+    fil_paid: 'Paid',
+    ev_free: 'Free',
+    cat_emptyTitle: 'Nothing in this category yet.',
+    cat_emptySub: 'We’re filling Barcelona barri by barri. Try another filter or check back soon.',
+    cat_emptyCta: 'See everything',
+    prof_nameFallback: 'IncircleMe member',
+    prof_edit: 'Edit profile',
+    prof_share: 'Share',
+    prof_shareMessage: '{name} is on IncircleMe — Barcelona in small rooms.',
+    prof_aboutEmpty: 'You haven’t added a bio yet.',
     // §33 auth — Google sign-in (locked 2026-06-16)
     signInWithGoogle: 'Sign in with Google',
     // --- Onboarding — locked §38 (2026-06-22) ---
