@@ -3,7 +3,7 @@
 // screen scaffold. Colours/fonts from theme tokens; labels passed in already localised
 // via t().
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { t } from '@incircleme/i18n';
@@ -108,6 +108,7 @@ export function StepDots({ step, total = ONB_TOTAL_STEPS }: { step: number; tota
       accessibilityLabel={t('onb_stepOf')
         .replace('{n}', String(step))
         .replace('{total}', String(total))}
+      accessibilityValue={{ min: 1, now: step, max: total }}
     >
       {Array.from({ length: total }, (_, i) => (
         <View key={i} style={[styles.dot, i < step && styles.dotOn]} />
@@ -120,21 +121,28 @@ export function OnbButton({
   label,
   onPress,
   disabled,
+  busy,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  busy?: boolean;
 }) {
+  const isDisabled = disabled || busy;
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={isDisabled}
       accessibilityRole="button"
-      accessibilityState={{ disabled: !!disabled }}
-      style={[styles.btn, disabled && styles.btnDisabled]}
+      accessibilityState={{ disabled: !!isDisabled, busy: !!busy }}
+      style={[styles.btn, isDisabled && styles.btnDisabled]}
     >
-      {/* Disabled state: solid gray bg + ink label (AA ≥4.5:1), not a faded cream-on-cream. */}
-      <Text style={[styles.btnText, disabled && styles.btnTextDisabled]}>{label} →</Text>
+      {busy ? (
+        <ActivityIndicator color={tokens.color.cream} />
+      ) : (
+        /* Disabled state: solid gray bg + ink label (AA ≥4.5:1), not a faded cream-on-cream. */
+        <Text style={[styles.btnText, isDisabled && styles.btnTextDisabled]}>{label} →</Text>
+      )}
     </Pressable>
   );
 }
@@ -198,14 +206,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 1,
   },
-  dots: { flexDirection: 'row', gap: 5, justifyContent: 'center', marginTop: 14 },
+  dots: { flexDirection: 'row', gap: 4, justifyContent: 'center', marginTop: 14 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: tokens.color.border },
   dotOn: { backgroundColor: tokens.color.coral },
   body: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24 },
   footer: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12 },
   btn: {
     backgroundColor: tokens.color.forest,
-    borderRadius: 14,
+    borderRadius: 999,
     paddingVertical: 16,
     alignItems: 'center',
   },

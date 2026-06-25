@@ -14,18 +14,22 @@ export default function Interests() {
   const [interests, setInterests] = useState<string[]>([]);
   const [goals, setGoals] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const toggle = (set: (f: (p: string[]) => string[]) => void) => (k: string) =>
     set((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
 
   async function next() {
     setBusy(true);
+    setError(null);
     try {
       onbDraft.goals = goals;
       // The "I'm here to…" goals fold into intents[], alongside the mood-tiles seeded earlier.
       const intents = [...onbDraft.moodTiles, ...goals];
       await api.updateMe({ interests, intents });
       router.push('/onboarding/barrio');
+    } catch {
+      setError(t('onb_error_retry'));
     } finally {
       setBusy(false);
     }
@@ -36,6 +40,7 @@ export default function Interests() {
       step={2}
       footer={
         <View style={styles.footerCol}>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
           {interests.length < MIN_INTERESTS ? (
             <Text style={styles.need}>
               {interpolate(t('onb_interests_need'), { n: String(MIN_INTERESTS - interests.length) })}
@@ -44,7 +49,8 @@ export default function Interests() {
           <OnbButton
             label={t('onb_interests_continue')}
             onPress={next}
-            disabled={busy || interests.length < MIN_INTERESTS}
+            disabled={interests.length < MIN_INTERESTS}
+            busy={busy}
           />
         </View>
       }
@@ -85,7 +91,7 @@ function Pill({ label, on, onPress, hash }: { label: StringKey; on: boolean; onP
 }
 
 const styles = StyleSheet.create({
-  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   groupLabel: { fontFamily: fonts.bodySemi, fontSize: 14, color: tokens.color.ink, marginTop: 24, marginBottom: 12 },
   pill: {
     borderWidth: 1,
@@ -96,10 +102,12 @@ const styles = StyleSheet.create({
     minHeight: 48, // ≥48dp touch target (a11y)
     justifyContent: 'center',
   },
-  pillOn: { borderColor: tokens.color.coral, backgroundColor: tokens.color.coral },
+  // P3 contrast fix: coralInk bg (#A6563A) → cream text = 4.73:1 ≥ 4.5 AA pass.
+  pillOn: { borderColor: tokens.color.coralInk, backgroundColor: tokens.color.coralInk },
   pillText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: tokens.color.ink },
   pillTextOn: { color: tokens.color.cream },
   footerNote: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.text2, textAlign: 'center', marginTop: 24 },
   footerCol: { gap: 8 },
   need: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.text2, textAlign: 'center' },
+  errorText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.coralInk, textAlign: 'center' },
 });

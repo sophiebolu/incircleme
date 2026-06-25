@@ -14,14 +14,18 @@ export default function Notifications() {
   const [circles, setCircles] = useState(true);
   const [nearby, setNearby] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function finish(prefs: { circles: boolean; nearby: boolean }) {
     setBusy(true);
+    setError(null);
     try {
       // Final step → persist consent + flip the completed flag so returning users skip onboarding.
       await api.updateMe({ notificationPrefs: prefs, onboardingCompleted: true });
       resetOnbDraft();
       router.replace('/(tabs)');
+    } catch {
+      setError(t('onb_error_retry'));
     } finally {
       setBusy(false);
     }
@@ -32,11 +36,13 @@ export default function Notifications() {
       step={4}
       footer={
         <View style={styles.footerCol}>
-          <OnbButton label={t('onb_notif_cta')} onPress={() => finish({ circles, nearby })} disabled={busy} />
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          <OnbButton label={t('onb_notif_cta')} onPress={() => finish({ circles, nearby })} busy={busy} />
           <Pressable
             onPress={() => finish({ circles: false, nearby: false })}
             disabled={busy}
             accessibilityRole="button"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={styles.minimalWrap}
           >
             <Text style={styles.minimal}>{t('onb_notif_minimal')}</Text>
@@ -51,7 +57,6 @@ export default function Notifications() {
       <Row title="onb_notif_circles" sub="onb_notif_circles_sub" value={circles} onChange={setCircles} />
       <Row title="onb_notif_nearby" sub="onb_notif_nearby_sub" value={nearby} onChange={setNearby} />
 
-      <Text style={styles.promise}>{t('onb_notif_sub')}</Text>
       <Text style={styles.settings}>{t('onb_notif_settings')}</Text>
     </OnbScaffold>
   );
@@ -106,9 +111,9 @@ const styles = StyleSheet.create({
   rowTitleLine: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rowTitle: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.ink },
   rowSub: { fontFamily: fonts.body, fontSize: 13, lineHeight: 19, color: tokens.color.text2, marginTop: 4 },
-  promise: { fontFamily: fonts.bodySemi, fontSize: 13, lineHeight: 19, color: tokens.color.forest, marginTop: 8 },
   settings: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.text2, marginTop: 8 },
+  errorText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.coralInk, textAlign: 'center' },
   footerCol: { gap: 12 },
-  minimalWrap: { alignItems: 'center' },
+  minimalWrap: { alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   minimal: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.text2 },
 });

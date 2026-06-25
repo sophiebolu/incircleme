@@ -366,6 +366,8 @@ export const strings = {
     onb_notif_settings: 'Ho pots canviar quan vulguis a Configuració.',
     onb_notif_cta: 'Em sembla bé',
     onb_notif_minimal: 'Ho deixo al mínim — només reserves',
+    // PROVISIONAL — pending §-table Lock sign-off
+    onb_error_retry: 'Alguna cosa ha fallat. Torna-ho a provar.',
     // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'La teva entrada',
     ticket_subtitle: "confirmació · ensenya-la a l'entrada",
@@ -802,6 +804,8 @@ export const strings = {
     onb_notif_settings: 'Puedes cambiarlo cuando quieras en Ajustes.',
     onb_notif_cta: 'Me parece bien',
     onb_notif_minimal: 'Lo dejo al mínimo — solo reservas',
+    // PROVISIONAL — pending §-table Lock sign-off
+    onb_error_retry: 'Algo ha fallado. Inténtalo de nuevo.',
     // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'Tu entrada',
     ticket_subtitle: 'confirmación · enséñala en la puerta',
@@ -1236,6 +1240,8 @@ export const strings = {
     onb_notif_settings: 'You can change this any time in Settings.',
     onb_notif_cta: 'That sounds good',
     onb_notif_minimal: 'I’ll keep it minimal — bookings only',
+    // PROVISIONAL — pending §-table Lock sign-off
+    onb_error_retry: 'Something went wrong. Try again.',
     // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'Your ticket',
     ticket_subtitle: 'confirmation · show at the door',

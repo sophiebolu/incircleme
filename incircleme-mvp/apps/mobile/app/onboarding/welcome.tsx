@@ -27,7 +27,12 @@ export default function Welcome() {
       </View>
       <View style={styles.footer}>
         <OnbButton label={t('onb_welcome_begin')} onPress={toSignIn} />
-        <Pressable onPress={toSignIn} accessibilityRole="button" style={styles.signinWrap}>
+        <Pressable
+          onPress={toSignIn}
+          accessibilityRole="button"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.signinWrap}
+        >
           <Text style={styles.signin}>{t('onb_welcome_signin')}</Text>
         </Pressable>
       </View>
@@ -52,6 +57,6 @@ const styles = StyleSheet.create({
   titleEm: { fontFamily: fonts.displayItalic, color: tokens.color.coralInk },
   sub: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: tokens.color.text2, marginTop: 16 },
   footer: { paddingHorizontal: 28, paddingBottom: 20, gap: 14 },
-  signinWrap: { alignItems: 'center' },
+  signinWrap: { alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   signin: { fontFamily: fonts.bodyMedium, fontSize: 14, color: tokens.color.forest },
 });

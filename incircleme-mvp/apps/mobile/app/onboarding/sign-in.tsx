@@ -15,6 +15,7 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Which OAuth providers the server has credentials for → gate Apple/LinkedIn gracefully.
   useEffect(() => {
@@ -36,17 +37,26 @@ export default function SignIn() {
 
   async function google() {
     setBusy(true);
-    const r = await signInWithGoogle();
-    setBusy(false);
-    if (r.ok) await afterAuth();
+    setError(null);
+    try {
+      const r = await signInWithGoogle();
+      if (r.ok) await afterAuth();
+    } catch {
+      setError(t('onb_error_retry'));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function sendLink() {
     if (!email.includes('@')) return;
     setBusy(true);
+    setError(null);
     try {
       await api.requestMagicLink(email);
       setSent(true);
+    } catch {
+      setError(t('onb_error_retry'));
     } finally {
       setBusy(false);
     }
@@ -54,6 +64,7 @@ export default function SignIn() {
 
   const appleOn = oauth.includes('apple');
   const linkedinOn = oauth.includes('linkedin');
+  const emailDisabled = busy || !email.includes('@');
 
   return (
     <OnbScaffold>
@@ -80,7 +91,7 @@ export default function SignIn() {
         value={email}
         onChangeText={setEmail}
         placeholder={t('onb_signin_emailPlaceholder')}
-        placeholderTextColor={tokens.color.gray}
+        placeholderTextColor={tokens.color.text2}
         autoCapitalize="none"
         keyboardType="email-address"
         inputMode="email"
@@ -89,12 +100,14 @@ export default function SignIn() {
       />
       <Pressable
         onPress={sendLink}
-        disabled={busy || !email.includes('@')}
+        disabled={emailDisabled}
         accessibilityRole="button"
-        style={[styles.emailBtn, (busy || !email.includes('@')) && styles.disabled]}
+        accessibilityState={{ disabled: emailDisabled }}
+        style={[styles.emailBtn, emailDisabled && styles.disabled]}
       >
         <Text style={styles.emailBtnText}>{t('onb_signin_emailCta')}</Text>
       </Pressable>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       {sent ? <Text style={styles.sent}>{t('onb_signin_emailSent')}</Text> : null}
 
       <Text style={styles.legal}>{t('onb_signin_legal')}</Text>
@@ -136,9 +149,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: tokens.color.border,
     backgroundColor: tokens.color.bg2,
-    borderRadius: 14,
+    borderRadius: 999,
     minHeight: 48, // ≥48dp touch target (a11y)
-    marginBottom: 10,
+    marginBottom: 8,
   },
   providerDisabled: { opacity: 0.55 },
   providerText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.ink },
@@ -151,21 +164,22 @@ const styles = StyleSheet.create({
     borderColor: tokens.color.border,
     backgroundColor: tokens.color.bg2,
     borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     fontFamily: fonts.body,
     fontSize: 15,
     color: tokens.color.ink,
   },
   emailBtn: {
     backgroundColor: tokens.color.forest,
-    borderRadius: 14,
+    borderRadius: 999,
     paddingVertical: 15,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 8,
   },
   emailBtnText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.cream },
   disabled: { opacity: 0.5 },
-  sent: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.forest, marginTop: 10, lineHeight: 19 },
+  errorText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.coralInk, marginTop: 8, lineHeight: 19 },
+  sent: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.forest, marginTop: 8, lineHeight: 19 },
   legal: { fontFamily: fonts.body, fontSize: 12, lineHeight: 18, color: tokens.color.text2, marginTop: 20 },
 });
