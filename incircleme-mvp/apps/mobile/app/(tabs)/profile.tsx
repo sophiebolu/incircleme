@@ -167,10 +167,10 @@ export default function Profile() {
               style={styles.actionBtn}
               onPress={() => router.push('/settings/edit-profile')}
               accessibilityRole="button"
-              accessibilityLabel={t('prof_edit')}
+              accessibilityLabel={t('set_editProfile')}
             >
               <Pencil size={15} color={tokens.color.ink} strokeWidth={2} />
-              <Text style={styles.actionText}>{t('prof_edit')}</Text>
+              <Text style={styles.actionText}>{t('set_editProfile')}</Text>
             </Pressable>
             <Pressable
               style={styles.actionBtn}
