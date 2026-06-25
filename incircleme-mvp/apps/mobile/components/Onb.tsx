@@ -64,6 +64,42 @@ export function OnbBadge({ label }: { label: string }) {
   return <Text style={styles.badge}>{label}</Text>;
 }
 
+/**
+ * On/off toggle built from plain Views — the "on" colour is OURS (forest), not the
+ * OS <Switch> (Android ignores Switch trackColor, especially when disabled, which is
+ * why the locked toggle still showed the platform green/teal). On = forest track +
+ * light thumb (right); off = neutral grey track + thumb (left). State reads from BOTH
+ * colour and thumb position (not colour alone) for a11y. The locked "always on" case
+ * passes `disabled` → forest on-state, non-pressable.
+ */
+export function OnbToggle({
+  value,
+  onChange,
+  disabled,
+  label,
+}: {
+  value: boolean;
+  onChange?: (v: boolean) => void;
+  disabled?: boolean;
+  label: string;
+}) {
+  return (
+    <Pressable
+      onPress={disabled ? undefined : () => onChange?.(!value)}
+      disabled={disabled}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value, disabled: !!disabled }}
+      accessibilityLabel={label}
+      hitSlop={8}
+      style={styles.toggleTap}
+    >
+      <View style={[styles.toggleTrack, value ? styles.toggleOn : styles.toggleOff]}>
+        <View style={[styles.toggleThumb, value ? styles.toggleThumbOn : styles.toggleThumbOff]} />
+      </View>
+    </Pressable>
+  );
+}
+
 export function StepDots({ step, total = ONB_TOTAL_STEPS }: { step: number; total?: number }) {
   return (
     <View
@@ -176,4 +212,22 @@ const styles = StyleSheet.create({
   btnDisabled: { backgroundColor: tokens.color.gray },
   btnText: { fontFamily: fonts.bodySemi, fontSize: 16, color: tokens.color.cream },
   btnTextDisabled: { color: tokens.color.ink },
+  // Custom toggle — ≥44×48 tap target wrapping a 46×28 track + 22px thumb.
+  toggleTap: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  toggleTrack: { width: 46, height: 28, borderRadius: 14, padding: 3, justifyContent: 'center' },
+  toggleOn: { backgroundColor: tokens.color.forest },
+  toggleOff: { backgroundColor: tokens.color.gray },
+  toggleThumb: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: tokens.color.bg2,
+    shadowColor: '#1C1C1E',
+    shadowOpacity: 0.18,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  toggleThumbOn: { alignSelf: 'flex-end' },
+  toggleThumbOff: { alignSelf: 'flex-start' },
 });

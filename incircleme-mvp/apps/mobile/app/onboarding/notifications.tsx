@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { t } from '@incircleme/i18n';
 import type { StringKey } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
-import { OnbBadge, OnbButton, OnbScaffold, OnbSub, OnbTitle } from '../../components/Onb';
+import { OnbBadge, OnbButton, OnbScaffold, OnbSub, OnbTitle, OnbToggle } from '../../components/Onb';
 import { resetOnbDraft } from '../../lib/onboarding';
 
 export default function Notifications() {
@@ -79,24 +79,12 @@ function Row({
         </View>
         <Text style={styles.rowSub}>{t(sub)}</Text>
       </View>
-      {/* All toggles use ONE "on" colour = forest. The locked bookings switch sets it
-          explicitly (was the platform-default teal/green tint). */}
+      {/* Custom OnbToggle (pure Views) → ONE "on" colour = forest on every platform.
+          Locked bookings = forest on-state, non-pressable (Always-on). */}
       {locked ? (
-        <Switch
-          value
-          disabled
-          accessibilityLabel={t(title)}
-          trackColor={{ true: tokens.color.forest, false: tokens.color.border }}
-          ios_backgroundColor={tokens.color.border}
-        />
+        <OnbToggle value disabled label={t(title)} />
       ) : (
-        <Switch
-          value={value}
-          onValueChange={onChange}
-          accessibilityLabel={t(title)}
-          trackColor={{ true: tokens.color.forest, false: tokens.color.border }}
-          ios_backgroundColor={tokens.color.border}
-        />
+        <OnbToggle value={!!value} onChange={onChange} label={t(title)} />
       )}
     </View>
   );
