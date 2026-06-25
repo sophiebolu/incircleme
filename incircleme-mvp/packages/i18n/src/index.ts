@@ -324,6 +324,8 @@ export const strings = {
     onb_interests_sub: 'Tria’n almenys 3 que t’estirin.',
     onb_interests_continue: 'Continua',
     onb_interests_footer: 'Sense pressa — ho pots repensar més tard.',
+    onb_interests_need: 'Tria’n {n} més', // §38 addendum (2026-06-24) — remaining-count helper
+
     onb_interest_food_drink: 'Menjar i beure',
     onb_interest_wellness: 'Benestar',
     onb_interest_art_craft: 'Art i ofici',
@@ -364,6 +366,8 @@ export const strings = {
     onb_notif_settings: 'Ho pots canviar quan vulguis a Configuració.',
     onb_notif_cta: 'Em sembla bé',
     onb_notif_minimal: 'Ho deixo al mínim — només reserves',
+    // PROVISIONAL — pending §-table Lock sign-off
+    onb_error_retry: 'Alguna cosa ha fallat. Torna-ho a provar.',
     // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'La teva entrada',
     ticket_subtitle: "confirmació · ensenya-la a l'entrada",
@@ -758,6 +762,8 @@ export const strings = {
     onb_interests_sub: 'Elige al menos 3 que te tiren.',
     onb_interests_continue: 'Continuar',
     onb_interests_footer: 'Sin presión — puedes repensarlas más tarde.',
+    onb_interests_need: 'Elige {n} más', // §38 addendum (2026-06-24) — remaining-count helper
+
     onb_interest_food_drink: 'Comer y beber',
     onb_interest_wellness: 'Bienestar',
     onb_interest_art_craft: 'Arte y oficio',
@@ -798,6 +804,8 @@ export const strings = {
     onb_notif_settings: 'Puedes cambiarlo cuando quieras en Ajustes.',
     onb_notif_cta: 'Me parece bien',
     onb_notif_minimal: 'Lo dejo al mínimo — solo reservas',
+    // PROVISIONAL — pending §-table Lock sign-off
+    onb_error_retry: 'Algo ha fallado. Inténtalo de nuevo.',
     // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'Tu entrada',
     ticket_subtitle: 'confirmación · enséñala en la puerta',
@@ -1189,6 +1197,8 @@ export const strings = {
     onb_interests_sub: 'Pick at least 3 that pull you.',
     onb_interests_continue: 'Continue',
     onb_interests_footer: 'No pressure — you can rethink these later.',
+    onb_interests_need: 'Pick {n} more', // §38 addendum (2026-06-24) — remaining-count helper
+
     onb_interest_food_drink: 'Food & Drink',
     onb_interest_wellness: 'Wellness',
     onb_interest_art_craft: 'Art & Craft',
@@ -1230,6 +1240,8 @@ export const strings = {
     onb_notif_settings: 'You can change this any time in Settings.',
     onb_notif_cta: 'That sounds good',
     onb_notif_minimal: 'I’ll keep it minimal — bookings only',
+    // PROVISIONAL — pending §-table Lock sign-off
+    onb_error_retry: 'Something went wrong. Try again.',
     // §34 Ticket screen (locked 2026-06-20)
     ticket_title: 'Your ticket',
     ticket_subtitle: 'confirmation · show at the door',

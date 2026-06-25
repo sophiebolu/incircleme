@@ -17,7 +17,20 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Fraunces_500Medium.ttf",
+            "./assets/fonts/Fraunces_500Medium_Italic.ttf",
+            "./assets/fonts/Fraunces_600SemiBold.ttf",
+            "./assets/fonts/Inter_400Regular.ttf",
+            "./assets/fonts/Inter_500Medium.ttf",
+            "./assets/fonts/Inter_600SemiBold.ttf",
+            "./assets/fonts/Inter_800ExtraBold.ttf"
+          ]
+        }
+      ],
       [
         "@stripe/stripe-react-native",
         {

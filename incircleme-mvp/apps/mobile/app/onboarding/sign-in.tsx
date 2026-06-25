@@ -7,7 +7,7 @@ import { api } from '../../lib/api';
 import { signInWithGoogle } from '../../lib/googleAuth';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
-import { OnbScaffold } from '../../components/Onb';
+import { OnbBadge, OnbScaffold, OnbSub, OnbTitle } from '../../components/Onb';
 
 export default function SignIn() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Which OAuth providers the server has credentials for → gate Apple/LinkedIn gracefully.
   useEffect(() => {
@@ -36,17 +37,26 @@ export default function SignIn() {
 
   async function google() {
     setBusy(true);
-    const r = await signInWithGoogle();
-    setBusy(false);
-    if (r.ok) await afterAuth();
+    setError(null);
+    try {
+      const r = await signInWithGoogle();
+      if (r.ok) await afterAuth();
+    } catch {
+      setError(t('onb_error_retry'));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function sendLink() {
     if (!email.includes('@')) return;
     setBusy(true);
+    setError(null);
     try {
       await api.requestMagicLink(email);
       setSent(true);
+    } catch {
+      setError(t('onb_error_retry'));
     } finally {
       setBusy(false);
     }
@@ -54,11 +64,12 @@ export default function SignIn() {
 
   const appleOn = oauth.includes('apple');
   const linkedinOn = oauth.includes('linkedin');
+  const emailDisabled = busy || !email.includes('@');
 
   return (
     <OnbScaffold>
-      <Text style={styles.title}>{t('onb_signin_title')}</Text>
-      <Text style={styles.sub}>{t('onb_signin_sub')}</Text>
+      <OnbTitle size={30}>{t('onb_signin_title')}</OnbTitle>
+      <OnbSub>{t('onb_signin_sub')}</OnbSub>
 
       <ProviderButton label={t('signInWithGoogle')} onPress={google} disabled={busy} />
       <ProviderButton label={t('onb_signin_apple')} onPress={() => {}} disabled={!appleOn} soon={!appleOn} />
@@ -80,7 +91,7 @@ export default function SignIn() {
         value={email}
         onChangeText={setEmail}
         placeholder={t('onb_signin_emailPlaceholder')}
-        placeholderTextColor={tokens.color.gray}
+        placeholderTextColor={tokens.color.text2}
         autoCapitalize="none"
         keyboardType="email-address"
         inputMode="email"
@@ -89,12 +100,14 @@ export default function SignIn() {
       />
       <Pressable
         onPress={sendLink}
-        disabled={busy || !email.includes('@')}
+        disabled={emailDisabled}
         accessibilityRole="button"
-        style={[styles.emailBtn, (busy || !email.includes('@')) && styles.disabled]}
+        accessibilityState={{ disabled: emailDisabled }}
+        style={[styles.emailBtn, emailDisabled && styles.disabled]}
       >
         <Text style={styles.emailBtnText}>{t('onb_signin_emailCta')}</Text>
       </Pressable>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       {sent ? <Text style={styles.sent}>{t('onb_signin_emailSent')}</Text> : null}
 
       <Text style={styles.legal}>{t('onb_signin_legal')}</Text>
@@ -122,14 +135,12 @@ function ProviderButton({
       style={[styles.provider, disabled && styles.providerDisabled]}
     >
       <Text style={styles.providerText}>{label}</Text>
-      {soon ? <Text style={styles.soon}>{t('onb_signin_soon')}</Text> : null}
+      {soon ? <OnbBadge label={t('onb_signin_soon')} /> : null}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fonts.display, fontSize: 30, color: tokens.color.ink, marginTop: 8 },
-  sub: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: tokens.color.text2, marginTop: 8, marginBottom: 20 },
   provider: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -138,46 +149,37 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: tokens.color.border,
     backgroundColor: tokens.color.bg2,
-    borderRadius: 14,
-    paddingVertical: 15,
-    marginBottom: 10,
+    borderRadius: 999,
+    minHeight: 48, // ≥48dp touch target (a11y)
+    marginBottom: 8,
   },
   providerDisabled: { opacity: 0.55 },
   providerText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.ink },
-  soon: {
-    fontFamily: fonts.bodySemi,
-    fontSize: 11,
-    color: tokens.color.goldDeep,
-    borderWidth: 1,
-    borderColor: tokens.color.goldDeep,
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-  },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 16 },
   rule: { flex: 1, height: 1, backgroundColor: tokens.color.border },
-  or: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.gray },
+  or: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.text2 },
   label: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.ink, marginBottom: 6 },
   input: {
     borderWidth: 1,
     borderColor: tokens.color.border,
     backgroundColor: tokens.color.bg2,
     borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     fontFamily: fonts.body,
     fontSize: 15,
     color: tokens.color.ink,
   },
   emailBtn: {
     backgroundColor: tokens.color.forest,
-    borderRadius: 14,
+    borderRadius: 999,
     paddingVertical: 15,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 8,
   },
   emailBtnText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.cream },
   disabled: { opacity: 0.5 },
-  sent: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.forest, marginTop: 10, lineHeight: 19 },
-  legal: { fontFamily: fonts.body, fontSize: 12, lineHeight: 18, color: tokens.color.gray, marginTop: 20 },
+  errorText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.coralInk, marginTop: 8, lineHeight: 19 },
+  sent: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.forest, marginTop: 8, lineHeight: 19 },
+  legal: { fontFamily: fonts.body, fontSize: 12, lineHeight: 18, color: tokens.color.text2, marginTop: 20 },
 });

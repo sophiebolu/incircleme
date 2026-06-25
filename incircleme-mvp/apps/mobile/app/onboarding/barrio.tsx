@@ -5,20 +5,24 @@ import { t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
-import { OnbButton, OnbScaffold } from '../../components/Onb';
+import { OnbButton, OnbScaffold, OnbSub, OnbTitle } from '../../components/Onb';
 import { BARRIO_OTHER, BARRIOS } from '../../lib/onboarding';
 
 export default function Barrio() {
   const router = useRouter();
   const [picked, setPicked] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function next() {
     if (!picked) return;
     setBusy(true);
+    setError(null);
     try {
       await api.updateMe({ neighbourhood: picked });
       router.push('/onboarding/notifications');
+    } catch {
+      setError(t('onb_error_retry'));
     } finally {
       setBusy(false);
     }
@@ -27,10 +31,20 @@ export default function Barrio() {
   return (
     <OnbScaffold
       step={3}
-      footer={<OnbButton label={t('onb_barrio_continue')} onPress={next} disabled={busy || !picked} />}
+      footer={
+        <View style={styles.footerCol}>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          <OnbButton
+            label={t('onb_barrio_continue')}
+            onPress={next}
+            disabled={!picked}
+            busy={busy}
+          />
+        </View>
+      }
     >
-      <Text style={styles.title}>{t('onb_barrio_title')}</Text>
-      <Text style={styles.sub}>{t('onb_barrio_sub')}</Text>
+      <OnbTitle>{t('onb_barrio_title')}</OnbTitle>
+      <OnbSub>{t('onb_barrio_sub')}</OnbSub>
       <View style={styles.grid}>
         {BARRIOS.map((b) => {
           const on = picked === b.key;
@@ -64,18 +78,18 @@ export default function Barrio() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fonts.display, fontSize: 28, color: tokens.color.ink, marginTop: 4 },
-  sub: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: tokens.color.text2, marginTop: 6, marginBottom: 18 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tile: {
     borderWidth: 1,
     borderColor: tokens.color.border,
     backgroundColor: tokens.color.bg2,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    minHeight: 48, // ≥48dp touch target (a11y)
+    justifyContent: 'center',
   },
-  tileOn: { borderColor: tokens.color.coral, backgroundColor: tokens.color.coral },
+  // P3 contrast fix: coralInk bg (#A6563A) → cream text = 4.73:1 ≥ 4.5 AA pass.
+  tileOn: { borderColor: tokens.color.coralInk, backgroundColor: tokens.color.coralInk },
   tileText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: tokens.color.ink },
   tileTextOn: { color: tokens.color.cream },
   other: {
@@ -85,8 +99,11 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 13,
+    minHeight: 48, // ≥48dp touch target (a11y)
     alignItems: 'center',
+    justifyContent: 'center',
   },
   waitlist: { fontFamily: fonts.body, fontSize: 13, lineHeight: 20, color: tokens.color.text2, marginTop: 18 },
+  footerCol: { gap: 8 },
+  errorText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.coralInk, textAlign: 'center' },
 });

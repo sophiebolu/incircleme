@@ -970,6 +970,7 @@ The sign-in-FIRST flow: welcome → sign in → intent → interests → barrio 
 | `onb_interests_sub` | Tria’n almenys 3 que t’estirin. | Elige al menos 3 que te tiren. | Pick at least 3 that pull you. |
 | `onb_interests_continue` | Continua | Continuar | Continue |
 | `onb_interests_footer` | Sense pressa — ho pots repensar més tard. | Sin presión — puedes repensarlas más tarde. | No pressure — you can rethink these later. |
+| `onb_interests_need` *(addendum 2026-06-24)* | Tria’n {n} més | Elige {n} más | Pick {n} more |
 | `onb_interest_food_drink` | Menjar i beure | Comer y beber | Food & Drink |
 | `onb_interest_wellness` | Benestar | Bienestar | Wellness |
 | `onb_interest_art_craft` | Art i ofici | Arte y oficio | Art & Craft |

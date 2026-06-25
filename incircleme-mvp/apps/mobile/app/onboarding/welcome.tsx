@@ -4,17 +4,16 @@ import { useRouter } from 'expo-router';
 import { t } from '@incircleme/i18n';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
-import { OnbButton } from '../../components/Onb';
+import { OnbButton, OnbHeader } from '../../components/Onb';
 
 export default function Welcome() {
   const router = useRouter();
   const toSignIn = () => router.push('/onboarding/sign-in');
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      {/* Same steady, centred wordmark as every other onboarding step (no back here). */}
+      <OnbHeader showBack={false} />
       <View style={styles.body}>
-        <Text style={styles.brand}>
-          Incircle<Text style={styles.brandMe}>Me</Text>
-        </Text>
         <Text style={styles.greeting}>
           {t('onb_welcome_greeting')} <Text style={styles.greetingTag}>{t('onb_welcome_greetingTag')}</Text>
         </Text>
@@ -28,7 +27,12 @@ export default function Welcome() {
       </View>
       <View style={styles.footer}>
         <OnbButton label={t('onb_welcome_begin')} onPress={toSignIn} />
-        <Pressable onPress={toSignIn} accessibilityRole="button" style={styles.signinWrap}>
+        <Pressable
+          onPress={toSignIn}
+          accessibilityRole="button"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.signinWrap}
+        >
           <Text style={styles.signin}>{t('onb_welcome_signin')}</Text>
         </Pressable>
       </View>
@@ -39,8 +43,6 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: tokens.color.cream },
   body: { flex: 1, justifyContent: 'center', paddingHorizontal: 28 },
-  brand: { fontFamily: fonts.displaySemi, fontSize: 20, color: tokens.color.forest, marginBottom: 24 },
-  brandMe: { color: tokens.color.coralInk, fontFamily: fonts.displayItalic },
   greeting: { fontFamily: fonts.displayItalic, fontSize: 22, color: tokens.color.coralInk, marginBottom: 16 },
   greetingTag: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.text2 },
   kicker: {
@@ -55,6 +57,6 @@ const styles = StyleSheet.create({
   titleEm: { fontFamily: fonts.displayItalic, color: tokens.color.coralInk },
   sub: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: tokens.color.text2, marginTop: 16 },
   footer: { paddingHorizontal: 28, paddingBottom: 20, gap: 14 },
-  signinWrap: { alignItems: 'center' },
+  signinWrap: { alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   signin: { fontFamily: fonts.bodyMedium, fontSize: 14, color: tokens.color.forest },
 });

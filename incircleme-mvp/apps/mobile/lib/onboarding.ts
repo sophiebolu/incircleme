@@ -54,8 +54,21 @@ export const BARRIOS: { key: string; label: StringKey }[] = ONBOARDING.barrios.m
 }));
 
 export const BARRIO_OTHER = ONBOARDING.barrioOther;
+export const MIN_INTENTS = ONBOARDING.minIntents; // intent-step gate (config-sourced)
 export const MIN_INTERESTS = ONBOARDING.minInterests;
-export const ONB_TOTAL_STEPS = 4; // intent · interests · barrio · notifications
+
+// The onboarding step screens (intent · interests · barrio · notifications) — the count
+// drives the StepDots total. Kept as one list so it can't drift from the `step={n}` props.
+export const ONB_STEPS = ['intent', 'interests', 'barrio', 'notifications'] as const;
+export const ONB_TOTAL_STEPS = ONB_STEPS.length;
+
+/**
+ * Pre-app / chromeless routes that must render full-screen with NO app tab bar.
+ * Single source of truth for the UniversalNav gate (was an inline string check).
+ */
+export function isChromelessRoute(pathname: string): boolean {
+  return pathname === '/onboarding' || pathname.startsWith('/onboarding/');
+}
 
 // In-memory draft so the interests step can fold the "I'm here to…" goals into the
 // same intents[] the intent step seeded, without an extra round-trip. Picks are still

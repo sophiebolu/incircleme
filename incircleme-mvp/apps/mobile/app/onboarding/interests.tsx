@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { t } from '@incircleme/i18n';
+import { interpolate, t } from '@incircleme/i18n';
 import type { StringKey } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
-import { OnbButton, OnbScaffold } from '../../components/Onb';
+import { OnbButton, OnbScaffold, OnbSub, OnbTitle } from '../../components/Onb';
 import { GOAL_PILLS, INTEREST_PILLS, MIN_INTERESTS, onbDraft } from '../../lib/onboarding';
 
 export default function Interests() {
@@ -14,18 +14,22 @@ export default function Interests() {
   const [interests, setInterests] = useState<string[]>([]);
   const [goals, setGoals] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const toggle = (set: (f: (p: string[]) => string[]) => void) => (k: string) =>
     set((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
 
   async function next() {
     setBusy(true);
+    setError(null);
     try {
       onbDraft.goals = goals;
       // The "I'm here to…" goals fold into intents[], alongside the mood-tiles seeded earlier.
       const intents = [...onbDraft.moodTiles, ...goals];
       await api.updateMe({ interests, intents });
       router.push('/onboarding/barrio');
+    } catch {
+      setError(t('onb_error_retry'));
     } finally {
       setBusy(false);
     }
@@ -35,15 +39,24 @@ export default function Interests() {
     <OnbScaffold
       step={2}
       footer={
-        <OnbButton
-          label={t('onb_interests_continue')}
-          onPress={next}
-          disabled={busy || interests.length < MIN_INTERESTS}
-        />
+        <View style={styles.footerCol}>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {interests.length < MIN_INTERESTS ? (
+            <Text style={styles.need}>
+              {interpolate(t('onb_interests_need'), { n: String(MIN_INTERESTS - interests.length) })}
+            </Text>
+          ) : null}
+          <OnbButton
+            label={t('onb_interests_continue')}
+            onPress={next}
+            disabled={interests.length < MIN_INTERESTS}
+            busy={busy}
+          />
+        </View>
       }
     >
-      <Text style={styles.title}>{t('onb_interests_title')}</Text>
-      <Text style={styles.sub}>{t('onb_interests_sub')}</Text>
+      <OnbTitle>{t('onb_interests_title')}</OnbTitle>
+      <OnbSub>{t('onb_interests_sub')}</OnbSub>
       <View style={styles.pills}>
         {INTEREST_PILLS.map((p) => (
           <Pill key={p.key} label={p.label} on={interests.includes(p.key)} onPress={() => toggle(setInterests)(p.key)} hash />
@@ -78,9 +91,7 @@ function Pill({ label, on, onPress, hash }: { label: StringKey; on: boolean; onP
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fonts.display, fontSize: 28, lineHeight: 34, color: tokens.color.ink, marginTop: 4 },
-  sub: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: tokens.color.text2, marginTop: 6, marginBottom: 18 },
-  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   groupLabel: { fontFamily: fonts.bodySemi, fontSize: 14, color: tokens.color.ink, marginTop: 24, marginBottom: 12 },
   pill: {
     borderWidth: 1,
@@ -88,10 +99,15 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.color.bg2,
     borderRadius: 999,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    minHeight: 48, // ≥48dp touch target (a11y)
+    justifyContent: 'center',
   },
-  pillOn: { borderColor: tokens.color.coral, backgroundColor: tokens.color.coral },
+  // P3 contrast fix: coralInk bg (#A6563A) → cream text = 4.73:1 ≥ 4.5 AA pass.
+  pillOn: { borderColor: tokens.color.coralInk, backgroundColor: tokens.color.coralInk },
   pillText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: tokens.color.ink },
   pillTextOn: { color: tokens.color.cream },
-  footerNote: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.gray, textAlign: 'center', marginTop: 24 },
+  footerNote: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.text2, textAlign: 'center', marginTop: 24 },
+  footerCol: { gap: 8 },
+  need: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.text2, textAlign: 'center' },
+  errorText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: tokens.color.coralInk, textAlign: 'center' },
 });
