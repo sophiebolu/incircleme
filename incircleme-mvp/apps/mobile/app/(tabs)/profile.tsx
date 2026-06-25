@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Check, ChevronRight, MapPin, Sparkles } from 'lucide-react-native';
+import { Check, ChevronRight, Globe, MapPin, Pencil, Share2, Sparkles } from 'lucide-react-native';
 import type { MeResponse, MeStats } from '@incircleme/types';
-import { formatDate, interpolate, t } from '@incircleme/i18n';
+import { formatDate, getActiveLocale, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { clearSession, isSignedIn, saveSession } from '../../lib/auth';
+import { barrioLabel } from '../../lib/onboarding';
 import { tierLabel } from '../../lib/trustTier';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { signInWithGoogle } from '../../lib/googleAuth';
 import { BrandBar } from '../../components/BrandBar';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
+
+// The app language the user is currently using → one honest chip (no fabricated multi-lang list).
+const LANG_KEY = { ca: 'set_lang_ca', es: 'set_lang_es', en: 'set_lang_en' } as const;
 
 // Dev sign-in: request the magic link (the API stub logs it), paste the token here.
 // The real deep-link flow (incircleme://auth/verify) replaces the paste box in Phase 2.
@@ -100,12 +104,23 @@ export default function Profile() {
     setToken('');
   };
 
-  const initial = (me?.displayName ?? me?.email ?? '?').charAt(0).toUpperCase();
+  // Headline NEVER leaks the raw email (BR-UM-04): displayName → @handle → friendly fallback.
+  const headline = me
+    ? (me.displayName ?? (me.handle ? `@${me.handle}` : t('prof_nameFallback')))
+    : '';
+  const initial = (me?.displayName ?? me?.handle ?? '?').charAt(0).toUpperCase();
   const joined = me
     ? interpolate(t('prof_joined'), {
         date: formatDate(me.joinedAt, { month: 'long', year: 'numeric' }),
       })
     : '';
+  // One honest chip — the app language the user is actually using right now.
+  const appLanguage = me ? t(LANG_KEY[getActiveLocale()]) : '';
+  const onShare = () => {
+    void Share.share({ message: interpolate(t('prof_shareMessage'), { name: headline }) }).catch(
+      () => {},
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -126,28 +141,53 @@ export default function Profile() {
                 </View>
               ) : null}
             </View>
-            <Text style={styles.name}>{me.displayName ?? me.email}</Text>
+            <Text style={styles.name}>{headline}</Text>
             <Text style={styles.handle}>
-              {me.handle ? `@${me.handle} · ` : ''}
+              {/* Only repeat @handle here when it isn't already the headline. */}
+              {me.displayName && me.handle ? `@${me.handle} · ` : ''}
               {joined}
             </Text>
-            {me.neighbourhood ? (
+            <View style={styles.chipsRow}>
+              {me.neighbourhood ? (
+                <View style={styles.chip}>
+                  <MapPin size={12} color={tokens.color.text2} strokeWidth={2} />
+                  <Text style={styles.chipText}>{barrioLabel(me.neighbourhood)}</Text>
+                </View>
+              ) : null}
               <View style={styles.chip}>
-                <MapPin size={12} color={tokens.color.text2} strokeWidth={2} />
-                <Text style={styles.chipText}>{me.neighbourhood}</Text>
+                <Globe size={12} color={tokens.color.text2} strokeWidth={2} />
+                <Text style={styles.chipText}>{appLanguage}</Text>
               </View>
-            ) : null}
+            </View>
           </View>
 
-          {/* About */}
-          {me.bio ? (
-            <>
-              <Text style={styles.sectionTitle}>{t('prof_about')}</Text>
-              <View style={styles.card}>
-                <Text style={styles.bio}>{me.bio}</Text>
-              </View>
-            </>
-          ) : null}
+          {/* Edit profile + Share */}
+          <View style={styles.actionRow}>
+            <Pressable
+              style={styles.actionBtn}
+              onPress={() => router.push('/settings/edit-profile')}
+              accessibilityRole="button"
+              accessibilityLabel={t('prof_edit')}
+            >
+              <Pencil size={15} color={tokens.color.ink} strokeWidth={2} />
+              <Text style={styles.actionText}>{t('prof_edit')}</Text>
+            </Pressable>
+            <Pressable
+              style={styles.actionBtn}
+              onPress={onShare}
+              accessibilityRole="button"
+              accessibilityLabel={t('prof_share')}
+            >
+              <Share2 size={15} color={tokens.color.ink} strokeWidth={2} />
+              <Text style={styles.actionText}>{t('prof_share')}</Text>
+            </Pressable>
+          </View>
+
+          {/* About — always present (all-states rule); gentle placeholder when empty */}
+          <Text style={styles.sectionTitle}>{t('prof_about')}</Text>
+          <View style={styles.aboutCard}>
+            <Text style={me.bio ? styles.bio : styles.bioEmpty}>{me.bio ?? t('prof_aboutEmpty')}</Text>
+          </View>
 
           {/* Creator-mode tile → coming soon */}
           <Pressable style={styles.creatorTile} onPress={comingSoon}>
@@ -305,9 +345,23 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    marginTop: 4,
   },
   chipText: { fontFamily: fonts.bodyMedium, fontSize: 12, color: tokens.color.text2 },
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 6 },
+  actionRow: { flexDirection: 'row', gap: 10 },
+  actionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingVertical: 11,
+    minHeight: 44,
+  },
+  actionText: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.ink },
 
   sectionTitle: {
     fontFamily: fonts.displaySemi,
@@ -316,6 +370,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   bio: { fontFamily: fonts.body, fontSize: 13.5, lineHeight: 20, color: tokens.color.text2 },
+  bioEmpty: { fontFamily: fonts.body, fontSize: 13.5, lineHeight: 20, color: tokens.color.gray },
+  aboutCard: {
+    backgroundColor: tokens.color.bg2,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 14,
+  },
 
   // Creator-mode tile
   creatorTile: {

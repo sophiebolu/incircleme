@@ -2,6 +2,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { EventListItem } from '@incircleme/types';
 import { t, formatPrice, formatDateTime } from '@incircleme/i18n';
+import { barrioLabel } from '../lib/onboarding';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 
@@ -16,7 +17,8 @@ export function EventCard({ event }: { event: EventListItem }) {
     hour: '2-digit',
     minute: '2-digit',
   });
-  const price = event.priceCents === 0 ? '—' : formatPrice(event.priceCents, event.currency);
+  // Free is a promise, not a blank — say "Gratis", never "—".
+  const price = event.priceCents === 0 ? t('ev_free') : formatPrice(event.priceCents, event.currency);
 
   return (
     <Pressable
@@ -30,15 +32,21 @@ export function EventCard({ event }: { event: EventListItem }) {
           {event.title}
         </Text>
         <Text style={styles.meta}>
-          {when} · {event.neighbourhood ?? 'Barcelona'} · {price}
+          {when} · {barrioLabel(event.neighbourhood) || 'Barcelona'} · {price}
         </Text>
-        {event.roomFull ? (
-          <Text style={styles.roomFull}>{t('roomFull')}</Text>
-        ) : (
-          <Text style={styles.seats}>
-            {event.seatsLeft} {t('seatsLeft').toLowerCase()}
-          </Text>
-        )}
+        <View style={styles.statusRow}>
+          {event.roomFull ? (
+            <View style={[styles.statusChip, styles.statusFull]}>
+              <Text style={styles.statusFullText}>{t('roomFull')}</Text>
+            </View>
+          ) : (
+            <View style={[styles.statusChip, styles.statusOpen]}>
+              <Text style={styles.statusOpenText}>
+                {event.seatsLeft} {t('seatsLeft').toLowerCase()}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
     </Pressable>
   );
@@ -56,9 +64,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   photo: { width: 84, height: 84, borderRadius: 10, backgroundColor: tokens.color.border },
-  body: { flex: 1, justifyContent: 'center', gap: 3 },
+  body: { flex: 1, justifyContent: 'center', gap: 4 },
   title: { fontFamily: fonts.displaySemi, fontSize: 15.5, color: tokens.color.ink },
   meta: { fontFamily: fonts.body, fontSize: 12, color: tokens.color.text2 },
-  seats: { fontFamily: fonts.bodySemi, fontSize: 12, color: tokens.color.forest },
-  roomFull: { fontFamily: fonts.bodySemi, fontSize: 12, color: tokens.color.coralInk },
+  statusRow: { flexDirection: 'row', marginTop: 1 },
+  statusChip: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3 },
+  statusOpen: { backgroundColor: tokens.color.forestSoft },
+  statusOpenText: { fontFamily: fonts.bodySemi, fontSize: 11, color: tokens.color.forest },
+  statusFull: { backgroundColor: tokens.color.coralInk },
+  statusFullText: { fontFamily: fonts.bodySemi, fontSize: 11, color: tokens.color.cream },
 });

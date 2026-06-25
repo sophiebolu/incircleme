@@ -63,7 +63,15 @@ export function ProgramsStrip() {
       >
         {programs.map((p) => (
           <Pressable key={p.id} style={styles.card} onPress={() => router.push(`/program/${p.id}`)}>
+            {/* Branded placeholder tile (no image field yet) — forest watermark + tier badge,
+                clearly designed rather than a blank square. */}
             <View style={styles.photo}>
+              <GraduationCap
+                size={30}
+                color={tokens.color.forest}
+                strokeWidth={1.5}
+                style={styles.photoGlyph}
+              />
               <View style={[styles.badge, { borderColor: tierColor(p.verifiedTier) }]}>
                 <Text style={[styles.badgeText, { color: tierColor(p.verifiedTier) }]}>
                   {tierLabel(p.verifiedTier)}
@@ -140,7 +148,9 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.color.forestSoft,
     marginBottom: 6,
     padding: 7,
+    overflow: 'hidden',
   },
+  photoGlyph: { position: 'absolute', right: 9, bottom: 7, opacity: 0.4 },
   badge: {
     alignSelf: 'flex-start',
     borderWidth: 1,
