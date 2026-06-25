@@ -296,6 +296,8 @@ export const ONBOARDING = {
   ] as const,
   /** Sentinel the picker stores for "my barrio isn't on the list". */
   barrioOther: 'other' as const,
+  /** Minimum intent mood-tiles the attendee must pick (gate on the intent step). */
+  minIntents: 1,
   /** Minimum interests we ask the attendee to pick (prototype: "at least 3"). */
   minInterests: 3,
 } as const;

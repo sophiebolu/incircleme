@@ -5,6 +5,7 @@ import { Calendar, Home, MessageCircle, User, type LucideIcon } from 'lucide-rea
 import { t, type StringKey } from '@incircleme/i18n';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
+import { isChromelessRoute } from '../lib/onboarding';
 
 // Universal floating-pill nav — rendered once in the root layout, over EVERY
 // screen (tab roots + pushed detail screens). Route-aware: highlights the tab a
@@ -37,10 +38,9 @@ export function UniversalNav() {
   const active = activeTab(pathname);
 
   // Onboarding is full-screen with no app chrome: hide the floating tab nav on every
-  // onb_* screen (welcome / sign-in / intent / interests / barrio / notifications) so it
-  // neither shows the tab bar nor overlaps the Continue CTA. Tabs reappear only once the
-  // user completes onboarding and lands on a (tabs) route.
-  if (pathname === '/onboarding' || pathname.startsWith('/onboarding/')) return null;
+  // chromeless (onb_*) route so it neither shows the tab bar nor overlaps the Continue
+  // CTA. Tabs reappear only once the user completes onboarding and lands on a (tabs) route.
+  if (isChromelessRoute(pathname)) return null;
 
   return (
     <View pointerEvents="box-none" style={styles.overlay}>

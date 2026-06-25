@@ -7,7 +7,7 @@ import { api } from '../../lib/api';
 import { signInWithGoogle } from '../../lib/googleAuth';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
-import { OnbScaffold } from '../../components/Onb';
+import { OnbBadge, OnbScaffold, OnbSub, OnbTitle } from '../../components/Onb';
 
 export default function SignIn() {
   const router = useRouter();
@@ -57,8 +57,8 @@ export default function SignIn() {
 
   return (
     <OnbScaffold>
-      <Text style={styles.title}>{t('onb_signin_title')}</Text>
-      <Text style={styles.sub}>{t('onb_signin_sub')}</Text>
+      <OnbTitle size={30}>{t('onb_signin_title')}</OnbTitle>
+      <OnbSub>{t('onb_signin_sub')}</OnbSub>
 
       <ProviderButton label={t('signInWithGoogle')} onPress={google} disabled={busy} />
       <ProviderButton label={t('onb_signin_apple')} onPress={() => {}} disabled={!appleOn} soon={!appleOn} />
@@ -122,14 +122,12 @@ function ProviderButton({
       style={[styles.provider, disabled && styles.providerDisabled]}
     >
       <Text style={styles.providerText}>{label}</Text>
-      {soon ? <Text style={styles.soon}>{t('onb_signin_soon')}</Text> : null}
+      {soon ? <OnbBadge label={t('onb_signin_soon')} /> : null}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fonts.display, fontSize: 30, color: tokens.color.ink, marginTop: 8 },
-  sub: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: tokens.color.text2, marginTop: 8, marginBottom: 20 },
   provider: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -139,24 +137,14 @@ const styles = StyleSheet.create({
     borderColor: tokens.color.border,
     backgroundColor: tokens.color.bg2,
     borderRadius: 14,
-    paddingVertical: 15,
+    minHeight: 48, // ≥48dp touch target (a11y)
     marginBottom: 10,
   },
   providerDisabled: { opacity: 0.55 },
   providerText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.ink },
-  soon: {
-    fontFamily: fonts.bodySemi,
-    fontSize: 11,
-    color: tokens.color.goldDeep,
-    borderWidth: 1,
-    borderColor: tokens.color.goldDeep,
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-  },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 16 },
   rule: { flex: 1, height: 1, backgroundColor: tokens.color.border },
-  or: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.gray },
+  or: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.text2 },
   label: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.ink, marginBottom: 6 },
   input: {
     borderWidth: 1,
@@ -179,5 +167,5 @@ const styles = StyleSheet.create({
   emailBtnText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.cream },
   disabled: { opacity: 0.5 },
   sent: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.forest, marginTop: 10, lineHeight: 19 },
-  legal: { fontFamily: fonts.body, fontSize: 12, lineHeight: 18, color: tokens.color.gray, marginTop: 20 },
+  legal: { fontFamily: fonts.body, fontSize: 12, lineHeight: 18, color: tokens.color.text2, marginTop: 20 },
 });

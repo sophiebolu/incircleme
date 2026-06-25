@@ -1,7 +1,7 @@
-// Shared onboarding chrome — a STEADY top wordmark (centred, identical size/weight/
-// position on every step), step dots (centred, below the CTA), the primary button, and
-// the screen scaffold. Colours/fonts from theme tokens; labels passed in already
-// localised via t().
+// Shared onboarding chrome — a TOP-LEFT wordmark (matching the Home/Profile BrandBar),
+// step dots (centred, below the CTA), the primary button, shared title/sub/badge, and the
+// screen scaffold. Colours/fonts from theme tokens; labels passed in already localised
+// via t().
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +11,10 @@ import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 import { ONB_TOTAL_STEPS } from '../lib/onboarding';
 
-/** The IncircleMe wordmark — ONE definition, rendered identically on every onboarding screen. */
+/**
+ * The IncircleMe wordmark — ONE definition, matching the Home/Profile BrandBar
+ * (Fraunces 19px, ink, "Me" italic coral), so the logo reads identically app-wide.
+ */
 export function OnbWordmark() {
   return (
     <Text style={styles.brand} allowFontScaling={false}>
@@ -20,11 +23,7 @@ export function OnbWordmark() {
   );
 }
 
-/**
- * Top bar: the wordmark is CENTRED and never shifted by the back arrow (which is an
- * absolutely-positioned, separate left control). Identical on welcome / sign-in / every
- * step, so the logo stays steady across the whole flow.
- */
+/** Top bar: wordmark TOP-LEFT (like Home/Profile), with the back arrow as the left-most control. */
 export function OnbHeader({ onBack, showBack }: { onBack?: () => void; showBack?: boolean }) {
   const router = useRouter();
   const canBack = showBack ?? router.canGoBack();
@@ -35,8 +34,8 @@ export function OnbHeader({ onBack, showBack }: { onBack?: () => void; showBack?
           onPress={onBack ?? (() => router.back())}
           accessibilityRole="button"
           accessibilityLabel={t('onb_back')}
-          hitSlop={10}
-          style={styles.backAbs}
+          hitSlop={8}
+          style={styles.backBtn}
         >
           <Text style={styles.back}>←</Text>
         </Pressable>
@@ -44,6 +43,25 @@ export function OnbHeader({ onBack, showBack }: { onBack?: () => void; showBack?
       <OnbWordmark />
     </View>
   );
+}
+
+/** Shared step title — one style; size overridable, sizes preserved per screen. */
+export function OnbTitle({ children, size = 28 }: { children: ReactNode; size?: number }) {
+  return (
+    <Text style={[styles.title, { fontSize: size, lineHeight: Math.round(size * 1.2) }]}>
+      {children}
+    </Text>
+  );
+}
+
+/** Shared step subtitle. */
+export function OnbSub({ children }: { children: ReactNode }) {
+  return <Text style={styles.sub}>{children}</Text>;
+}
+
+/** Small status chip (e.g. "Soon" / "Always on") — AA deep-gold, one definition. */
+export function OnbBadge({ label }: { label: string }) {
+  return <Text style={styles.badge}>{label}</Text>;
 }
 
 export function StepDots({ step, total = ONB_TOTAL_STEPS }: { step: number; total?: number }) {
@@ -79,7 +97,8 @@ export function OnbButton({
       accessibilityState={{ disabled: !!disabled }}
       style={[styles.btn, disabled && styles.btnDisabled]}
     >
-      <Text style={styles.btnText}>{label} →</Text>
+      {/* Disabled state: solid gray bg + ink label (AA ≥4.5:1), not a faded cream-on-cream. */}
+      <Text style={[styles.btnText, disabled && styles.btnTextDisabled]}>{label} →</Text>
     </Pressable>
   );
 }
@@ -118,18 +137,31 @@ export function OnbScaffold({
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: tokens.color.cream },
-  bar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  // Absolute so the wordmark stays dead-centre regardless of the back button.
-  backAbs: { position: 'absolute', left: 20, top: 0, bottom: 0, justifyContent: 'center', zIndex: 1 },
+  // Top-left brand row, matching the Home/Profile BrandBar padding.
+  bar: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 18, paddingTop: 8, paddingBottom: 10 },
+  backBtn: { minWidth: 44, minHeight: 44, justifyContent: 'center', marginLeft: -10 },
   back: { fontFamily: fonts.body, fontSize: 22, color: tokens.color.ink },
-  brand: { fontFamily: fonts.displaySemi, fontSize: 18, color: tokens.color.forest },
-  brandMe: { color: tokens.color.coralInk, fontFamily: fonts.displayItalic },
+  brand: { fontFamily: fonts.displaySemi, fontSize: 19, letterSpacing: -0.34, color: tokens.color.ink },
+  brandMe: { fontFamily: fonts.displayItalic, color: tokens.color.coral },
+  title: { fontFamily: fonts.display, color: tokens.color.ink, marginTop: 4 },
+  sub: {
+    fontFamily: fonts.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: tokens.color.text2,
+    marginTop: 6,
+    marginBottom: 18,
+  },
+  badge: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 11,
+    color: tokens.color.goldDeep,
+    borderWidth: 1,
+    borderColor: tokens.color.goldDeep,
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+  },
   dots: { flexDirection: 'row', gap: 5, justifyContent: 'center', marginTop: 14 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: tokens.color.border },
   dotOn: { backgroundColor: tokens.color.coral },
@@ -141,6 +173,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
   },
-  btnDisabled: { backgroundColor: tokens.color.gray, opacity: 0.6 },
+  btnDisabled: { backgroundColor: tokens.color.gray },
   btnText: { fontFamily: fonts.bodySemi, fontSize: 16, color: tokens.color.cream },
+  btnTextDisabled: { color: tokens.color.ink },
 });
