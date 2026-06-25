@@ -81,7 +81,12 @@ export default function Category() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <BrandBar />
-      <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button">
+      <Pressable
+        onPress={() => router.back()}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel={t('onb_back')}
+      >
         <Text style={styles.back}>←</Text>
       </Pressable>
       {/* Category title pattern per vocab lock §4 — locale-aware connector */}

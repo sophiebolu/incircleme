@@ -1062,4 +1062,34 @@ Settings hub, in-app language picker (CA/ES/EN, applies live + persists), edit p
 
 ---
 
+## 40. Live screens — Profile · Events category · free price (locked 2026-06-25)
+
+Profile identity/about/share + barrio label, the Events-category empty state and filter pills, and the free-price label. Mirrored in `packages/i18n` (`fil_*` · `cat_*` · `ev_free` · `prof_*`, 12 keys, CA·ES·EN). `prof_edit` is intentionally absent — the profile Edit action reuses `set_editProfile`. Columns read CA · ES · EN.
+
+### Events filters
+| key | CA | ES | EN |
+|---|---|---|---|
+| `fil_all` | Tot | Todo | All |
+| `fil_weekday` | Entre setmana | Entre semana | Weekday |
+| `fil_free` | Gratis | Gratis | Free |
+| `fil_paid` | De pagament | De pago | Paid |
+
+### Events — empty state + free price
+| key | CA | ES | EN |
+|---|---|---|---|
+| `ev_free` | Gratis | Gratis | Free |
+| `cat_emptyTitle` | Encara no hi ha res en aquesta categoria. | Todavía no hay nada en esta categoría. | Nothing in this category yet. |
+| `cat_emptySub` | Estem omplint Barcelona barri a barri. Prova un altre filtre o torna aviat. | Estamos llenando Barcelona barrio a barrio. Prueba otro filtro o vuelve pronto. | We’re filling Barcelona barri by barri. Try another filter or check back soon. |
+| `cat_emptyCta` | Mostra-ho tot | Ver todo | See everything |
+
+### Profile
+| key | CA | ES | EN |
+|---|---|---|---|
+| `prof_nameFallback` | Membre d’IncircleMe | Miembro de IncircleMe | IncircleMe member |
+| `prof_share` | Comparteix | Compartir | Share |
+| `prof_shareMessage` | {name} és a IncircleMe — Barcelona en petit comitè. | {name} está en IncircleMe — Barcelona en petit comité. | {name} is on IncircleMe — Barcelona in small rooms. |
+| `prof_aboutEmpty` | Encara no has escrit res sobre tu. | Aún no has escrito nada sobre ti. | You haven’t added a bio yet. |
+
+---
+
 *Voice locked. Vocabulary locked. Translation contract written. The next room can speak.*

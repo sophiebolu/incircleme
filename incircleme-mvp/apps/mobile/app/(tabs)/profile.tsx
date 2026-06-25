@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   bio: { fontFamily: fonts.body, fontSize: 13.5, lineHeight: 20, color: tokens.color.text2 },
-  bioEmpty: { fontFamily: fonts.body, fontSize: 13.5, lineHeight: 20, color: tokens.color.gray },
+  bioEmpty: { fontFamily: fonts.body, fontSize: 13.5, lineHeight: 20, color: tokens.color.text2 },
   aboutCard: {
     backgroundColor: tokens.color.bg2,
     borderColor: tokens.color.border,

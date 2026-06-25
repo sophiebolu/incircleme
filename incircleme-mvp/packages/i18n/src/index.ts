@@ -280,7 +280,7 @@ export const strings = {
     fil_thisWeek: 'Aquesta setmana',
     fil_weekend: 'Cap de setmana',
     fil_allBarrios: 'Tots els barris',
-    // PROVISIONAL — Brief B live-screens (events filters/empty state, profile, free price). Pending §-table sign-off.
+    // §40 live-screens — events filters/empty state, profile, free price (locked 2026-06-25)
     fil_all: 'Tot',
     fil_weekday: 'Entre setmana',
     fil_free: 'Gratis',
@@ -731,7 +731,7 @@ export const strings = {
     fil_thisWeek: 'Esta semana',
     fil_weekend: 'Fin de semana',
     fil_allBarrios: 'Todos los barrios',
-    // PROVISIONAL — Brief B live-screens. Pending §-table sign-off.
+    // §40 live-screens (locked 2026-06-25)
     fil_all: 'Todo',
     fil_weekday: 'Entre semana',
     fil_free: 'Gratis',
@@ -1178,7 +1178,7 @@ export const strings = {
     fil_thisWeek: 'This week',
     fil_weekend: 'Weekend',
     fil_allBarrios: 'All barrios',
-    // PROVISIONAL — Brief B live-screens. Pending §-table sign-off.
+    // §40 live-screens (locked 2026-06-25)
     fil_all: 'All',
     fil_weekday: 'Weekday',
     fil_free: 'Free',
