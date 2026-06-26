@@ -120,6 +120,14 @@ export default function CapsuleScreen() {
     year: 'numeric',
   });
 
+  // Real photo-contributor count for the "shared by X of Y people" line — distinct
+  // members who actually uploaded a photo. NOT stats.sharedBoth (that counts members
+  // with both arriving+leaving pairs, a different number). Anonymous (null) photos
+  // aren't attributable, so they don't inflate the count.
+  const photoContributors = new Set(
+    capsule.photos.map((p) => p.userId).filter((id): id is string => id != null),
+  ).size;
+
   const share = () => {
     void Share.share({
       message: `${t('memoryCapsule')} — ${capsule.eventTitle} · ${dateLine}`,
@@ -317,7 +325,7 @@ export default function CapsuleScreen() {
                 </Text>
                 <Text style={styles.hlS}>
                   {interpolate(t('sharedBy'), {
-                    x: String(capsule.stats.sharedBoth),
+                    x: String(photoContributors),
                     y: String(capsule.stats.members),
                   })}
                 </Text>
@@ -358,7 +366,12 @@ export default function CapsuleScreen() {
           <Pressable style={styles.cta} onPress={share} accessibilityRole="button">
             <Text style={styles.ctaText}>{t('shareCapsule')}</Text>
           </Pressable>
-          <Pressable style={styles.ghost} onPress={save} accessibilityRole="button">
+          <Pressable
+            style={styles.ghost}
+            onPress={save}
+            accessibilityRole="button"
+            accessibilityLabel={saved ? t('ep_saved') : t('save')}
+          >
             <Text style={styles.ghostText}>{saved ? '✓' : t('save')}</Text>
           </Pressable>
         </View>
@@ -437,7 +450,7 @@ const styles = StyleSheet.create({
   heroMeta: { fontFamily: fonts.body, fontSize: 12, color: 'rgba(247,243,237,0.85)', marginTop: 4 },
   // Prototype .quote-card: bg2 card, accent left-rule, italic pull-quote + author.
   quoteCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: tokens.color.bg2,
     borderColor: tokens.color.border,
     borderWidth: 1,
     borderLeftWidth: 3,
@@ -472,7 +485,7 @@ const styles = StyleSheet.create({
   titleAside: { fontFamily: fonts.body, fontSize: 10.5, color: tokens.color.text2, marginBottom: 12 },
   seeAll: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: tokens.color.coralInk, marginBottom: 12 },
   pairCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: tokens.color.bg2,
     borderColor: tokens.color.border,
     borderWidth: 1,
     borderRadius: 14,
@@ -497,7 +510,7 @@ const styles = StyleSheet.create({
   miniRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   miniCard: {
     width: '31%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: tokens.color.bg2,
     borderColor: tokens.color.border,
     borderWidth: 1,
     borderRadius: 10,
@@ -534,7 +547,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: tokens.color.bg2,
     borderColor: tokens.color.border,
     borderWidth: 1,
     borderRadius: 12,
