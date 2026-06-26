@@ -323,12 +323,16 @@ export default function CapsuleScreen() {
                 <Text style={styles.hlT}>
                   {interpolate(t('nPhotos'), { n: String(capsule.stats.photos) })}
                 </Text>
-                <Text style={styles.hlS}>
-                  {interpolate(t('sharedBy'), {
-                    x: String(photoContributors),
-                    y: String(capsule.stats.members),
-                  })}
-                </Text>
+                {/* Silent, not stigmatised: hide the attribution line rather than claim
+                    "0 of Y" when photos exist but none are attributable. */}
+                {photoContributors === 0 && capsule.photos.length > 0 ? null : (
+                  <Text style={styles.hlS}>
+                    {interpolate(t('sharedBy'), {
+                      x: String(photoContributors),
+                      y: String(capsule.stats.members),
+                    })}
+                  </Text>
+                )}
               </View>
             </View>
             <View style={styles.hlItem}>
