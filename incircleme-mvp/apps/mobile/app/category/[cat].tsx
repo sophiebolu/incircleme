@@ -97,6 +97,7 @@ export default function Category() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filtersBar}
         contentContainerStyle={styles.filters}
       >
         {FILTERS.map(({ key, label: l }) => (
@@ -143,11 +144,8 @@ export default function Category() {
       <FlatList
         data={shown}
         keyExtractor={(e) => e.id}
-        contentContainerStyle={[
-          styles.list,
-          { paddingBottom: navClearance },
-          shown.length === 0 && styles.listEmpty,
-        ]}
+        style={styles.listFill}
+        contentContainerStyle={[styles.list, { paddingBottom: navClearance }]}
         renderItem={({ item }) => <EventCard event={item} />}
         ListEmptyComponent={
           <View style={styles.empty}>
@@ -185,9 +183,15 @@ const styles = StyleSheet.create({
   chipText: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: tokens.color.text2 },
   chipTextOn: { color: tokens.color.cream },
   sep: { width: 1, height: 24, backgroundColor: tokens.color.border, marginHorizontal: 4 },
+  // Horizontal pill bar hugs its chips (flexGrow:0) so it can't stretch vertically and
+  // open a void between the title and the filters.
+  filtersBar: { flexGrow: 0 },
+  // The list owns the leftover vertical space below the filters, so rows AND the empty
+  // state start right under the pills instead of being centred in the whole screen.
+  listFill: { flex: 1 },
   list: { paddingHorizontal: 16, paddingBottom: 24 },
-  listEmpty: { flexGrow: 1, justifyContent: 'center' },
-  empty: { alignItems: 'center', paddingVertical: 40, paddingHorizontal: 24, gap: 8 },
+  // Empty state: top-anchored a comfortable, fixed distance below the filters.
+  empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 24, gap: 8 },
   emptyTitle: {
     fontFamily: fonts.displaySemi,
     fontSize: 17,
