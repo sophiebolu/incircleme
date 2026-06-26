@@ -93,6 +93,9 @@ export const strings = {
     sinceEnded: "Des que va acabar l'esdeveniment",
     cap_avgRating: 'Valoració mitjana', // §35 capsule highlight (reviews aggregate)
     cap_wouldGo: '{n} hi tornarien',
+    // PROVISIONAL — Capsule loading/not-found state. Pending §-table sign-off.
+    cap_notFoundTitle: 'Aquesta càpsula encara no hi és.',
+    cap_notFoundBody: 'Les càpsules es preparen unes hores després de l’esdeveniment. Torna una mica més tard.',
     shareCapsule: 'Comparteix la càpsula',
     save: 'Desa',
     capsulePrivacy:
@@ -544,6 +547,9 @@ export const strings = {
     sinceEnded: 'Desde que terminó el evento',
     cap_avgRating: 'Valoración media', // §35 capsule highlight (reviews aggregate)
     cap_wouldGo: '{n} volverían',
+    // PROVISIONAL — Capsule loading/not-found state. Pending §-table sign-off.
+    cap_notFoundTitle: 'Esta cápsula todavía no está.',
+    cap_notFoundBody: 'Las cápsulas se preparan unas horas después del evento. Vuelve un poco más tarde.',
     shareCapsule: 'Comparte la cápsula',
     save: 'Guardar',
     capsulePrivacy:
@@ -994,6 +1000,9 @@ export const strings = {
     sinceEnded: 'Since the event ended',
     cap_avgRating: 'Avg rating', // §35 capsule highlight (reviews aggregate)
     cap_wouldGo: '{n} would go again',
+    // PROVISIONAL — Capsule loading/not-found state. Pending §-table sign-off.
+    cap_notFoundTitle: 'This capsule isn’t here yet.',
+    cap_notFoundBody: 'Capsules are prepared a few hours after the event. Check back a little later.',
     shareCapsule: 'Share capsule',
     save: 'Save',
     capsulePrivacy:

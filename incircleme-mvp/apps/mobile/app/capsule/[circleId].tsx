@@ -35,6 +35,7 @@ export default function CapsuleScreen() {
   const { circleId } = useLocalSearchParams<{ circleId: string }>();
   const router = useRouter();
   const [capsule, setCapsule] = useState<Capsule | null>(null);
+  const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState<ReviewAggregate | null>(null);
   const [saved, setSaved] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -49,7 +50,13 @@ export default function CapsuleScreen() {
   const PHOTO_PREVIEW = 7; // cap the roll; the rest live behind "See all (N)"
 
   useEffect(() => {
-    if (circleId) api.getCapsule(circleId).then(setCapsule).catch(() => setCapsule(null));
+    if (!circleId) return;
+    setLoading(true);
+    api
+      .getCapsule(circleId)
+      .then(setCapsule)
+      .catch(() => setCapsule(null))
+      .finally(() => setLoading(false));
   }, [circleId]);
 
   // Real avg rating for the highlight grid — the event's public review aggregate.
@@ -57,9 +64,54 @@ export default function CapsuleScreen() {
     if (capsule?.eventId) api.getEventReviews(capsule.eventId).then(setReviews).catch(() => {});
   }, [capsule?.eventId]);
 
+  const backArrow = (
+    <Pressable
+      onPress={() => router.back()}
+      hitSlop={10}
+      accessibilityRole="button"
+      accessibilityLabel={t('onb_back')}
+    >
+      <Text style={styles.back}>←</Text>
+    </Pressable>
+  );
+
+  // Loading — skeleton (all-states rule), never a blank SafeAreaView.
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <BrandBar />
+        <View style={styles.content}>
+          {backArrow}
+          <View style={styles.skelHero} />
+          <View style={[styles.skelLine, styles.skelLineWide]} />
+          <View style={[styles.skelLine, styles.skelLineNarrow]} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Not-found / not-ready — warm + specific (capsules generate hours after the event).
   if (!capsule) {
-    // TODO(deferred, needs copy verdict): explicit not-found / loading empty state.
-    return <SafeAreaView style={styles.safe} />;
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <BrandBar />
+        <View style={styles.content}>
+          {backArrow}
+          <View style={styles.notFound}>
+            <Text style={styles.notFoundTitle}>{t('cap_notFoundTitle')}</Text>
+            <Text style={styles.notFoundBody}>{t('cap_notFoundBody')}</Text>
+            <Pressable
+              style={styles.notFoundCta}
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel={t('onb_back')}
+            >
+              <Text style={styles.notFoundCtaText}>{t('onb_back')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   const dateLine = formatDate(capsule.eventDate, {
@@ -85,9 +137,7 @@ export default function CapsuleScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <BrandBar />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navClearance }]}>
-        <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Text style={styles.back}>←</Text>
-        </Pressable>
+        {backArrow}
 
         {/* Hero */}
         <ImageBackground
@@ -119,7 +169,65 @@ export default function CapsuleScreen() {
           </View>
         ) : null}
 
-        {/* The difference — silent, not stigmatised: pairs only, no slots for skippers */}
+        {/* Photo roll — grid (every 5th tile spans full-width for rhythm) */}
+        {capsule.photos.length > 0 ? (
+          <View style={styles.section}>
+            <View style={styles.titleRow}>
+              <Text style={styles.sectionTitle}>{t('photoRoll')}</Text>
+              {capsule.photos.length > PHOTO_PREVIEW ? (
+                <Pressable onPress={comingSoon} hitSlop={8}>
+                  <Text style={styles.seeAll}>
+                    {interpolate(t('seeAll'), { n: String(capsule.photos.length) })}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+            <View style={styles.grid}>
+              {capsule.photos.slice(0, PHOTO_PREVIEW).map((p, i) => (
+                <Image
+                  key={`${p.url}-${i}`}
+                  source={{ uri: abs(p.url) }}
+                  style={[styles.gridPhoto, i % 5 === 0 && styles.gridPhotoWide]}
+                />
+              ))}
+            </View>
+          </View>
+        ) : null}
+
+        {/* Your Circle — member avatars (member-gated) + still-chatting line */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('yourCircle')}</Text>
+          <View style={styles.circleStrip}>
+            {capsule.members.length > 0 ? (
+              <View style={styles.csAvs}>
+                {capsule.members.slice(0, 6).map((m, i) =>
+                  m.avatarUrl ? (
+                    <Image
+                      key={i}
+                      source={{ uri: abs(m.avatarUrl) }}
+                      style={[styles.csAv, i > 0 && styles.csAvOverlap]}
+                    />
+                  ) : (
+                    <View
+                      key={i}
+                      style={[styles.csAv, styles.csAvFallback, i > 0 && styles.csAvOverlap]}
+                    >
+                      <Text style={styles.csAvInitial}>
+                        {(m.displayName ?? '?').charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                  ),
+                )}
+              </View>
+            ) : null}
+            <Text style={styles.circleLine}>
+              {interpolate(t('stillChatting'), { n: String(capsule.stats.members) })}
+            </Text>
+          </View>
+        </View>
+
+        {/* The difference — silent, not stigmatised: pairs only, no slots for skippers.
+            Rendered ONLY when at least one member submitted both arriving + leaving. */}
         {capsule.differencePairs.length > 0 ? (
           <View style={styles.section}>
             <View style={styles.titleRow}>
@@ -195,31 +303,6 @@ export default function CapsuleScreen() {
           </View>
         ) : null}
 
-        {/* Photo roll — grid (every 5th tile spans full-width for rhythm) */}
-        {capsule.photos.length > 0 ? (
-          <View style={styles.section}>
-            <View style={styles.titleRow}>
-              <Text style={styles.sectionTitle}>{t('photoRoll')}</Text>
-              {capsule.photos.length > PHOTO_PREVIEW ? (
-                <Pressable onPress={comingSoon} hitSlop={8}>
-                  <Text style={styles.seeAll}>
-                    {interpolate(t('seeAll'), { n: String(capsule.photos.length) })}
-                  </Text>
-                </Pressable>
-              ) : null}
-            </View>
-            <View style={styles.grid}>
-              {capsule.photos.slice(0, PHOTO_PREVIEW).map((p, i) => (
-                <Image
-                  key={`${p.url}-${i}`}
-                  source={{ uri: abs(p.url) }}
-                  style={[styles.gridPhoto, i % 5 === 0 && styles.gridPhotoWide]}
-                />
-              ))}
-            </View>
-          </View>
-        ) : null}
-
         {/* Highlights — icon tiles, only the stats we truly have */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('highlights')}</Text>
@@ -251,7 +334,7 @@ export default function CapsuleScreen() {
                 <Text style={styles.hlS}>{t('sinceEnded')}</Text>
               </View>
             </View>
-            {/* Real avg rating — Feature C reviews aggregate (public reviews) */}
+            {/* Real avg rating — Feature C reviews aggregate. Hidden if no public reviews. */}
             {reviews && reviews.count > 0 ? (
               <View style={styles.hlItem}>
                 <View style={styles.hlIc}>
@@ -270,44 +353,12 @@ export default function CapsuleScreen() {
           </View>
         </View>
 
-        {/* Your Circle — member avatars (member-gated) + still-chatting line */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('yourCircle')}</Text>
-          <View style={styles.circleStrip}>
-            {capsule.members.length > 0 ? (
-              <View style={styles.csAvs}>
-                {capsule.members.slice(0, 6).map((m, i) =>
-                  m.avatarUrl ? (
-                    <Image
-                      key={i}
-                      source={{ uri: abs(m.avatarUrl) }}
-                      style={[styles.csAv, i > 0 && styles.csAvOverlap]}
-                    />
-                  ) : (
-                    <View
-                      key={i}
-                      style={[styles.csAv, styles.csAvFallback, i > 0 && styles.csAvOverlap]}
-                    >
-                      <Text style={styles.csAvInitial}>
-                        {(m.displayName ?? '?').charAt(0).toUpperCase()}
-                      </Text>
-                    </View>
-                  ),
-                )}
-              </View>
-            ) : null}
-            <Text style={styles.circleLine}>
-              {interpolate(t('stillChatting'), { n: String(capsule.stats.members) })}
-            </Text>
-          </View>
-        </View>
-
-        {/* Actions */}
+        {/* Actions — share / save footer */}
         <View style={styles.actions}>
-          <Pressable style={styles.cta} onPress={share}>
+          <Pressable style={styles.cta} onPress={share} accessibilityRole="button">
             <Text style={styles.ctaText}>{t('shareCapsule')}</Text>
           </Pressable>
-          <Pressable style={styles.ghost} onPress={save}>
+          <Pressable style={styles.ghost} onPress={save} accessibilityRole="button">
             <Text style={styles.ghostText}>{saved ? '✓' : t('save')}</Text>
           </Pressable>
         </View>
@@ -326,6 +377,40 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: tokens.color.cream },
   content: { padding: 16, paddingBottom: 40 },
   back: { fontSize: 22, color: tokens.color.ink, marginBottom: 8 },
+
+  // Loading skeleton
+  skelHero: { aspectRatio: 4 / 3, borderRadius: 16, backgroundColor: tokens.color.border },
+  skelLine: { height: 14, borderRadius: 6, backgroundColor: tokens.color.border },
+  skelLineWide: { width: '60%', marginTop: 16 },
+  skelLineNarrow: { width: '40%', marginTop: 8 },
+
+  // Not-found / not-ready
+  notFound: { alignItems: 'center', paddingTop: 56, paddingHorizontal: 24, gap: 8 },
+  notFoundTitle: {
+    fontFamily: fonts.display,
+    fontSize: 20,
+    color: tokens.color.ink,
+    textAlign: 'center',
+  },
+  notFoundBody: {
+    fontFamily: fonts.body,
+    fontSize: 14,
+    lineHeight: 21,
+    color: tokens.color.text2,
+    textAlign: 'center',
+  },
+  notFoundCta: {
+    marginTop: 8,
+    borderColor: tokens.color.border,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  notFoundCtaText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: tokens.color.ink },
+
   hero: {
     aspectRatio: 4 / 3,
     borderRadius: 16,
@@ -360,7 +445,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 14,
-    marginTop: 14,
+    marginTop: 16,
   },
   quoteText: {
     fontFamily: fonts.displayItalic,
@@ -374,25 +459,25 @@ const styles = StyleSheet.create({
     color: tokens.color.text2,
     marginTop: 6,
   },
-  section: { marginTop: 22 },
+  section: { marginTop: 24 },
   sectionTitle: {
     fontFamily: fonts.display,
     fontSize: 19,
     letterSpacing: -0.3,
     color: tokens.color.ink,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   sectionTitleEm: { fontFamily: fonts.displayItalic, color: tokens.color.coralInk },
   titleRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
-  titleAside: { fontFamily: fonts.body, fontSize: 10.5, color: tokens.color.text2, marginBottom: 10 },
-  seeAll: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: tokens.color.coralInk, marginBottom: 10 },
+  titleAside: { fontFamily: fonts.body, fontSize: 10.5, color: tokens.color.text2, marginBottom: 12 },
+  seeAll: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: tokens.color.coralInk, marginBottom: 12 },
   pairCard: {
     backgroundColor: '#FFFFFF',
     borderColor: tokens.color.border,
     borderWidth: 1,
     borderRadius: 14,
     padding: 12,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   pairName: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.ink, marginBottom: 8 },
   pairRow: { flexDirection: 'row', gap: 10 },
@@ -442,12 +527,12 @@ const styles = StyleSheet.create({
   gridPhotoWide: { width: '100%', aspectRatio: 16 / 9 },
 
   // Highlights tiles
-  hlGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  hlGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   hlItem: {
     flexBasis: '47%',
     flexGrow: 1,
     flexDirection: 'row',
-    gap: 9,
+    gap: 8,
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderColor: tokens.color.border,
@@ -457,9 +542,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   hlIc: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: tokens.color.forestSoft,
     alignItems: 'center',
     justifyContent: 'center',
@@ -472,9 +557,9 @@ const styles = StyleSheet.create({
   circleStrip: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   csAvs: { flexDirection: 'row' },
   csAv: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: tokens.color.border,
     borderColor: tokens.color.cream,
     borderWidth: 1.5,
@@ -483,7 +568,7 @@ const styles = StyleSheet.create({
   csAvFallback: { backgroundColor: tokens.color.forestSoft, alignItems: 'center', justifyContent: 'center' },
   csAvInitial: { fontFamily: fonts.displaySemi, fontSize: 12, color: tokens.color.forest },
   circleLine: { fontFamily: fonts.body, fontSize: 13, color: tokens.color.text2, flex: 1 },
-  actions: { flexDirection: 'row', gap: 10, marginTop: 24 },
+  actions: { flexDirection: 'row', gap: 12, marginTop: 24 },
   cta: {
     flex: 1,
     backgroundColor: tokens.color.forest,
@@ -507,7 +592,7 @@ const styles = StyleSheet.create({
     color: tokens.color.text2,
     textAlign: 'center',
     lineHeight: 15,
-    marginTop: 14,
+    marginTop: 16,
     marginHorizontal: 10,
   },
   privacyLink: { fontFamily: fonts.bodySemi, color: tokens.color.coralInk },
