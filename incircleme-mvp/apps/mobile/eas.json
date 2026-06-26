@@ -5,6 +5,7 @@
   "build": {
     "preview": {
       "distribution": "internal",
+      "channel": "staging",
       "node": "22.13.0",
       "android": {
         "buildType": "apk"

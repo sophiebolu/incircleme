@@ -39,6 +39,8 @@ pnpm dev:web      # http://localhost:3000
 pnpm dev:mobile   # Expo
 ```
 
+**OTA (staging):** `pnpm --filter @incircleme/mobile update:staging --message "…"` ships a JS-only EAS Update to the `staging` channel with the staging env baked in (never the localhost fallback); native/dependency changes shift the fingerprint runtimeVersion and still need a fresh APK.
+
 Build order: Auth → Browse + Book → Circle → Capsule → Programs → Profile.
 Never push to GitHub without explicit approval. New user-visible copy must be added to the
 Vocabulary Lock and signed off before shipping.
