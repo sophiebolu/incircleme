@@ -264,11 +264,12 @@ export async function cancelBooking(
   });
 
   if (internal.fresh) {
-    domainEvents.bookingCancelled({
+    await domainEvents.bookingCancelled({
       bookingId: internal.bookingId,
       eventId: internal.eventId,
       userId: internal.userId,
       actor: internal.actor,
+      kind: 'attendee_cancel',
       refundCents: internal.plan.refundCents,
       creditCents: internal.plan.creditCents,
       depositForfeited: internal.plan.depositForfeited,
@@ -315,11 +316,12 @@ export async function refundBooking(
   });
 
   if (internal.fresh) {
-    domainEvents.bookingCancelled({
+    await domainEvents.bookingCancelled({
       bookingId: internal.bookingId,
       eventId: internal.eventId,
       userId: internal.userId,
       actor: internal.actor,
+      kind: 'host_refund',
       refundCents: internal.plan.refundCents,
       creditCents: internal.plan.creditCents,
       depositForfeited: internal.plan.depositForfeited,
@@ -385,18 +387,19 @@ export async function cancelEventByHost(
 
   // Emit AFTER commit.
   for (const b of result.attendees) {
-    domainEvents.bookingCancelled({
+    await domainEvents.bookingCancelled({
       bookingId: b.id,
       eventId,
       userId: b.userId,
       actor,
+      kind: 'host_event_cancel',
       refundCents: b.amountCents + b.depositCents,
       creditCents: result.penalty.creditCentsEach,
       depositForfeited: false,
     });
   }
   if (result.penalty.warnHost && (result.tier === 'gt24h' || result.tier === 'lt24h')) {
-    domainEvents.hostCancelWarned({
+    await domainEvents.hostCancelWarned({
       eventId,
       hostUserId: result.hostUserId,
       notice: result.tier,
@@ -404,7 +407,7 @@ export async function cancelEventByHost(
     });
   }
   if (result.penalty.suspendHost) {
-    domainEvents.hostSuspendSignalled({
+    await domainEvents.hostSuspendSignalled({
       hostUserId: result.hostUserId,
       eventId,
       reason: 'host_no_show',

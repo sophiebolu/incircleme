@@ -4,6 +4,7 @@
 export * from './auth';
 export * from './bookings';
 export * from './events';
+export * from './notifications';
 export * from './capsules';
 export * from './circles';
 export * from './programs';

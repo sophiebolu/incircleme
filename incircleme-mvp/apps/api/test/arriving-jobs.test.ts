@@ -227,9 +227,13 @@ describe('scheduled job handlers (direct, fixed now)', () => {
       .select()
       .from(notifications)
       .where(eq(notifications.userId, user.user.id));
-    expect(notes.map((n) => n.type).sort()).toEqual(
-      ['arriving_post', 'arriving_pre', 'booking_confirm'].filter((t) => t !== 'booking_confirm'),
-    );
+    // Scope to arriving ticks — booking confirmation now writes its own inbox row (Stage 2b).
+    expect(
+      notes
+        .map((n) => n.type)
+        .filter((t) => t.startsWith('arriving_'))
+        .sort(),
+    ).toEqual(['arriving_post', 'arriving_pre']);
   });
 
   it('chatPhotoExpiryTick strips photo attachments >48h after a past event', async () => {

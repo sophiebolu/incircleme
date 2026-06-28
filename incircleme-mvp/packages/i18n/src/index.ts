@@ -288,6 +288,14 @@ export const strings = {
     chip_attended: 'Hi vas ser',
     err_loading: 'Carregant…',
     err_notFound: 'No ho hem trobat.',
+    // Notifications inbox (Stage 2b) — PROVISIONAL, not in the Vocabulary Lock.
+    notif_bookingConfirmed: 'Ja tens l’entrada per a {event}.',
+    notif_bookingCancelled: 'S’ha cancel·lat la teva entrada per a {event}.',
+    notif_bookingRefunded: '{amount} € retornats per {event}.',
+    notif_hostCancelled: 'L’amfitrió/a ha cancel·lat {event} — t’hem retornat l’import.',
+    notif_emptyTitle: 'Encara no tens notificacions',
+    notif_emptyBody: 'Quan reservis, cancel·lis o rebis un reemborsament, ho veuràs aquí.',
+    notif_unreadBadgeLabel: '{count} notificacions sense llegir',
     // §29 Programs detail enrichment (Tier 2 · locked 2026-06-17)
     prog_pub_hostMeta: 'Acull des de {year} · {n} sales',
     prog_pub_hostBadge: 'Amfitrió/a',
@@ -767,6 +775,14 @@ export const strings = {
     chip_attended: 'Asististe',
     err_loading: 'Cargando…',
     err_notFound: 'No lo hemos encontrado.',
+    // Notifications inbox (Stage 2b) — PROVISIONAL, not in the Vocabulary Lock.
+    notif_bookingConfirmed: 'Ya tienes tu entrada para {event}.',
+    notif_bookingCancelled: 'Se ha cancelado tu entrada para {event}.',
+    notif_bookingRefunded: '{amount} € reembolsados por {event}.',
+    notif_hostCancelled: 'El anfitrión/a ha cancelado {event} — te hemos reembolsado.',
+    notif_emptyTitle: 'Aún no tienes notificaciones',
+    notif_emptyBody: 'Cuando reserves, canceles o recibas un reembolso, aparecerá aquí.',
+    notif_unreadBadgeLabel: '{count} notificaciones sin leer',
     // §29 Programs detail enrichment (Tier 2 · locked 2026-06-17)
     prog_pub_hostMeta: 'Anfitrión/a desde {year} · {n} salas',
     prog_pub_hostBadge: 'Anfitrión/a',
@@ -1245,6 +1261,14 @@ export const strings = {
     chip_attended: 'Attended',
     err_loading: 'Loading…',
     err_notFound: 'We couldn’t find that.',
+    // Notifications inbox (Stage 2b) — PROVISIONAL, not in the Vocabulary Lock.
+    notif_bookingConfirmed: 'You’re in for {event}.',
+    notif_bookingCancelled: 'Your {event} ticket was cancelled.',
+    notif_bookingRefunded: '€{amount} refunded for {event}.',
+    notif_hostCancelled: '{event} was cancelled by the host — you’ve been refunded.',
+    notif_emptyTitle: 'No notifications yet',
+    notif_emptyBody: 'When you book, cancel, or get a refund, it’ll show up here.',
+    notif_unreadBadgeLabel: '{count} unread notifications',
     // §29 Programs detail enrichment (Tier 2 · locked 2026-06-17)
     prog_pub_hostMeta: 'Hosting since {year} · {n} rooms',
     prog_pub_hostBadge: 'Host',

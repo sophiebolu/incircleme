@@ -4,13 +4,14 @@ import { eq } from 'drizzle-orm';
 import type { Locale } from '@incircleme/types';
 import type { Payments } from '../lib/payments';
 import type { Mailer } from '../lib/mailer';
+import type { DomainEvents } from '../lib/events';
 import { confirmByPaymentIntent, releaseByPaymentIntent } from '../services/booking/booking';
 import { ensureCircleAndMembership } from '../services/circles/circles';
 import { confirmProgramSubmission, failProgramSubmission } from '../services/programs/programs';
 
 export async function webhookRoutes(
   app: FastifyInstance,
-  opts: { payments: Payments; mailer: Mailer },
+  opts: { payments: Payments; mailer: Mailer; domainEvents: DomainEvents },
 ): Promise<void> {
   // Stripe needs the raw body for signature verification. Buffer parser, scoped to this plugin.
   app.addContentTypeParser('application/json', { parseAs: 'buffer' }, (_req, body, done) =>
@@ -40,6 +41,12 @@ export async function webhookRoutes(
         if (!ctx) await confirmProgramSubmission(event.paymentIntentId);
       }
       if (ctx) {
+        // In-app notification (post-commit; the sink swallows its own errors).
+        await opts.domainEvents.bookingConfirmed({
+          bookingId: ctx.booking.id,
+          eventId: ctx.event.id,
+          userId: ctx.booking.userId,
+        });
         // One Circle per event, auto-created on first confirmed booking (host + attendee join).
         try {
           await ensureCircleAndMembership(ctx.event.id, ctx.booking.userId);

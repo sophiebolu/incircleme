@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import type { EventListItem } from '@incircleme/types';
 import { t, interpolate } from '@incircleme/i18n';
 import { api } from '../../lib/api';
@@ -23,7 +23,22 @@ export default function Home() {
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [name, setName] = useState('Marta'); // prototype demo persona until signed in
   const [refreshing, setRefreshing] = useState(false);
+  const [unread, setUnread] = useState(0);
   const navClearance = useNavClearance();
+
+  // Unread badge — refetched whenever Home regains focus (so it clears after the inbox opens).
+  const refreshUnread = useCallback(async () => {
+    try {
+      setUnread((await api.unreadCount()).count);
+    } catch {
+      // signed-out / network — leave the badge as-is
+    }
+  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      void refreshUnread();
+    }, [refreshUnread]),
+  );
 
   const load = useCallback(async () => {
     // Onboarding gate (sign-in FIRST): no session → the welcome front door; signed in but
@@ -76,7 +91,7 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <BrandBar bell />
+      <BrandBar bell unread={unread} onBell={() => router.push('/notifications')} />
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: navClearance }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}

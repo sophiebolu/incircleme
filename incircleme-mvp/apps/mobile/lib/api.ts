@@ -23,11 +23,13 @@ import type {
   MeResponse,
   MeStats,
   MessageAttachment,
+  Notification,
   OAuthProvider,
   Program,
   PublicProgramCard,
   PublicProgramDetail,
   SubmitProgramResult,
+  UnreadCount,
   UpdateMeRequest,
   UpdateProgramRequest,
 } from '@incircleme/types';
@@ -128,6 +130,10 @@ export const api = {
     request<CancelQuote>(`/bookings/${bookingId}/cancel-quote`),
   cancelBooking: (bookingId: string) =>
     request<RefundResult>(`/bookings/${bookingId}/cancel`, { method: 'POST', body: JSON.stringify({}) }),
+  notifications: () => request<Notification[]>('/notifications'),
+  unreadCount: () => request<UnreadCount>('/notifications/unread-count'),
+  markAllNotificationsRead: () =>
+    request<{ ok: boolean }>('/notifications/read-all', { method: 'POST', body: JSON.stringify({}) }),
   createReview: (body: CreateReviewRequest) =>
     request<Review>('/reviews', { method: 'POST', body: JSON.stringify(body) }),
   getEventReviews: (eventId: string) => request<ReviewAggregate>(`/events/${eventId}/reviews`),
