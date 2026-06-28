@@ -1,6 +1,6 @@
 {
-  "id": "ee38dff1-51e3-4a8b-af98-1b5ced591cab",
-  "prevId": "c9f960e3-d947-4f1e-b58d-c14a49c20b3e",
+  "id": "301f5748-cca2-4e77-823b-59e45c105723",
+  "prevId": "ee38dff1-51e3-4a8b-af98-1b5ced591cab",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -182,6 +182,40 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
+        },
+        "cancelled_by": {
+          "name": "cancelled_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refund_status": {
+          "name": "refund_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "refund_cents": {
+          "name": "refund_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "deposit_forfeited": {
+          "name": "deposit_forfeited",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "credit_issued_cents": {
+          "name": "credit_issued_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         }
       },
       "indexes": {},
