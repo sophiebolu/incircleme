@@ -9,12 +9,12 @@ import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { BrandBar } from '../../components/BrandBar';
 import { ErrorRetry, ScreenSkeleton } from '../../components/ScreenStates';
+import { EventImageFallback } from '../../components/EventImageFallback';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
 type Tab = 'upcoming' | 'past' | 'cancelled';
-const FALLBACK_PHOTO = 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=480';
 
 /** Status chip per S2 spec: held / cancelled / refunded / attended (none for live tickets). */
 const bookingChip = (b: BookingListItem, now: number): { key: 'chip_held' | 'chip_cancelled' | 'chip_refunded' | 'chip_attended'; ok: boolean } | null => {
@@ -100,7 +100,11 @@ export default function Bookings() {
       router.push(isLiveTicket ? `/ticket/${item.id}` : `/event/${item.event.id}`);
     return (
       <Pressable style={styles.card} onPress={onPress}>
-        <Image source={{ uri: item.event.photoUrls[0] ?? FALLBACK_PHOTO }} style={styles.thumb} />
+        {item.event.photoUrls.length > 0 ? (
+          <Image source={{ uri: item.event.photoUrls[0] }} style={styles.thumb} />
+        ) : (
+          <EventImageFallback style={styles.thumb} size={10} />
+        )}
         <View style={styles.cardBody}>
           <Text style={styles.cardTitle} numberOfLines={1}>
             {item.event.title}
