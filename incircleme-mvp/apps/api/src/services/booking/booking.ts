@@ -234,6 +234,9 @@ export async function listMyBookings(userId: string): Promise<BookingListItem[]>
       event: toEventListItem(e),
       circleId: circle?.id ?? null,
       circleMemberCount: circle?.memberCount ?? null,
+      refundStatus: b.refundStatus as BookingListItem['refundStatus'],
+      refundCents: b.refundCents,
+      creditIssuedCents: b.creditIssuedCents,
     });
   }
   return items;

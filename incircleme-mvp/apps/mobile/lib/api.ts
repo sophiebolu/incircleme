@@ -5,6 +5,7 @@ import type {
   AuthTokens,
   BookingListItem,
   BookResult,
+  CancelQuote,
   Capsule,
   CircleDetail,
   CircleMessage,
@@ -14,6 +15,7 @@ import type {
   CredentialKind,
   PassportSummary,
   PublicProfile,
+  RefundResult,
   Review,
   ReviewAggregate,
   EventDetail,
@@ -122,6 +124,10 @@ export const api = {
       body: JSON.stringify({ seatCount }),
     }),
   myBookings: () => request<BookingListItem[]>('/me/bookings'),
+  cancelQuote: (bookingId: string) =>
+    request<CancelQuote>(`/bookings/${bookingId}/cancel-quote`),
+  cancelBooking: (bookingId: string) =>
+    request<RefundResult>(`/bookings/${bookingId}/cancel`, { method: 'POST', body: JSON.stringify({}) }),
   createReview: (body: CreateReviewRequest) =>
     request<Review>('/reviews', { method: 'POST', body: JSON.stringify(body) }),
   getEventReviews: (eventId: string) => request<ReviewAggregate>(`/events/${eventId}/reviews`),

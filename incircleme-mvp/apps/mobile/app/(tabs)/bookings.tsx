@@ -8,6 +8,7 @@ import { formatDateTime, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
 import { BrandBar } from '../../components/BrandBar';
+import { ErrorRetry, ScreenSkeleton } from '../../components/ScreenStates';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
@@ -15,19 +16,16 @@ import { fonts } from '../../theme/fonts';
 type Tab = 'upcoming' | 'past' | 'cancelled';
 const FALLBACK_PHOTO = 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=480';
 
-const statusLabel = (s: string): string => {
-  switch (s) {
-    case 'held':
-      return t('bookStatusHeld');
-    case 'confirmed':
-      return t('bookStatusConfirmed');
-    case 'cancelled':
-      return t('bookStatusCancelled');
-    case 'refunded':
-      return t('bookStatusRefunded');
-    default:
-      return s;
-  }
+/** Status chip per S2 spec: held / cancelled / refunded / attended (none for live tickets). */
+const bookingChip = (b: BookingListItem, now: number): { key: 'chip_held' | 'chip_cancelled' | 'chip_refunded' | 'chip_attended'; ok: boolean } | null => {
+  if (b.status === 'held') return { key: 'chip_held', ok: false };
+  if (b.status === 'cancelled' || b.status === 'refunded')
+    return b.refundStatus === 'full' && b.refundCents > 0
+      ? { key: 'chip_refunded', ok: true }
+      : { key: 'chip_cancelled', ok: false };
+  if (b.status === 'confirmed' && new Date(b.event.endsAt).getTime() < now)
+    return { key: 'chip_attended', ok: true };
+  return null; // confirmed + upcoming → the live ticket, no status chip
 };
 
 // Client-side bucketing: cancelled/refunded → Cancelled; ended → Past; else Upcoming.
@@ -39,39 +37,38 @@ const bucketOf = (b: BookingListItem, now: number): Tab => {
 
 export default function Bookings() {
   const router = useRouter();
-  const [items, setItems] = useState<BookingListItem[] | null>(null);
+  const [items, setItems] = useState<BookingListItem[]>([]);
   const [signedIn, setSignedIn] = useState(true);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [tab, setTab] = useState<Tab>('upcoming');
   const navClearance = useNavClearance();
 
+  const load = useCallback(async () => {
+    if (!(await isSignedIn())) {
+      setSignedIn(false);
+      setStatus('ready');
+      return;
+    }
+    setSignedIn(true);
+    setStatus('loading');
+    try {
+      setItems(await api.myBookings());
+      setStatus('ready');
+    } catch {
+      setStatus('error');
+    }
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      let live = true;
-      void (async () => {
-        if (!(await isSignedIn())) {
-          if (live) setSignedIn(false);
-          return;
-        }
-        try {
-          const data = await api.myBookings();
-          if (live) {
-            setSignedIn(true);
-            setItems(data);
-          }
-        } catch {
-          if (live) setItems([]);
-        }
-      })();
-      return () => {
-        live = false;
-      };
-    }, []),
+      void load();
+    }, [load]),
   );
 
   const { buckets, counts } = useMemo(() => {
     const now = Date.now();
     const b: Record<Tab, BookingListItem[]> = { upcoming: [], past: [], cancelled: [] };
-    for (const it of items ?? []) b[bucketOf(it, now)].push(it);
+    for (const it of items) b[bucketOf(it, now)].push(it);
     return {
       buckets: b,
       counts: { upcoming: b.upcoming.length, past: b.past.length, cancelled: b.cancelled.length },
@@ -112,11 +109,14 @@ export default function Bookings() {
             {meta} · {item.event.neighbourhood ?? 'Barcelona'}
           </Text>
           <View style={styles.chips}>
-            <View style={[styles.chip, item.status === 'confirmed' && styles.chipOk]}>
-              <Text style={[styles.chipText, item.status === 'confirmed' && styles.chipTextOk]}>
-                {statusLabel(item.status)}
-              </Text>
-            </View>
+            {(() => {
+              const chip = bookingChip(item, Date.now());
+              return chip ? (
+                <View style={[styles.chip, chip.ok && styles.chipOk]}>
+                  <Text style={[styles.chipText, chip.ok && styles.chipTextOk]}>{t(chip.key)}</Text>
+                </View>
+              ) : null;
+            })()}
             {item.circleId ? (
               <Pressable
                 style={[styles.chip, styles.chipCircle]}
@@ -155,6 +155,10 @@ export default function Bookings() {
         <Text style={styles.signedOut}>
           {t('signIn')} — {t('profile')}
         </Text>
+      ) : status === 'loading' ? (
+        <ScreenSkeleton />
+      ) : status === 'error' ? (
+        <ErrorRetry onRetry={() => void load()} />
       ) : (
         <>
           <View style={styles.tabs}>

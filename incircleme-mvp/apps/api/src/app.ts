@@ -20,10 +20,12 @@ import { userRoutes } from './routes/users';
 import { devRoutes } from './routes/dev';
 import { createMailer } from './lib/mailer';
 import { createPayments } from './lib/payments';
+import { createDomainEvents } from './lib/events';
 import { createRealtime, nullRealtime } from './lib/realtime';
 import { createLocalStorage, uploadsDir } from './lib/storage';
 import type { Mailer } from './lib/mailer';
 import type { Payments } from './lib/payments';
+import type { DomainEvents } from './lib/events';
 import type { Realtime } from './lib/realtime';
 import type { PhotoStorage } from './lib/storage';
 
@@ -31,6 +33,7 @@ export interface BuildAppOptions {
   /** Inject ports (tests). Default to env-selected implementations. */
   mailer?: Mailer;
   payments?: Payments;
+  events?: DomainEvents;
   storage?: PhotoStorage;
   /** Socket.io rides the HTTP server; tests pass nullRealtime implicitly via `realtime: false`. */
   realtime?: boolean;
@@ -41,6 +44,7 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   const app = Fastify({ logger: opts.logger ?? true });
   const mailer = opts.mailer ?? createMailer(app.log);
   const payments = opts.payments ?? createPayments(app.log);
+  const domainEvents = opts.events ?? createDomainEvents(app.log);
   const storage = opts.storage ?? createLocalStorage();
   const realtime: Realtime = opts.realtime === false ? nullRealtime : createRealtime(app);
 
@@ -59,7 +63,7 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   await app.register(healthRoutes);
   await app.register(authRoutes, { mailer });
   await app.register(meRoutes);
-  await app.register(eventRoutes, { payments });
+  await app.register(eventRoutes, { payments, domainEvents });
   await app.register(webhookRoutes, { payments, mailer });
   await app.register(circleRoutes, { realtime });
   await app.register(arrivingRoutes, { storage });

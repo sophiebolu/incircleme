@@ -2,6 +2,7 @@
 // Grows per slice. People-discovery types are intentionally absent (Pass 40 cut).
 
 export * from './auth';
+export * from './bookings';
 export * from './events';
 export * from './capsules';
 export * from './circles';

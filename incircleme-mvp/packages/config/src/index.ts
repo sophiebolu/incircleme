@@ -46,6 +46,34 @@ export const ECONOMICS = {
     holdWindowMinutes: 30,
   },
 
+  /** Booking-Loop cancellation & refund policy — ADR-Booking-Loop-Refund-Policy-2026-06-28.
+   *  All money is integer cents; "credit" is PLATFORM CREDIT, not cash. */
+  cancellation: {
+    /** Hours before event start separating a full cash refund from credit-only. */
+    cancellationCutoffHours: 48,
+    /** Attendee-initiated cancel outcomes (resolved by timing vs cutoff). */
+    attendeeRefundPolicy: {
+      beforeCutoff: 'full', // ≥ cutoff before start → full cash refund (ticket)
+      insideCutoff: 'credit', // < cutoff, genuine cancel → no cash, one-time credit
+      noShow: 'none', // event already started, never cancelled → forfeit
+    },
+    /** One-time "life happens" credit for a genuine late cancel. Credit = ticket value. */
+    lifeHappensCredit: { enabled: true, oncePerUser: true },
+    /** €5 deposit (only when event.depositRequired): refunded ≥ cutoff, else forfeited. */
+    depositRefundRule: { refundIfBeforeCutoff: true, forfeitIfLateOrNoShow: true },
+    /** Host-side: >24h notice vs <24h vs host no-show. All attendees are made whole. */
+    hostNoticeCutoffHours: 24,
+    hostCancelPenalty: {
+      gt24h: { refundAll: 'full', creditCentsEach: 0, warnHost: true, suspendHost: false },
+      lt24h: { refundAll: 'full', creditCentsEach: 100, warnHost: true, suspendHost: false },
+      noShow: { refundAll: 'full', creditCentsEach: 0, warnHost: false, suspendHost: true },
+    },
+    /** Full refunds return the platform fee too — the attendee is made whole. */
+    platformFeeReturnedOnRefund: true,
+    /** Reserved for future partial-refund windows; no current window uses it. */
+    partialRefundPct: 0,
+  },
+
   /** Tier subscription pricing + booking transaction fee. */
   tiers: {
     basic: { monthlyPriceCents: 0, transactionFeePct: 5 },
@@ -136,6 +164,28 @@ export function seatHoldAmountCents(): number {
 
 export function bookingHoldWindowMs(): number {
   return ECONOMICS.booking.holdWindowMinutes * 60 * 1000;
+}
+
+// --- Cancellation / refund accessors (ADR-Booking-Loop-Refund-Policy-2026-06-28) ---
+
+export function cancellationCutoffHours(): number {
+  return ECONOMICS.cancellation.cancellationCutoffHours;
+}
+
+export function hostNoticeCutoffHours(): number {
+  return ECONOMICS.cancellation.hostNoticeCutoffHours;
+}
+
+export function lifeHappensCreditEnabled(): boolean {
+  return ECONOMICS.cancellation.lifeHappensCredit.enabled;
+}
+
+export function lifeHappensCreditOncePerUser(): boolean {
+  return ECONOMICS.cancellation.lifeHappensCredit.oncePerUser;
+}
+
+export function depositRefundedBeforeCutoff(): boolean {
+  return ECONOMICS.cancellation.depositRefundRule.refundIfBeforeCutoff;
 }
 
 // ============================================================================

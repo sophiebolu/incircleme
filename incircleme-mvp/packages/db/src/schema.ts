@@ -194,6 +194,12 @@ export const bookings = pgTable('bookings', {
   bookedAt: timestamp('booked_at', { withTimezone: true }).notNull().defaultNow(),
   checkedInAt: timestamp('checked_in_at', { withTimezone: true }),
   cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+  // Booking-Loop refund columns (ADR 2026-06-28). Backwards-compatible adds.
+  cancelledBy: text('cancelled_by'), // attendee | host | admin | system | null
+  refundStatus: text('refund_status').notNull().default('none'), // none | pending | partial | full | failed
+  refundCents: integer('refund_cents').notNull().default(0),
+  depositForfeited: boolean('deposit_forfeited').notNull().default(false),
+  creditIssuedCents: integer('credit_issued_cents').notNull().default(0),
 });
 
 export type EventRow = typeof events.$inferSelect;
