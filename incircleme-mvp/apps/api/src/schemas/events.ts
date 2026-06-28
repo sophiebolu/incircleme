@@ -38,3 +38,7 @@ export const createEventSchema = z
 export const bookSchema = z.object({
   seatCount: z.number().int().min(1).max(10).optional(),
 });
+
+export const cancelBookingSchema = z.object({
+  reason: z.string().max(500).optional(),
+});
