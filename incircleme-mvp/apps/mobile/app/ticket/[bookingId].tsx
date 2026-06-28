@@ -23,13 +23,13 @@ import { formatDate, formatDateTime, formatPrice, interpolate, t } from '@incirc
 import { api } from '../../lib/api';
 import { CancelSheet } from '../../components/CancelSheet';
 import { ErrorRetry, NotFound, ScreenSkeleton } from '../../components/ScreenStates';
+import { EventImageFallback } from '../../components/EventImageFallback';
 import { BrandBar } from '../../components/BrandBar';
 import { HostRow } from '../../components/HostRow';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
-const FALLBACK_PHOTO = 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=720';
 
 // Display-only short id derived from the booking UUID (e.g. IM-3F9K2). The QR encodes
 // the *full* booking id so a future check-in scanner has an unambiguous lookup key.
@@ -185,22 +185,37 @@ export default function TicketScreen() {
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: navClearance }]}>
-        {/* Hero — photo + Confirmed badge + booking-id chip + Fraunces title */}
+        {/* Hero — real photo, or a branded fallback (warm ground + monogram) when the event
+            has none. On the fallback the title/meta flip to dark ink for AA. */}
         <View style={styles.hero}>
-          <Image source={{ uri: ev.photoUrls[0] ?? FALLBACK_PHOTO }} style={styles.heroImg} />
-          <View style={styles.heroOverlay} />
+          {ev.photoUrls.length > 0 ? (
+            <>
+              <Image source={{ uri: ev.photoUrls[0] }} style={styles.heroImg} />
+              <View style={styles.heroOverlay} />
+            </>
+          ) : (
+            <EventImageFallback style={StyleSheet.absoluteFill} size={30} />
+          )}
           {booking.status === 'confirmed' ? (
-            <View style={styles.heroBadge}>
+            <View style={[styles.heroBadge, ev.photoUrls.length === 0 && styles.heroChipOnLight]}>
               <CheckCircle2 size={12} color={tokens.color.forest} strokeWidth={2.4} />
               <Text style={styles.heroBadgeText}>{t('ticket_badgeConfirmed')}</Text>
             </View>
           ) : null}
-          <Text style={styles.heroIdChip}>{ticketId}</Text>
+          <Text style={[styles.heroIdChip, ev.photoUrls.length === 0 && styles.heroChipOnLight]}>
+            {ticketId}
+          </Text>
           <View style={styles.heroBody}>
-            <Text style={styles.heroTitle} numberOfLines={2}>
+            <Text
+              style={[styles.heroTitle, ev.photoUrls.length === 0 && styles.heroTitleDark]}
+              numberOfLines={2}
+            >
               {ev.title}
             </Text>
-            <Text style={styles.heroMeta} numberOfLines={1}>
+            <Text
+              style={[styles.heroMeta, ev.photoUrls.length === 0 && styles.heroMetaDark]}
+              numberOfLines={1}
+            >
               {heroLine}
             </Text>
           </View>
@@ -448,6 +463,10 @@ const styles = StyleSheet.create({
   heroBody: { position: 'absolute', left: 14, right: 14, bottom: 12 },
   heroTitle: { fontFamily: fonts.display, fontSize: 22, color: tokens.color.cream, lineHeight: 25 },
   heroMeta: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.cream, marginTop: 3, opacity: 0.95 },
+  // No-photo branded fallback: dark text for AA on the warm forestSoft ground.
+  heroTitleDark: { color: tokens.color.ink },
+  heroMetaDark: { color: tokens.color.forest, opacity: 1 },
+  heroChipOnLight: { borderWidth: 1, borderColor: tokens.color.border },
 
   // Countdown
   countdown: { alignItems: 'center', gap: 2 },
