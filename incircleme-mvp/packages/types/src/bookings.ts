@@ -8,11 +8,6 @@ export type CancelledBy = 'attendee' | 'host' | 'admin' | 'system';
 /** Refund lifecycle on a booking (bookings.refund_status). */
 export type RefundStatus = 'none' | 'pending' | 'partial' | 'full' | 'failed';
 
-/** POST /bookings/:id/cancel — actor is derived from auth, never the body. */
-export interface CancelBookingRequest {
-  reason?: string;
-}
-
 /** Outcome of a single-booking cancel/refund. */
 export interface RefundResult {
   bookingId: string;

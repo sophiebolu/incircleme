@@ -10,7 +10,6 @@ import {
   hostNoticeCutoffHours,
   lifeHappensCreditEnabled,
   lifeHappensCreditOncePerUser,
-  platformFeeReturnedOnRefund,
   ECONOMICS,
 } from '@incircleme/config';
 import type {
@@ -40,11 +39,9 @@ interface Plan {
   refundStatus: RefundStatus;
 }
 
-/** Ticket cash to return on a full refund. Flag locked true → gross (platform absorbs its
- *  fee, attendee made whole). Net-of-fee path is reserved (no current window uses it). */
-function fullTicketRefund(amountCents: number): number {
-  return platformFeeReturnedOnRefund() ? amountCents : amountCents;
-}
+// Full refunds return the GROSS ticket (= amountCents) — the platform absorbs its fee so
+// the attendee is made whole (ADR: platformFeeReturnedOnRefund, locked true). A net-of-fee
+// path is deferred (would need the fee source); see config.cancellation.partialRefundPct.
 
 /**
  * Pure attendee cancel outcome — refund / credit / deposit resolved by timing vs the
@@ -64,7 +61,7 @@ export function computeCancelOutcome(input: {
     // ≥ cutoff before start → full cash refund (ticket + deposit), nothing forfeited.
     const depositBack = hasDeposit && depositRefundedBeforeCutoff() ? input.depositCents : 0;
     return {
-      refundCents: fullTicketRefund(input.amountCents) + depositBack,
+      refundCents: input.amountCents + depositBack,
       creditCents: 0,
       depositForfeited: false,
       refundStatus: 'full',
@@ -89,6 +86,19 @@ export async function quoteCancel(bookingId: string, callerUserId: string): Prom
   const [b] = await db.select().from(bookings).where(eq(bookings.id, bookingId)).limit(1);
   if (!b) throw new BookingNotFoundError();
   if (b.userId !== callerUserId) throw new NotOwnerError();
+
+  // Already terminal → report what ACTUALLY happened, not a fresh recompute.
+  if (b.status === 'cancelled' || b.status === 'refunded' || b.refundStatus !== 'none') {
+    return {
+      refundCents: b.refundCents,
+      creditCents: b.creditIssuedCents,
+      depositForfeited: b.depositForfeited,
+      refundStatus: b.refundStatus as RefundStatus,
+      hasDeposit: b.depositCents > 0,
+      cutoffHours: cancellationCutoffHours(),
+    };
+  }
+
   const [e] = await db.select().from(events).where(eq(events.id, b.eventId)).limit(1);
   if (!e) throw new EventNotFoundError();
 
@@ -296,7 +306,7 @@ export async function refundBooking(
     if (b.status !== 'confirmed') throw new InvalidStatusError(b.status);
 
     const plan: Plan = {
-      refundCents: fullTicketRefund(b.amountCents) + b.depositCents,
+      refundCents: b.amountCents + b.depositCents,
       creditCents: 0,
       depositForfeited: false,
       refundStatus: 'full',
@@ -350,7 +360,7 @@ export async function cancelEventByHost(
     let totalCreditCents = 0;
     for (const b of confirmed) {
       const plan: Plan = {
-        refundCents: fullTicketRefund(b.amountCents) + b.depositCents, // made whole
+        refundCents: b.amountCents + b.depositCents, // made whole
         creditCents: penalty.creditCentsEach,
         depositForfeited: false,
         refundStatus: 'full',
@@ -380,7 +390,7 @@ export async function cancelEventByHost(
       eventId,
       userId: b.userId,
       actor,
-      refundCents: fullTicketRefund(b.amountCents) + b.depositCents,
+      refundCents: b.amountCents + b.depositCents,
       creditCents: result.penalty.creditCentsEach,
       depositForfeited: false,
     });

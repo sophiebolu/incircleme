@@ -39,9 +39,9 @@ export const bookSchema = z.object({
   seatCount: z.number().int().min(1).max(10).optional(),
 });
 
-export const cancelBookingSchema = z.object({
-  reason: z.string().max(500).optional(),
-});
+// Cancel takes no body params (actor is derived from auth). Kept as a hook + for the
+// uniform `safeParse` route pattern; a future `reason` would be persisted, not just parsed.
+export const cancelBookingSchema = z.object({});
 
 /** Zod-typed contract for GET /bookings/:id/cancel-quote. */
 export const cancelQuoteSchema = z.object({

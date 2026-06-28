@@ -143,7 +143,7 @@ export async function eventRoutes(
    * POST /events/:id/cancel — host (own event) or admin (any) cancels an event; fans out a
    * full refund to every confirmed attendee + the configured host penalty.
    */
-  app.post('/events/:id/cancel', { preHandler: requireAuth }, async (req, reply) => {
+  app.post('/events/:id/cancel', { preHandler: [requireAuth, requireActive] }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const actor = await hostOrAdminActor(req.userId!);
     try {
@@ -160,7 +160,7 @@ export async function eventRoutes(
    * POST /bookings/:id/refund — host (own event) or admin (any) full-refunds a single
    * booking (attendee made whole). Idempotent.
    */
-  app.post('/bookings/:id/refund', { preHandler: requireAuth }, async (req, reply) => {
+  app.post('/bookings/:id/refund', { preHandler: [requireAuth, requireActive] }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const actor = await hostOrAdminActor(req.userId!);
     try {

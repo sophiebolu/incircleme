@@ -176,10 +176,6 @@ export function hostNoticeCutoffHours(): number {
   return ECONOMICS.cancellation.hostNoticeCutoffHours;
 }
 
-export function platformFeeReturnedOnRefund(): boolean {
-  return ECONOMICS.cancellation.platformFeeReturnedOnRefund;
-}
-
 export function lifeHappensCreditEnabled(): boolean {
   return ECONOMICS.cancellation.lifeHappensCredit.enabled;
 }
@@ -190,17 +186,6 @@ export function lifeHappensCreditOncePerUser(): boolean {
 
 export function depositRefundedBeforeCutoff(): boolean {
   return ECONOMICS.cancellation.depositRefundRule.refundIfBeforeCutoff;
-}
-
-type HostPenalty =
-  (typeof ECONOMICS.cancellation.hostCancelPenalty)[keyof typeof ECONOMICS.cancellation.hostCancelPenalty];
-
-/** Host penalty tier resolved by hours of notice (negative = host no-show). */
-export function hostCancelPenaltyFor(hoursUntilStart: number): HostPenalty {
-  const p = ECONOMICS.cancellation.hostCancelPenalty;
-  if (hoursUntilStart < 0) return p.noShow;
-  if (hoursUntilStart > ECONOMICS.cancellation.hostNoticeCutoffHours) return p.gt24h;
-  return p.lt24h;
 }
 
 // ============================================================================

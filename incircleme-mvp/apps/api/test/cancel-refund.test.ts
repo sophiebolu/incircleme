@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { sql, eq } from 'drizzle-orm';
-import { db, pool, bookings, events } from '@incircleme/db';
+import { db, pool, bookings, events, users } from '@incircleme/db';
 import { ECONOMICS } from '@incircleme/config';
 import { buildApp } from '../src/app';
 import { redis } from '../src/lib/redis';
@@ -367,6 +367,27 @@ describe('host/admin booking refund', () => {
     const body = ok.json();
     expect(body.refundStatus).toBe('full');
     expect(body.refundCents).toBe(2500);
+    expect(fakePayments.refunded.length).toBe(1);
+  });
+
+  it('a trust_reviewer (admin) can refund any booking it does not host', async () => {
+    const host = await signIn('host@c.com');
+    const att = await signIn('att@c.com');
+    const admin = await signIn('admin@c.com');
+    await db.update(users).set({ role: 'trust_reviewer' }).where(eq(users.id, admin.user.id));
+    const { bookingId } = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: 10,
+      priceCents: 2000,
+    });
+    const res = await app.inject({
+      method: 'POST',
+      url: `/bookings/${bookingId}/refund`,
+      headers: auth(admin.accessToken),
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().refundStatus).toBe('full');
     expect(fakePayments.refunded.length).toBe(1);
   });
 });
