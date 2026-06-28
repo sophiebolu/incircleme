@@ -204,10 +204,25 @@ function toResult(i: Internal): RefundResult {
   };
 }
 
+/** Partial unique index (mig 0020) enforcing one credited attendee-cancel per user. */
+const CREDIT_ONCE_INDEX = 'bookings_one_credited_attendee_cancel_per_user';
+
+/** True for a 23505 raised by the once-per-user credit index (drizzle may nest under cause). */
+function isCreditOnceViolation(err: unknown): boolean {
+  const e = err as { code?: string; constraint?: string; cause?: { code?: string; constraint?: string } };
+  const code = e?.code ?? e?.cause?.code;
+  const constraint = e?.constraint ?? e?.cause?.constraint;
+  return code === '23505' && constraint === CREDIT_ONCE_INDEX;
+}
+
 /**
  * Attendee (or system no-show sweep) cancels a single confirmed booking.
  * Outcome is config + timing driven. Idempotent: a second call returns the recorded
  * result without a second Stripe refund.
+ *
+ * The "life happens" credit is once-per-user. The app-level check races under two concurrent
+ * cancels, so it's backstopped by a DB partial unique index: the loser hits a 23505 and is
+ * retried WITHOUT the credit (degrades to no credit), so the cancel still succeeds (no 500).
  */
 export async function cancelBooking(
   bookingId: string,
@@ -216,52 +231,65 @@ export async function cancelBooking(
   payments: Payments,
   domainEvents: DomainEvents,
 ): Promise<RefundResult> {
-  const internal = await db.transaction(async (tx) => {
-    const [b] = await tx
-      .select()
-      .from(bookings)
-      .where(eq(bookings.id, bookingId))
-      .for('update')
-      .limit(1);
-    if (!b) throw new BookingNotFoundError();
-    if (actor === 'attendee' && callerUserId && b.userId !== callerUserId) throw new NotOwnerError();
-
-    // Idempotent / terminal: already cancelled → return the recorded result, no second refund.
-    if (b.status === 'cancelled' || b.status === 'refunded' || b.refundStatus !== 'none') {
-      return rowToInternal(b, actor);
-    }
-    if (b.status !== 'confirmed') throw new InvalidStatusError(b.status);
-
-    const [e] = await tx.select().from(events).where(eq(events.id, b.eventId)).for('update').limit(1);
-    if (!e) throw new EventNotFoundError();
-
-    // One-time "life happens" credit — used already if any prior attendee-cancelled booking
-    // for this user issued a credit.
-    let lifeHappensAlreadyUsed = false;
-    if (lifeHappensCreditOncePerUser()) {
-      const prior = await tx
-        .select({ id: bookings.id })
+  // `suppressCredit` forces the no-credit path (used on the retry after the index rejects a
+  // second concurrent credit for the same user).
+  const attempt = (suppressCredit: boolean): Promise<Internal> =>
+    db.transaction(async (tx) => {
+      const [b] = await tx
+        .select()
         .from(bookings)
-        .where(
-          and(
-            eq(bookings.userId, b.userId),
-            eq(bookings.cancelledBy, 'attendee'),
-            gt(bookings.creditIssuedCents, 0),
-          ),
-        )
+        .where(eq(bookings.id, bookingId))
+        .for('update')
         .limit(1);
-      lifeHappensAlreadyUsed = prior.length > 0;
-    }
+      if (!b) throw new BookingNotFoundError();
+      if (actor === 'attendee' && callerUserId && b.userId !== callerUserId) throw new NotOwnerError();
 
-    const plan = computeCancelOutcome({
-      amountCents: b.amountCents,
-      depositCents: b.depositCents,
-      startsAt: e.startsAt,
-      now: new Date(),
-      lifeHappensAlreadyUsed,
+      // Idempotent / terminal: already cancelled → return the recorded result, no second refund.
+      if (b.status === 'cancelled' || b.status === 'refunded' || b.refundStatus !== 'none') {
+        return rowToInternal(b, actor);
+      }
+      if (b.status !== 'confirmed') throw new InvalidStatusError(b.status);
+
+      const [e] = await tx.select().from(events).where(eq(events.id, b.eventId)).for('update').limit(1);
+      if (!e) throw new EventNotFoundError();
+
+      // One-time "life happens" credit — used already if any prior attendee-cancelled booking
+      // for this user issued a credit (or forced on the degrade retry).
+      let lifeHappensAlreadyUsed = suppressCredit;
+      if (!suppressCredit && lifeHappensCreditOncePerUser()) {
+        const prior = await tx
+          .select({ id: bookings.id })
+          .from(bookings)
+          .where(
+            and(
+              eq(bookings.userId, b.userId),
+              eq(bookings.cancelledBy, 'attendee'),
+              gt(bookings.creditIssuedCents, 0),
+            ),
+          )
+          .limit(1);
+        lifeHappensAlreadyUsed = prior.length > 0;
+      }
+
+      const plan = computeCancelOutcome({
+        amountCents: b.amountCents,
+        depositCents: b.depositCents,
+        startsAt: e.startsAt,
+        now: new Date(),
+        lifeHappensAlreadyUsed,
+      });
+      return applyCancel(tx, b, e, actor, plan, payments);
     });
-    return applyCancel(tx, b, e, actor, plan, payments);
-  });
+
+  let internal: Internal;
+  try {
+    internal = await attempt(false);
+  } catch (err) {
+    if (!isCreditOnceViolation(err)) throw err;
+    // Another concurrent cancel already claimed this user's once-per-user credit. Re-run with
+    // no credit so this booking still cancels cleanly (credit_issued_cents 0, refund_status none).
+    internal = await attempt(true);
+  }
 
   if (internal.fresh) {
     await domainEvents.bookingCancelled({

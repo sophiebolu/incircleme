@@ -8,6 +8,7 @@ import {
   customType,
   unique,
   index,
+  uniqueIndex,
   primaryKey,
   jsonb,
   numeric,
@@ -211,7 +212,14 @@ export const bookings = pgTable('bookings', {
   depositPaymentMethodId: text('deposit_payment_method_id'), // saved card (Layer 2)
   depositAuthIntentId: text('deposit_auth_intent_id'), // PaymentIntent for the hold (Layer 3)
   depositAuthStatus: text('deposit_auth_status').notNull().default('none'), // none|saved|authorized|captured|released|expired
-});
+}, (t) => [
+  // At most one credited attendee-cancel per user — DB-enforced "life happens" once-per-user
+  // (the app-level check alone races under concurrent cancels). Partial: only credited
+  // attendee-cancel rows participate, so normal bookings/refunds are unconstrained.
+  uniqueIndex('bookings_one_credited_attendee_cancel_per_user')
+    .on(t.userId)
+    .where(sql`${t.cancelledBy} = 'attendee' and ${t.creditIssuedCents} > 0`),
+]);
 
 export type EventRow = typeof events.$inferSelect;
 export type NewEventRow = typeof events.$inferInsert;

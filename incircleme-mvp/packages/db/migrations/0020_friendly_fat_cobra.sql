@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "bookings_one_credited_attendee_cancel_per_user" ON "bookings" USING btree ("user_id") WHERE "bookings"."cancelled_by" = 'attendee' and "bookings"."credit_issued_cents" > 0;

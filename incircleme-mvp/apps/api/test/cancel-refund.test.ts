@@ -440,3 +440,65 @@ describe('cancel-quote', () => {
     expect(fakePayments.refunded.length).toBe(0);
   });
 });
+
+// ── once-per-user credit: DB backstop for the concurrency race ─────────────────
+describe('once-per-user credit — concurrency backstop', () => {
+  it('two concurrent inside-window cancels by the same user → exactly one credit, both cancel', async () => {
+    const host = await signIn('host@c.com');
+    const att = await signIn('att@c.com');
+    const a = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: 2,
+      priceCents: 2000,
+    });
+    const b = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: 2,
+      priceCents: 2000,
+    });
+
+    // Fire both cancels at once — the app-level once-check can let both through; the partial
+    // unique index rejects the loser, which is retried WITHOUT a credit.
+    const [r1, r2] = await Promise.all([
+      cancel(a.bookingId, att.accessToken),
+      cancel(b.bookingId, att.accessToken),
+    ]);
+    expect(r1.statusCode).toBe(200);
+    expect(r2.statusCode).toBe(200);
+    expect([r1.json().creditCents, r2.json().creditCents].sort((x, y) => x - y)).toEqual([0, 2000]);
+
+    const rows = await db.select().from(bookings).where(eq(bookings.userId, att.user.id));
+    expect(rows.every((x) => x.status === 'cancelled')).toBe(true); // both cancelled cleanly
+    expect(rows.filter((x) => x.cancelledBy === 'attendee' && x.creditIssuedCents > 0)).toHaveLength(1);
+    expect(fakePayments.refunded.length).toBe(0);
+  });
+
+  it('the partial unique index rejects a second credited attendee-cancel row for a user', async () => {
+    const host = await signIn('host@c.com');
+    const att = await signIn('att@c.com');
+    const a = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: 72,
+      priceCents: 2000,
+    });
+    const b = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: 72,
+      priceCents: 2000,
+    });
+    await db
+      .update(bookings)
+      .set({ cancelledBy: 'attendee', creditIssuedCents: 500 })
+      .where(eq(bookings.id, a.bookingId));
+    await expect(
+      db
+        .update(bookings)
+        .set({ cancelledBy: 'attendee', creditIssuedCents: 500 })
+        .where(eq(bookings.id, b.bookingId)),
+    ).rejects.toThrow();
+  });
+});
