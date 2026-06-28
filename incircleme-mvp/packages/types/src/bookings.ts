@@ -27,6 +27,19 @@ export interface RefundResult {
   cancelledBy: CancelledBy;
 }
 
+/** Read-only preview of what cancelling a booking would do (GET /bookings/:id/cancel-quote).
+ *  Promise-delivery: the cancel sheet renders exactly this before the attendee confirms. */
+export interface CancelQuote {
+  refundCents: number;
+  creditCents: number;
+  depositForfeited: boolean;
+  refundStatus: RefundStatus;
+  /** Whether the booking carries a €5 seat-hold deposit (drives the deposit line). */
+  hasDeposit: boolean;
+  /** The free-cancellation cutoff in hours (for "within {hours}h" copy). */
+  cutoffHours: number;
+}
+
 /** Outcome of a host/admin event-cancellation fan-out to all attendees. */
 export interface HostCancelResult {
   eventId: string;

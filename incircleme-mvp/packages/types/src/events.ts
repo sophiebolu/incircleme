@@ -1,4 +1,5 @@
 import type { EventCategory, HostTier, TrustTier } from './index';
+import type { RefundStatus } from './bookings';
 
 export interface HostSummary {
   id: string;
@@ -90,4 +91,8 @@ export interface BookingListItem {
   /** The event's Circle, once it exists (created on first confirmed booking). */
   circleId: string | null;
   circleMemberCount: number | null;
+  /** Refund outcome — drives the ticket's cancelled sub-state + the list chips. */
+  refundStatus: RefundStatus;
+  refundCents: number;
+  creditIssuedCents: number;
 }

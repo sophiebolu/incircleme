@@ -1,7 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 import { isReviewerRole } from '@incircleme/config';
 import { requireActive, requireAuth } from '../plugins/auth';
-import { bookSchema, cancelBookingSchema, createEventSchema, eventsQuerySchema } from '../schemas/events';
+import {
+  bookSchema,
+  cancelBookingSchema,
+  cancelQuoteSchema,
+  createEventSchema,
+  eventsQuerySchema,
+} from '../schemas/events';
 import { createEvent, getEventDetail, listEvents } from '../services/events/events';
 import {
   book,
@@ -13,7 +19,13 @@ import {
   NotHostError,
   RoomFullError,
 } from '../services/booking/booking';
-import { cancelBooking, cancelEventByHost, refundBooking, NotOwnerError } from '../services/booking/cancel';
+import {
+  cancelBooking,
+  cancelEventByHost,
+  quoteCancel,
+  refundBooking,
+  NotOwnerError,
+} from '../services/booking/cancel';
 import { getUserById } from '../services/auth/users';
 import type { Payments } from '../lib/payments';
 import type { DomainEvents } from '../lib/events';
@@ -86,6 +98,23 @@ export async function eventRoutes(
       if (err instanceof NotHostError) return reply.code(403).send({ error: 'not_host' });
       if (err instanceof InvalidStatusError)
         return reply.code(409).send({ error: 'invalid_status', status: err.status });
+      throw err;
+    }
+  });
+
+  /**
+   * GET /bookings/:id/cancel-quote — read-only preview of the refund/credit/deposit the
+   * attendee would get, computed by the same pure function cancel uses. Never mutates.
+   */
+  app.get('/bookings/:id/cancel-quote', { preHandler: [requireAuth, requireActive] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    try {
+      const quote = await quoteCancel(id, req.userId!);
+      return reply.code(200).send(cancelQuoteSchema.parse(quote));
+    } catch (err) {
+      if (err instanceof BookingNotFoundError || err instanceof EventNotFoundError)
+        return reply.code(404).send({ error: 'not_found' });
+      if (err instanceof NotOwnerError) return reply.code(403).send({ error: 'not_owner' });
       throw err;
     }
   });

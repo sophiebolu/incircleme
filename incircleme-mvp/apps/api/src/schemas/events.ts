@@ -42,3 +42,13 @@ export const bookSchema = z.object({
 export const cancelBookingSchema = z.object({
   reason: z.string().max(500).optional(),
 });
+
+/** Zod-typed contract for GET /bookings/:id/cancel-quote. */
+export const cancelQuoteSchema = z.object({
+  refundCents: z.number().int(),
+  creditCents: z.number().int(),
+  depositForfeited: z.boolean(),
+  refundStatus: z.enum(['none', 'pending', 'partial', 'full', 'failed']),
+  hasDeposit: z.boolean(),
+  cutoffHours: z.number().int(),
+});

@@ -370,3 +370,52 @@ describe('host/admin booking refund', () => {
     expect(fakePayments.refunded.length).toBe(1);
   });
 });
+
+// ── cancel-quote (read-only, promise-delivery) ───────────────────────────────
+describe('cancel-quote', () => {
+  it('quote matches what cancel() then does', async () => {
+    const host = await signIn('host@c.com');
+    const att = await signIn('att@c.com');
+    const { bookingId } = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: 2, // inside cutoff → credit path
+      priceCents: 2000,
+    });
+    const quote = (
+      await app.inject({
+        method: 'GET',
+        url: `/bookings/${bookingId}/cancel-quote`,
+        headers: auth(att.accessToken),
+      })
+    ).json();
+    const done = (await cancel(bookingId, att.accessToken)).json();
+    expect(quote.refundCents).toBe(done.refundCents);
+    expect(quote.creditCents).toBe(done.creditCents);
+    expect(quote.depositForfeited).toBe(done.depositForfeited);
+    expect(quote.refundStatus).toBe(done.refundStatus);
+    expect(quote.cutoffHours).toBe(ECONOMICS.cancellation.cancellationCutoffHours);
+  });
+
+  it('quote does NOT mutate the booking', async () => {
+    const host = await signIn('host@c.com');
+    const att = await signIn('att@c.com');
+    const { bookingId } = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: 72,
+      priceCents: 2000,
+    });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/bookings/${bookingId}/cancel-quote`,
+      headers: auth(att.accessToken),
+    });
+    expect(res.statusCode).toBe(200);
+    const [b] = await db.select().from(bookings).where(eq(bookings.id, bookingId));
+    expect(b!.status).toBe('confirmed');
+    expect(b!.refundStatus).toBe('none');
+    expect(b!.cancelledAt).toBeNull();
+    expect(fakePayments.refunded.length).toBe(0);
+  });
+});

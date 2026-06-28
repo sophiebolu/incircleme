@@ -13,7 +13,13 @@ import {
   platformFeeReturnedOnRefund,
   ECONOMICS,
 } from '@incircleme/config';
-import type { CancelledBy, HostCancelResult, RefundResult, RefundStatus } from '@incircleme/types';
+import type {
+  CancelledBy,
+  CancelQuote,
+  HostCancelResult,
+  RefundResult,
+  RefundStatus,
+} from '@incircleme/types';
 import type { Payments } from '../../lib/payments';
 import type { DomainEvents } from '../../lib/events';
 import { BookingNotFoundError, EventNotFoundError, InvalidStatusError, NotHostError } from './booking';
@@ -40,15 +46,21 @@ function fullTicketRefund(amountCents: number): number {
   return platformFeeReturnedOnRefund() ? amountCents : amountCents;
 }
 
-/** Attendee-initiated outcome, resolved purely by timing vs the configured cutoff. */
-function computeAttendeeOutcome(input: {
+/**
+ * Pure attendee cancel outcome — refund / credit / deposit resolved by timing vs the
+ * configured cutoff. No I/O, no mutation: the same function powers both the read-only
+ * cancel-quote and the actual cancel, so the sheet can promise exactly what happens.
+ */
+export function computeCancelOutcome(input: {
   amountCents: number;
   depositCents: number;
-  hoursUntilStart: number;
+  startsAt: Date;
+  now: Date;
   lifeHappensAlreadyUsed: boolean;
 }): Plan {
+  const hoursUntilStart = (input.startsAt.getTime() - input.now.getTime()) / HOUR_MS;
   const hasDeposit = input.depositCents > 0;
-  if (input.hoursUntilStart >= cancellationCutoffHours()) {
+  if (hoursUntilStart >= cancellationCutoffHours()) {
     // ≥ cutoff before start → full cash refund (ticket + deposit), nothing forfeited.
     const depositBack = hasDeposit && depositRefundedBeforeCutoff() ? input.depositCents : 0;
     return {
@@ -58,7 +70,7 @@ function computeAttendeeOutcome(input: {
       refundStatus: 'full',
     };
   }
-  if (input.hoursUntilStart >= 0) {
+  if (hoursUntilStart >= 0) {
     // < cutoff, genuine cancel before start → NO cash; one-time life-happens credit
     // (= ticket value); deposit forfeited.
     const credit =
@@ -67,6 +79,50 @@ function computeAttendeeOutcome(input: {
   }
   // Event already started, never cancelled → no-show forfeit (no cash, no credit, deposit kept).
   return { refundCents: 0, creditCents: 0, depositForfeited: hasDeposit, refundStatus: 'none' };
+}
+
+/**
+ * Read-only cancel quote (GET /bookings/:id/cancel-quote) — computes the SAME outcome
+ * cancelBooking() would produce, WITHOUT touching the row or Stripe. Ownership-checked.
+ */
+export async function quoteCancel(bookingId: string, callerUserId: string): Promise<CancelQuote> {
+  const [b] = await db.select().from(bookings).where(eq(bookings.id, bookingId)).limit(1);
+  if (!b) throw new BookingNotFoundError();
+  if (b.userId !== callerUserId) throw new NotOwnerError();
+  const [e] = await db.select().from(events).where(eq(events.id, b.eventId)).limit(1);
+  if (!e) throw new EventNotFoundError();
+
+  let lifeHappensAlreadyUsed = false;
+  if (lifeHappensCreditOncePerUser()) {
+    const prior = await db
+      .select({ id: bookings.id })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.userId, b.userId),
+          eq(bookings.cancelledBy, 'attendee'),
+          gt(bookings.creditIssuedCents, 0),
+        ),
+      )
+      .limit(1);
+    lifeHappensAlreadyUsed = prior.length > 0;
+  }
+
+  const o = computeCancelOutcome({
+    amountCents: b.amountCents,
+    depositCents: b.depositCents,
+    startsAt: e.startsAt,
+    now: new Date(),
+    lifeHappensAlreadyUsed,
+  });
+  return {
+    refundCents: o.refundCents,
+    creditCents: o.creditCents,
+    depositForfeited: o.depositForfeited,
+    refundStatus: o.refundStatus,
+    hasDeposit: b.depositCents > 0,
+    cutoffHours: cancellationCutoffHours(),
+  };
 }
 
 interface Internal {
@@ -187,10 +243,11 @@ export async function cancelBooking(
       lifeHappensAlreadyUsed = prior.length > 0;
     }
 
-    const plan = computeAttendeeOutcome({
+    const plan = computeCancelOutcome({
       amountCents: b.amountCents,
       depositCents: b.depositCents,
-      hoursUntilStart: (e.startsAt.getTime() - Date.now()) / HOUR_MS,
+      startsAt: e.startsAt,
+      now: new Date(),
       lifeHappensAlreadyUsed,
     });
     return applyCancel(tx, b, e, actor, plan, payments);

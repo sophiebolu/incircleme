@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,8 +19,10 @@ import {
 } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
 import type { BookingListItem, EventDetail } from '@incircleme/types';
-import { formatDate, formatDateTime, formatPrice, t } from '@incircleme/i18n';
+import { formatDate, formatDateTime, formatPrice, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
+import { CancelSheet } from '../../components/CancelSheet';
+import { ErrorRetry, NotFound, ScreenSkeleton } from '../../components/ScreenStates';
 import { BrandBar } from '../../components/BrandBar';
 import { HostRow } from '../../components/HostRow';
 import { useNavClearance } from '../../lib/useNavClearance';
@@ -44,6 +46,10 @@ function useTicker(): number {
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
+const euros = (cents: number): string => {
+  const v = cents / 100;
+  return Number.isInteger(v) ? String(v) : v.toFixed(2);
+};
 
 export default function TicketScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
@@ -52,40 +58,64 @@ export default function TicketScreen() {
   const [detail, setDetail] = useState<EventDetail | null>(null);
   const [holder, setHolder] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'notFound' | 'error'>('loading');
+  const [sheetOpen, setSheetOpen] = useState(false);
   const navClearance = useNavClearance();
   const now = useTicker();
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!bookingId) return;
-    void (async () => {
-      try {
-        const list = await api.myBookings();
+    setStatus('loading');
+    api
+      .myBookings()
+      .then((list) => {
         const b = list.find((x) => x.id === bookingId) ?? null;
         setBooking(b);
+        setStatus(b ? 'ready' : 'notFound');
         if (b) api.getEvent(b.event.id).then(setDetail).catch(() => {});
-        api
-          .me()
-          .then((m) => setHolder(m.displayName ?? m.email ?? null))
-          .catch(() => {});
-      } catch {
-        setBooking(null);
-      }
-    })();
+      })
+      .catch(() => setStatus('error'));
+    api
+      .me()
+      .then((m) => setHolder(m.displayName ?? m.email ?? null))
+      .catch(() => {});
   }, [bookingId]);
 
-  // Live actions (running-late) + Wallet/Calendar have no backend yet → brief notice.
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // Wallet / Calendar / running-late have no backend yet → brief notice (NOT cancel).
   const comingSoon = () => {
     setNotice(t('prof_comingSoon'));
     setTimeout(() => setNotice(null), 1800);
   };
 
-  if (!booking) {
-    return (
-      <SafeAreaView style={styles.safe} edges={['top']}>
-        <BrandBar />
-      </SafeAreaView>
-    );
-  }
+  // Shared chrome for the loading / error / not-found states (no blank shell).
+  const chrome = (children: ReactNode) => (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <BrandBar />
+      <View style={styles.appbar}>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={t('onb_back')}
+        >
+          <Text style={styles.back}>←</Text>
+        </Pressable>
+        <View>
+          <Text style={styles.title}>{t('ticket_title')}</Text>
+          <Text style={styles.sub}>{t('ticket_subtitle')}</Text>
+        </View>
+      </View>
+      {children}
+    </SafeAreaView>
+  );
+
+  if (status === 'loading') return chrome(<ScreenSkeleton />);
+  if (status === 'error') return chrome(<ErrorRetry onRetry={load} />);
+  if (status === 'notFound' || !booking) return chrome(<NotFound />);
 
   const ev = booking.event;
   const ticketId = shortTicketId(booking.id);
@@ -110,6 +140,19 @@ export default function TicketScreen() {
   const countdown = `${pad(Math.floor(ms / 3_600_000))} : ${pad(
     Math.floor((ms % 3_600_000) / 60_000),
   )} : ${pad(Math.floor((ms % 60_000) / 1000))}`;
+
+  // P0 fix — QR / countdown / live-cancel ONLY when confirmed AND upcoming.
+  const isPast = now > new Date(ev.endsAt).getTime();
+  const isHeld = booking.status === 'held';
+  const isCancelled = booking.status === 'cancelled' || booking.status === 'refunded';
+  const isActive = booking.status === 'confirmed' && !isPast;
+  const isAttended = booking.status === 'confirmed' && isPast;
+  const cancelledLine =
+    booking.refundStatus === 'full' && booking.refundCents > 0
+      ? interpolate(t('tk_cancelledRefunded'), { amount: euros(booking.refundCents) })
+      : booking.creditIssuedCents > 0
+        ? interpolate(t('tk_cancelledCredit'), { amount: euros(booking.creditIssuedCents) })
+        : t('tk_cancelledNoRefund');
 
   const openMaps = () => {
     void Linking.openURL(
@@ -146,10 +189,12 @@ export default function TicketScreen() {
         <View style={styles.hero}>
           <Image source={{ uri: ev.photoUrls[0] ?? FALLBACK_PHOTO }} style={styles.heroImg} />
           <View style={styles.heroOverlay} />
-          <View style={styles.heroBadge}>
-            <CheckCircle2 size={12} color={tokens.color.forest} strokeWidth={2.4} />
-            <Text style={styles.heroBadgeText}>{t('ticket_badgeConfirmed')}</Text>
-          </View>
+          {booking.status === 'confirmed' ? (
+            <View style={styles.heroBadge}>
+              <CheckCircle2 size={12} color={tokens.color.forest} strokeWidth={2.4} />
+              <Text style={styles.heroBadgeText}>{t('ticket_badgeConfirmed')}</Text>
+            </View>
+          ) : null}
           <Text style={styles.heroIdChip}>{ticketId}</Text>
           <View style={styles.heroBody}>
             <Text style={styles.heroTitle} numberOfLines={2}>
@@ -161,30 +206,57 @@ export default function TicketScreen() {
           </View>
         </View>
 
-        {/* Countdown */}
-        <View style={styles.countdown}>
-          <Text style={styles.cdL}>{t('ticket_startsIn')}</Text>
-          <Text style={styles.cdN}>{countdown}</Text>
-          <Text style={styles.cdS}>{t('ticket_remind')}</Text>
-        </View>
+        {/* Live entry (QR + countdown) ONLY when confirmed AND upcoming — the P0 fix. */}
+        {isActive ? (
+          <>
+            <View style={styles.countdown}>
+              <Text style={styles.cdL}>{t('ticket_startsIn')}</Text>
+              <Text style={styles.cdN}>{countdown}</Text>
+              <Text style={styles.cdS}>{t('ticket_remind')}</Text>
+            </View>
 
-        {/* QR card — coral corner brackets + holder line */}
-        <View style={styles.qrCard}>
-          <View style={[styles.corner, styles.cTL]} />
-          <View style={[styles.corner, styles.cTR]} />
-          <View style={[styles.corner, styles.cBL]} />
-          <View style={[styles.corner, styles.cBR]} />
-          <Text style={styles.qrLbl}>{t('ticket_showAtDoor')}</Text>
-          <View style={styles.qrBox}>
-            <QRCode value={booking.id} size={148} color={tokens.color.ink} backgroundColor="#FFFFFF" />
+            {/* QR card — coral corner brackets + holder line */}
+            <View style={styles.qrCard}>
+              <View style={[styles.corner, styles.cTL]} />
+              <View style={[styles.corner, styles.cTR]} />
+              <View style={[styles.corner, styles.cBL]} />
+              <View style={[styles.corner, styles.cBR]} />
+              <Text style={styles.qrLbl}>{t('ticket_showAtDoor')}</Text>
+              <View style={styles.qrBox} accessible accessibilityLabel={t('tk_qrLabel')}>
+                <QRCode value={booking.id} size={148} color={tokens.color.ink} backgroundColor="#FFFFFF" />
+              </View>
+              <Text style={styles.holderNm}>
+                {holder ?? '—'} · <Text style={styles.em}>{t('ticket_admitOne')}</Text>
+              </Text>
+              <Text style={styles.holderMeta}>
+                {ticketId}  ·  {issued}
+              </Text>
+            </View>
+          </>
+        ) : (
+          // No QR for held / cancelled / attended — a state banner instead.
+          <View style={styles.stateBanner}>
+            {isHeld ? (
+              <Hourglass size={18} color={tokens.color.coralInk} strokeWidth={2} />
+            ) : isCancelled ? (
+              <CircleX size={18} color={tokens.color.coralInk} strokeWidth={2} />
+            ) : (
+              <CheckCircle2 size={18} color={tokens.color.forest} strokeWidth={2} />
+            )}
+            <Text style={styles.stateBannerText}>
+              {isHeld ? t('tk_heldNoQr') : isCancelled ? cancelledLine : t('tk_attended')}
+            </Text>
+            {isAttended ? (
+              <Pressable
+                style={styles.reviewCta}
+                onPress={() => router.push(`/review/${booking.id}`)}
+                accessibilityRole="button"
+              >
+                <Text style={styles.reviewCtaText}>{t('tk_reviewCta')}</Text>
+              </Pressable>
+            ) : null}
           </View>
-          <Text style={styles.holderNm}>
-            {holder ?? '—'} · <Text style={styles.em}>{t('ticket_admitOne')}</Text>
-          </Text>
-          <Text style={styles.holderMeta}>
-            {ticketId}  ·  {issued}
-          </Text>
-        </View>
+        )}
 
         {/* The details */}
         <View style={styles.details}>
@@ -243,32 +315,49 @@ export default function TicketScreen() {
           </Pressable>
         </View>
 
-        {/* If something changes */}
-        <View style={styles.liveEyebrow}>
-          <View style={styles.liveLine} />
-        </View>
-        <Pressable style={styles.liveRow} onPress={comingSoon} accessibilityRole="button">
-          <View style={styles.liveIc}>
-            <Hourglass size={16} color={tokens.color.coralInk} strokeWidth={2} />
-          </View>
-          <Text style={styles.liveTitle}>{t('ticket_late')}</Text>
-          <ChevronRight size={16} color={tokens.color.gray} strokeWidth={2} />
-        </Pressable>
-        <Pressable style={styles.liveRow} onPress={comingSoon} accessibilityRole="button">
-          <View style={styles.liveIc}>
-            <CircleX size={16} color={tokens.color.coralInk} strokeWidth={2} />
-          </View>
-          <View style={styles.liveBody}>
-            <Text style={styles.liveTitle}>{t('ticket_cancelCta')}</Text>
-            <Text style={styles.liveSub}>{t('ticket_cancelSub')}</Text>
-          </View>
-          <ChevronRight size={16} color={tokens.color.gray} strokeWidth={2} />
-        </Pressable>
+        {/* Live actions (running-late + cancel) ONLY when confirmed + upcoming. */}
+        {isActive ? (
+          <>
+            <View style={styles.liveEyebrow}>
+              <View style={styles.liveLine} />
+            </View>
+            <Pressable style={styles.liveRow} onPress={comingSoon} accessibilityRole="button">
+              <View style={styles.liveIc}>
+                <Hourglass size={16} color={tokens.color.coralInk} strokeWidth={2} />
+              </View>
+              <Text style={styles.liveTitle}>{t('ticket_late')}</Text>
+              <ChevronRight size={16} color={tokens.color.gray} strokeWidth={2} />
+            </Pressable>
+            <Pressable
+              style={styles.liveRow}
+              onPress={() => setSheetOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel={t('ticket_cancelCta')}
+            >
+              <View style={styles.liveIc}>
+                <CircleX size={16} color={tokens.color.coralInk} strokeWidth={2} />
+              </View>
+              <View style={styles.liveBody}>
+                <Text style={styles.liveTitle}>{t('ticket_cancelCta')}</Text>
+                <Text style={styles.liveSub}>{t('ticket_cancelSub')}</Text>
+              </View>
+              <ChevronRight size={16} color={tokens.color.gray} strokeWidth={2} />
+            </Pressable>
+          </>
+        ) : null}
 
         {/* Footer flourish */}
         <Text style={styles.footer}>{t('ticket_footer')}</Text>
         {notice ? <Text style={styles.notice}>{notice}</Text> : null}
       </ScrollView>
+
+      <CancelSheet
+        bookingId={booking.id}
+        amountCents={booking.amountCents}
+        visible={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onCancelled={load}
+      />
     </SafeAreaView>
   );
 }
@@ -303,6 +392,27 @@ const styles = StyleSheet.create({
   title: { fontFamily: fonts.displaySemi, fontSize: 18, color: tokens.color.ink },
   sub: { fontFamily: fonts.body, fontSize: 11.5, color: tokens.color.text2 },
   content: { padding: 16, gap: 12 },
+
+  // Non-active state banner (held / cancelled / attended) — forest, AA on forestSoft.
+  stateBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 10,
+    backgroundColor: tokens.color.forestSoft,
+    borderRadius: 14,
+    padding: 16,
+  },
+  stateBannerText: { flex: 1, fontFamily: fonts.bodySemi, fontSize: 14, color: tokens.color.forest },
+  reviewCta: {
+    backgroundColor: tokens.color.forest,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  reviewCtaText: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.cream },
 
   // Hero
   hero: { height: 168, borderRadius: 16, overflow: 'hidden', backgroundColor: tokens.color.forest },
