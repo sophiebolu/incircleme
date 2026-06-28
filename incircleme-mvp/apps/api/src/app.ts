@@ -17,10 +17,11 @@ import { adminProgramRoutes } from './routes/admin-programs';
 import { publicProgramRoutes } from './routes/public-programs';
 import { reviewRoutes } from './routes/reviews';
 import { userRoutes } from './routes/users';
+import { notificationRoutes } from './routes/notifications';
 import { devRoutes } from './routes/dev';
 import { createMailer } from './lib/mailer';
 import { createPayments } from './lib/payments';
-import { createDomainEvents } from './lib/events';
+import { createPersistingDomainEvents } from './services/notifications/notifications';
 import { createRealtime, nullRealtime } from './lib/realtime';
 import { createLocalStorage, uploadsDir } from './lib/storage';
 import type { Mailer } from './lib/mailer';
@@ -44,7 +45,7 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   const app = Fastify({ logger: opts.logger ?? true });
   const mailer = opts.mailer ?? createMailer(app.log);
   const payments = opts.payments ?? createPayments(app.log);
-  const domainEvents = opts.events ?? createDomainEvents(app.log);
+  const domainEvents = opts.events ?? createPersistingDomainEvents(app.log);
   const storage = opts.storage ?? createLocalStorage();
   const realtime: Realtime = opts.realtime === false ? nullRealtime : createRealtime(app);
 
@@ -64,7 +65,7 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   await app.register(authRoutes, { mailer });
   await app.register(meRoutes);
   await app.register(eventRoutes, { payments, domainEvents });
-  await app.register(webhookRoutes, { payments, mailer });
+  await app.register(webhookRoutes, { payments, mailer, domainEvents });
   await app.register(circleRoutes, { realtime });
   await app.register(arrivingRoutes, { storage });
   await app.register(programRoutes, { payments, storage });
@@ -72,6 +73,7 @@ export async function buildApp(opts: BuildAppOptions = {}) {
   await app.register(publicProgramRoutes);
   await app.register(reviewRoutes);
   await app.register(userRoutes);
+  await app.register(notificationRoutes);
   // DEV-ONLY quick sign-in — never registered in production.
   if (process.env.NODE_ENV !== 'production') await app.register(devRoutes);
   return app;

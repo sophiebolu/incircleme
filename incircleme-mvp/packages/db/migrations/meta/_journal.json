@@ -127,6 +127,13 @@
       "when": 1782654770682,
       "tag": "0017_booking_refund_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1782654770683,
+      "tag": "0018_notifications",
+      "breakpoints": true
     }
   ]
 }

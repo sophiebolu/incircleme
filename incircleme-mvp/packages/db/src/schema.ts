@@ -7,10 +7,12 @@ import {
   timestamp,
   customType,
   unique,
+  index,
   primaryKey,
   jsonb,
   numeric,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // Case-insensitive text. Requires the `citext` extension (created in migration 0001).
@@ -300,18 +302,32 @@ export const circleKeepVotes = pgTable(
 
 // Notification ledger (Brief MVP table). Push delivery is stubbed until Phase 2 —
 // rows are the durable record the jobs write and the UI can read.
-export const notifications = pgTable('notifications', {
-  id: uuid('id')
-    .primaryKey()
-    .$defaultFn(() => uuidv7()),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id),
-  type: text('type').notNull(), // arriving_pre | arriving_post | address_unlock | circle_msg | booking_confirm
-  payload: jsonb('payload'),
-  readAt: timestamp('read_at', { withTimezone: true }),
-  sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
-});
+export const notifications = pgTable(
+  'notifications',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    // Job-driven: arriving_pre | arriving_post | address_unlock | circle_msg | booking_confirm
+    // Booking-Loop inbox (Stage 2b): booking_confirmed | booking_cancelled | booking_refunded | host_cancelled
+    type: text('type').notNull(),
+    payload: jsonb('payload'), // legacy job notifications carry their data here
+    // Booking-Loop typed columns (additive, mig 0018). Null for legacy job rows.
+    eventId: uuid('event_id').references(() => events.id),
+    bookingId: uuid('booking_id').references(() => bookings.id),
+    amountCents: integer('amount_cents'),
+    creditCents: integer('credit_cents'),
+    readAt: timestamp('read_at', { withTimezone: true }),
+    sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(), // creation time (DTO: createdAt)
+  },
+  (t) => [
+    index('notifications_user_created_idx').on(t.userId, t.sentAt.desc()),
+    index('notifications_user_unread_idx').on(t.userId).where(sql`${t.readAt} is null`),
+  ],
+);
 
 export type NotificationRow = typeof notifications.$inferSelect;
 export type CircleRow = typeof circles.$inferSelect;
