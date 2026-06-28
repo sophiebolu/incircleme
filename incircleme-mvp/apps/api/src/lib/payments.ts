@@ -160,7 +160,13 @@ export class FakePayments implements Payments {
 
   /** Records the refund call so tests can assert it; no external effect. */
   public readonly refunded: string[] = [];
+  /** Test fault injection: throw on every refund, or only for these PaymentIntent ids. */
+  public failRefunds = false;
+  public readonly failRefundPis = new Set<string>();
   async refund(paymentIntentId: string, _idempotencyKey?: string): Promise<void> {
+    if (this.failRefunds || this.failRefundPis.has(paymentIntentId)) {
+      throw new Error(`fake_refund_failed:${paymentIntentId}`);
+    }
     this.refunded.push(paymentIntentId);
   }
 

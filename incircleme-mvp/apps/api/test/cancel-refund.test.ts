@@ -112,6 +112,8 @@ beforeEach(async () => {
   );
   for (const k of Object.keys(magicLinks)) delete magicLinks[k];
   fakePayments.refunded.length = 0;
+  fakePayments.failRefunds = false;
+  fakePayments.failRefundPis.clear();
   fakeEvents.cancellations.length = 0;
   fakeEvents.warnings.length = 0;
   fakeEvents.suspendSignals.length = 0;
@@ -500,5 +502,107 @@ describe('once-per-user credit — concurrency backstop', () => {
         .set({ cancelledBy: 'attendee', creditIssuedCents: 500 })
         .where(eq(bookings.id, b.bookingId)),
     ).rejects.toThrow();
+  });
+});
+
+// ── post-commit Stripe refund (Phase B) ────────────────────────────────────────
+describe('post-commit refund settlement', () => {
+  const cutoff = ECONOMICS.cancellation.cancellationCutoffHours;
+
+  it('happy: refund settles after commit → row + response refund_status=full', async () => {
+    const host = await signIn('host@c.com');
+    const att = await signIn('att@c.com');
+    const { bookingId } = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: cutoff + 4,
+      priceCents: 2000,
+    });
+    const body = (await cancel(bookingId, att.accessToken)).json();
+    expect(body.refundStatus).toBe('full');
+    expect(fakePayments.refunded.length).toBe(1); // moved post-commit
+    const [b] = await db.select().from(bookings).where(eq(bookings.id, bookingId));
+    expect(b!.status).toBe('cancelled');
+    expect(b!.refundStatus).toBe('full');
+  });
+
+  it('failure: Stripe refund throws → booking stays cancelled, refund_status=failed, no 500', async () => {
+    const host = await signIn('host@c.com');
+    const att = await signIn('att@c.com');
+    const { bookingId } = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: cutoff + 4,
+      priceCents: 2000,
+    });
+    fakePayments.failRefunds = true;
+    const res = await cancel(bookingId, att.accessToken);
+    expect(res.statusCode).toBe(200); // refund failure does NOT 500 the cancel
+    expect(res.json().refundStatus).toBe('failed');
+    const [b] = await db.select().from(bookings).where(eq(bookings.id, bookingId));
+    expect(b!.status).toBe('cancelled'); // committed — not rolled back
+    expect(b!.refundStatus).toBe('failed');
+    expect(b!.refundCents).toBe(2000); // intended amount retained for reconciliation
+    expect(fakePayments.refunded.length).toBe(0); // nothing recorded as refunded
+  });
+
+  it('host fan-out: one attendee’s refund fails → others still refunded, that one failed', async () => {
+    const host = await signIn('host@c.com');
+    const a1 = await signIn('h1@c.com');
+    const a2 = await signIn('h2@c.com');
+    const first = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: a1.accessToken,
+      startsInHours: 12,
+      priceCents: 2000,
+      seats: 5,
+    });
+    const booked = await app.inject({
+      method: 'POST',
+      url: `/events/${first.eventId}/book`,
+      headers: auth(a2.accessToken),
+      payload: { seatCount: 1 },
+    });
+    const b2Id = (booked.json() as { bookingId: string }).bookingId;
+    const [b2] = await db.select().from(bookings).where(eq(bookings.id, b2Id));
+    await app.inject({
+      method: 'POST',
+      url: '/webhooks/stripe',
+      payload: { type: 'payment_intent.succeeded', paymentIntentId: b2!.stripePiId },
+    });
+    // Fail ONLY attendee 2's refund.
+    fakePayments.failRefundPis.add(b2!.stripePiId!);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: `/events/${first.eventId}/cancel`,
+      headers: auth(host.accessToken),
+    });
+    expect(res.statusCode).toBe(200);
+
+    const [b1] = await db.select().from(bookings).where(eq(bookings.id, first.bookingId));
+    const [b2after] = await db.select().from(bookings).where(eq(bookings.id, b2Id));
+    expect(b1!.status).toBe('cancelled');
+    expect(b2after!.status).toBe('cancelled'); // both cancelled
+    expect(b1!.refundStatus).toBe('full'); // a1 refunded
+    expect(b2after!.refundStatus).toBe('failed'); // a2 failed, didn't block a1
+    expect(fakePayments.refunded).toContain(b1!.stripePiId);
+    expect(fakePayments.refunded).not.toContain(b2!.stripePiId);
+  });
+
+  it('idempotent: a second cancel after a successful refund issues no second Stripe refund', async () => {
+    const host = await signIn('host@c.com');
+    const att = await signIn('att@c.com');
+    const { bookingId } = await confirmedBooking({
+      hostToken: host.accessToken,
+      attendeeToken: att.accessToken,
+      startsInHours: cutoff + 4,
+      priceCents: 2000,
+    });
+    await cancel(bookingId, att.accessToken);
+    const second = await cancel(bookingId, att.accessToken);
+    expect(second.statusCode).toBe(200);
+    expect(second.json().refundStatus).toBe('full');
+    expect(fakePayments.refunded.length).toBe(1); // not refunded twice
   });
 });

@@ -12,6 +12,7 @@ import {
   reviewQueueStatuses,
   tierRequiresGoverningBody,
 } from '@incircleme/config';
+import type { FastifyBaseLogger } from 'fastify';
 import type { Payments } from '../../lib/payments';
 import { toProgram, ProgramNotFoundError, InvalidStateError } from './programs';
 
@@ -123,16 +124,19 @@ export async function verifyProgram(
   return getReviewDetail(programId);
 }
 
-/** Not approved → refund the €150 fee (if applicable) and record the reason. */
+/** Not approved → record the reason, then refund the €150 fee post-commit (if applicable). */
 export async function rejectProgram(
   programId: string,
   reviewerId: string,
   reason: string,
   payments: Payments,
+  logger: Pick<FastifyBaseLogger, 'error'>,
 ): Promise<ReviewDetail> {
-  // Lock the row for the duration so two concurrent rejections can't both refund.
-  // We re-read status + feeRefunded under the lock, refund at most once (with a
-  // Stripe idempotency key as a second guard), then flip feeRefunded in the same tx.
+  // Phase A — under the row lock, re-read status + feeRefunded and commit the rejection.
+  // Only one concurrent rejection can leave the row REVIEWABLE, so at most one proceeds to a
+  // refund. feeRefunded is NOT flipped here — it's set true only once the post-commit refund
+  // succeeds, so a failed refund leaves it false (reconcilable) rather than falsely "refunded".
+  let refundPiId: string | null = null;
   await db.transaction(async (tx) => {
     const [row] = await tx
       .select()
@@ -143,21 +147,28 @@ export async function rejectProgram(
     if (!row) throw new ProgramNotFoundError();
     if (!REVIEWABLE.includes(row.status)) throw new InvalidStateError();
 
-    const shouldRefund =
-      isSubmissionFeeRefundable() && !!row.stripePiId && !row.feeRefunded;
-    if (shouldRefund && row.stripePiId) {
-      await payments.refund(row.stripePiId, `program-refund-${row.stripePiId}`);
+    if (isSubmissionFeeRefundable() && row.stripePiId && !row.feeRefunded) {
+      refundPiId = row.stripePiId;
     }
     await tx
       .update(programs)
-      .set({
-        status: 'rejected',
-        rejectionReason: reason,
-        reviewedBy: reviewerId,
-        feeRefunded: shouldRefund ? true : row.feeRefunded,
-      })
+      .set({ status: 'rejected', rejectionReason: reason, reviewedBy: reviewerId })
       .where(eq(programs.id, programId));
   });
+
+  // Phase B — move the money AFTER commit (idempotent at Stripe). Flip feeRefunded only on
+  // success; a failure is logged, never thrown (the rejection is already committed).
+  if (refundPiId) {
+    try {
+      await payments.refund(refundPiId, `program-refund-${refundPiId}`);
+      await db.update(programs).set({ feeRefunded: true }).where(eq(programs.id, programId));
+    } catch (err) {
+      logger.error(
+        { err, evt: 'program_refund_failed_post_commit', programId },
+        'post-commit program-fee refund failed; rejection committed, feeRefunded left false',
+      );
+    }
+  }
   return getReviewDetail(programId);
 }
 

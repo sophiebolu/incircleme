@@ -65,7 +65,7 @@ export async function adminProgramRoutes(
     const parsed = rejectSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });
     try {
-      return await rejectProgram(id(req), req.userId!, parsed.data.reason, opts.payments);
+      return await rejectProgram(id(req), req.userId!, parsed.data.reason, opts.payments, req.log);
     } catch (err) {
       return mapError(err, reply);
     }
