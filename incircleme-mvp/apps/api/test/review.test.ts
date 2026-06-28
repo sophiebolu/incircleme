@@ -35,6 +35,8 @@ beforeEach(async () => {
     sql`truncate table program_voices, program_questions, program_credentials, programs, sessions, magic_link_tokens, users restart identity cascade`,
   );
   payments.refunded.length = 0;
+  payments.failRefunds = false;
+  payments.failRefundPis.clear();
   for (const k of Object.keys(magicLinks)) delete magicLinks[k];
 });
 
@@ -244,6 +246,24 @@ describe('Trust review — decisions', () => {
     expect(payments.refunded).toHaveLength(0);
     const [row] = await db.select().from(programs).where(eq(programs.id, pid));
     expect(row!.feeRefunded).toBe(false);
+  });
+
+  it('reject a fee-path Program when the post-commit refund FAILS → rejected, feeRefunded stays false, no 500', async () => {
+    const { id, piId } = await feePending();
+    const r = await reviewer();
+    payments.failRefunds = true; // Stripe refund throws post-commit
+    const res = await app.inject({
+      method: 'POST',
+      url: `/admin/programs/${id}/reject`,
+      headers: auth(r.accessToken),
+      payload: { reason: 'Curriculum too thin for a credential.' },
+    });
+    expect(res.statusCode).toBe(200); // rejection committed despite the refund failure
+    expect(payments.refunded).not.toContain(piId);
+    const [row] = await db.select().from(programs).where(eq(programs.id, id));
+    expect(row!.status).toBe('rejected');
+    expect(row!.feeRefunded).toBe(false); // not falsely marked refunded — reconcilable
+    expect(row!.rejectionReason).toContain('too thin');
   });
 
   it('under_review → stays in queue → can then be verified', async () => {

@@ -19,9 +19,13 @@ import type {
   RefundResult,
   RefundStatus,
 } from '@incircleme/types';
+import type { FastifyBaseLogger } from 'fastify';
 import type { Payments } from '../../lib/payments';
 import type { DomainEvents } from '../../lib/events';
 import { BookingNotFoundError, EventNotFoundError, InvalidStatusError, NotHostError } from './booking';
+
+/** Just the logging surface the service needs (passed req.log from routes). */
+type Logger = Pick<FastifyBaseLogger, 'error'>;
 
 export class NotOwnerError extends Error {
   constructor() {
@@ -139,6 +143,7 @@ interface Internal {
   bookingId: string;
   eventId: string;
   userId: string;
+  stripePiId: string | null; // for the post-commit refund (Phase B)
   plan: Plan;
   actor: CancelledBy;
   fresh: boolean; // false when the booking was already cancelled (idempotent re-call)
@@ -149,6 +154,7 @@ function rowToInternal(b: BookingRow, actor: CancelledBy): Internal {
     bookingId: b.id,
     eventId: b.eventId,
     userId: b.userId,
+    stripePiId: b.stripePiId,
     actor: (b.cancelledBy as CancelledBy | null) ?? actor,
     plan: {
       refundCents: b.refundCents,
@@ -160,19 +166,22 @@ function rowToInternal(b: BookingRow, actor: CancelledBy): Internal {
   };
 }
 
-/** Apply a computed plan to a confirmed booking inside a tx: refund (idempotent) → free seats
- *  → write refund columns. Returns the internal record for post-commit emit. */
+/**
+ * Phase A — apply a computed plan to a confirmed booking INSIDE the tx: free seats → write
+ * refund columns. The Stripe refund is NOT taken here; when cash is due the row is committed
+ * as refund_status='pending' and the money moves post-commit in {@link settleRefund}, so the
+ * Stripe call never holds a DB lock. Returns the internal record for Phase B + emit.
+ */
 async function applyCancel(
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
   b: BookingRow,
   e: EventRow,
   actor: CancelledBy,
   plan: Plan,
-  payments: Payments,
 ): Promise<Internal> {
-  if (plan.refundCents > 0 && b.stripePiId) {
-    await payments.refund(b.stripePiId, refundIdempotencyKey(b.id));
-  }
+  // Cash due → 'pending' until the post-commit refund settles; otherwise the plan's own
+  // terminal status (credit / no-refund / forfeit are all 'none').
+  const committedStatus: RefundStatus = plan.refundCents > 0 ? 'pending' : plan.refundStatus;
   await tx
     .update(events)
     .set({ seatsBooked: Math.max(0, e.seatsBooked - b.seatCount) })
@@ -183,13 +192,35 @@ async function applyCancel(
       status: 'cancelled',
       cancelledAt: new Date(),
       cancelledBy: actor,
-      refundStatus: plan.refundStatus,
+      refundStatus: committedStatus,
       refundCents: plan.refundCents,
       depositForfeited: plan.depositForfeited,
       creditIssuedCents: plan.creditCents,
     })
     .where(eq(bookings.id, b.id));
-  return { bookingId: b.id, eventId: b.eventId, userId: b.userId, plan, actor, fresh: true };
+  return { bookingId: b.id, eventId: b.eventId, userId: b.userId, stripePiId: b.stripePiId, plan, actor, fresh: true };
+}
+
+/**
+ * Phase B — move the money AFTER commit (same request). Idempotent at Stripe. On success the
+ * booking flips to the plan's terminal status (full/partial); on failure it lands 'failed' and
+ * we log — never thrown, so a refund failure can't 500 or roll back the already-committed
+ * cancel. `i.plan.refundStatus` is updated in place so the response reflects the real outcome.
+ */
+async function settleRefund(i: Internal, payments: Payments, logger: Logger): Promise<void> {
+  if (!i.fresh || i.plan.refundCents <= 0 || !i.stripePiId) return; // nothing to move
+  const intended = i.plan.refundStatus; // full | partial (from computeCancelOutcome)
+  try {
+    await payments.refund(i.stripePiId, refundIdempotencyKey(i.bookingId));
+    await db.update(bookings).set({ refundStatus: intended }).where(eq(bookings.id, i.bookingId));
+  } catch (err) {
+    await db.update(bookings).set({ refundStatus: 'failed' }).where(eq(bookings.id, i.bookingId));
+    i.plan.refundStatus = 'failed';
+    logger.error(
+      { err, evt: 'refund_failed_post_commit', bookingId: i.bookingId, refundCents: i.plan.refundCents },
+      'post-commit Stripe refund failed; booking cancelled, refund marked failed',
+    );
+  }
 }
 
 function toResult(i: Internal): RefundResult {
@@ -230,6 +261,7 @@ export async function cancelBooking(
   callerUserId: string | null,
   payments: Payments,
   domainEvents: DomainEvents,
+  logger: Logger,
 ): Promise<RefundResult> {
   // `suppressCredit` forces the no-credit path (used on the retry after the index rejects a
   // second concurrent credit for the same user).
@@ -278,7 +310,7 @@ export async function cancelBooking(
         now: new Date(),
         lifeHappensAlreadyUsed,
       });
-      return applyCancel(tx, b, e, actor, plan, payments);
+      return applyCancel(tx, b, e, actor, plan);
     });
 
   let internal: Internal;
@@ -290,6 +322,8 @@ export async function cancelBooking(
     // no credit so this booking still cancels cleanly (credit_issued_cents 0, refund_status none).
     internal = await attempt(true);
   }
+
+  await settleRefund(internal, payments, logger); // Phase B: move the money post-commit
 
   if (internal.fresh) {
     await domainEvents.bookingCancelled({
@@ -316,6 +350,7 @@ export async function refundBooking(
   callerUserId: string | null,
   payments: Payments,
   domainEvents: DomainEvents,
+  logger: Logger,
 ): Promise<RefundResult> {
   const internal = await db.transaction(async (tx) => {
     const [b] = await tx
@@ -340,8 +375,10 @@ export async function refundBooking(
       depositForfeited: false,
       refundStatus: 'full',
     };
-    return applyCancel(tx, b, e, actor, plan, payments);
+    return applyCancel(tx, b, e, actor, plan);
   });
+
+  await settleRefund(internal, payments, logger); // Phase B: move the money post-commit
 
   if (internal.fresh) {
     await domainEvents.bookingCancelled({
@@ -369,6 +406,7 @@ export async function cancelEventByHost(
   callerUserId: string | null,
   payments: Payments,
   domainEvents: DomainEvents,
+  logger: Logger,
 ): Promise<HostCancelResult> {
   const result = await db.transaction(async (tx) => {
     const [e] = await tx.select().from(events).where(eq(events.id, eventId)).for('update').limit(1);
@@ -388,6 +426,7 @@ export async function cancelEventByHost(
 
     let totalRefundCents = 0;
     let totalCreditCents = 0;
+    const internals: Internal[] = [];
     for (const b of confirmed) {
       const plan: Plan = {
         refundCents: b.amountCents + b.depositCents, // made whole
@@ -395,7 +434,7 @@ export async function cancelEventByHost(
         depositForfeited: false,
         refundStatus: 'full',
       };
-      await applyCancel(tx, b, e, actor, plan, payments);
+      internals.push(await applyCancel(tx, b, e, actor, plan)); // pending; settled post-commit
       totalRefundCents += plan.refundCents;
       totalCreditCents += plan.creditCents;
     }
@@ -408,10 +447,17 @@ export async function cancelEventByHost(
       tier,
       penalty,
       attendees: confirmed,
+      internals,
       totalRefundCents,
       totalCreditCents,
     };
   });
+
+  // Phase B — settle every attendee's refund AFTER commit. settleRefund swallows its own
+  // errors, so one attendee's failed refund (marked 'failed') never blocks the others.
+  for (const i of result.internals) {
+    await settleRefund(i, payments, logger);
+  }
 
   // Emit AFTER commit.
   for (const b of result.attendees) {

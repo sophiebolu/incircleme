@@ -128,7 +128,7 @@ export async function eventRoutes(
     const parsed = cancelBookingSchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });
     try {
-      const result = await cancelBooking(id, 'attendee', req.userId!, opts.payments, opts.domainEvents);
+      const result = await cancelBooking(id, 'attendee', req.userId!, opts.payments, opts.domainEvents, req.log);
       return reply.code(200).send(result);
     } catch (err) {
       if (err instanceof BookingNotFoundError) return reply.code(404).send({ error: 'not_found' });
@@ -147,7 +147,7 @@ export async function eventRoutes(
     const { id } = req.params as { id: string };
     const actor = await hostOrAdminActor(req.userId!);
     try {
-      const result = await cancelEventByHost(id, actor, req.userId!, opts.payments, opts.domainEvents);
+      const result = await cancelEventByHost(id, actor, req.userId!, opts.payments, opts.domainEvents, req.log);
       return reply.code(200).send(result);
     } catch (err) {
       if (err instanceof EventNotFoundError) return reply.code(404).send({ error: 'not_found' });
@@ -164,7 +164,7 @@ export async function eventRoutes(
     const { id } = req.params as { id: string };
     const actor = await hostOrAdminActor(req.userId!);
     try {
-      const result = await refundBooking(id, actor, req.userId!, opts.payments, opts.domainEvents);
+      const result = await refundBooking(id, actor, req.userId!, opts.payments, opts.domainEvents, req.log);
       return reply.code(200).send(result);
     } catch (err) {
       if (err instanceof BookingNotFoundError) return reply.code(404).send({ error: 'not_found' });
