@@ -14,6 +14,42 @@ export interface PaymentIntentResult {
   clientSecret: string;
 }
 
+// ── Deposit capability surface (groundwork · ADR D5) ─────────────────────────────────────
+// SCAFFOLDING ONLY. Layer 2 (save-card / SetupIntent / SCA) and Layer 3 (authorize / capture
+// / release) are deferred; no app path calls these yet. The real impl throws; FakePayments
+// records calls so future slices can assert against them.
+export interface SaveCardForDepositInput {
+  /** Stripe Customer (users.stripe_customer_id), created/linked in Layer 2. */
+  customerId: string;
+  bookingId: string;
+}
+export interface AuthorizeDepositInput {
+  bookingId: string;
+  amountCents: number;
+  customerId: string;
+  paymentMethodId: string;
+  idempotencyKey?: string;
+}
+export interface CaptureDepositInput {
+  /** PaymentIntent that authorized the hold (bookings.deposit_auth_intent_id). */
+  authIntentId: string;
+  /** Capture up to the authorized amount; omit to capture in full. */
+  amountCents?: number;
+  idempotencyKey?: string;
+}
+export interface ReleaseDepositInput {
+  authIntentId: string;
+  idempotencyKey?: string;
+}
+export interface SaveCardResult {
+  /** SetupIntent client secret for on-device SCA confirmation (Layer 2). */
+  clientSecret: string;
+}
+export interface AuthorizeDepositResult {
+  /** The manual-capture PaymentIntent id holding the deposit (Layer 3). */
+  authIntentId: string;
+}
+
 export type WebhookEvent =
   // `kind` mirrors the PaymentIntent metadata ('booking' | 'program_submission'),
   // letting the webhook route dispatch without probing tables. Undefined for
@@ -30,7 +66,19 @@ export interface Payments {
    * `idempotencyKey` makes a retried refund a no-op at Stripe rather than a double refund.
    */
   refund(paymentIntentId: string, idempotencyKey?: string): Promise<void>;
+
+  // Deposit lifecycle (SCAFFOLDING — Layers 2 & 3 deferred, no caller yet).
+  saveCardForDeposit(input: SaveCardForDepositInput): Promise<SaveCardResult>;
+  authorizeDeposit(input: AuthorizeDepositInput): Promise<AuthorizeDepositResult>;
+  captureDeposit(input: CaptureDepositInput): Promise<void>;
+  releaseDeposit(input: ReleaseDepositInput): Promise<void>;
 }
+
+/** Guard for the unimplemented deposit surface — if this ever throws in app paths, a layer
+ *  was wired before its implementation landed. */
+const DEPOSIT_NOT_IMPLEMENTED = (method: string): never => {
+  throw new Error(`[payments] ${method} not implemented — deposit Layer 2/3 deferred (ADR D5)`);
+};
 
 class StripePayments implements Payments {
   constructor(
@@ -66,6 +114,20 @@ class StripePayments implements Payments {
       idempotencyKey ? { idempotencyKey } : undefined,
     );
   }
+
+  // Deposit surface — deferred. These are never reached from app paths in this slice.
+  async saveCardForDeposit(_input: SaveCardForDepositInput): Promise<SaveCardResult> {
+    return DEPOSIT_NOT_IMPLEMENTED('saveCardForDeposit');
+  }
+  async authorizeDeposit(_input: AuthorizeDepositInput): Promise<AuthorizeDepositResult> {
+    return DEPOSIT_NOT_IMPLEMENTED('authorizeDeposit');
+  }
+  async captureDeposit(_input: CaptureDepositInput): Promise<void> {
+    return DEPOSIT_NOT_IMPLEMENTED('captureDeposit');
+  }
+  async releaseDeposit(_input: ReleaseDepositInput): Promise<void> {
+    return DEPOSIT_NOT_IMPLEMENTED('releaseDeposit');
+  }
 }
 
 /** Used in tests and in dev when no Stripe key is set. Webhook body is plain JSON. */
@@ -100,6 +162,26 @@ export class FakePayments implements Payments {
   public readonly refunded: string[] = [];
   async refund(paymentIntentId: string, _idempotencyKey?: string): Promise<void> {
     this.refunded.push(paymentIntentId);
+  }
+
+  // Deposit surface — record calls so future Layer 2/3 slices can assert against them.
+  public readonly savedCards: SaveCardForDepositInput[] = [];
+  public readonly authorizedDeposits: AuthorizeDepositInput[] = [];
+  public readonly capturedDeposits: CaptureDepositInput[] = [];
+  public readonly releasedDeposits: ReleaseDepositInput[] = [];
+  async saveCardForDeposit(input: SaveCardForDepositInput): Promise<SaveCardResult> {
+    this.savedCards.push(input);
+    return { clientSecret: `seti_test_${randomBytes(8).toString('hex')}_secret` };
+  }
+  async authorizeDeposit(input: AuthorizeDepositInput): Promise<AuthorizeDepositResult> {
+    this.authorizedDeposits.push(input);
+    return { authIntentId: `pi_deposit_test_${randomBytes(8).toString('hex')}` };
+  }
+  async captureDeposit(input: CaptureDepositInput): Promise<void> {
+    this.capturedDeposits.push(input);
+  }
+  async releaseDeposit(input: ReleaseDepositInput): Promise<void> {
+    this.releasedDeposits.push(input);
   }
 }
 

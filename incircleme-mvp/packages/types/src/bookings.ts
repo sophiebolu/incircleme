@@ -8,6 +8,26 @@ export type CancelledBy = 'attendee' | 'host' | 'admin' | 'system';
 /** Refund lifecycle on a booking (bookings.refund_status). */
 export type RefundStatus = 'none' | 'pending' | 'partial' | 'full' | 'failed';
 
+/** Deposit auth lifecycle (bookings.deposit_auth_status) — deposit groundwork (ADR D5).
+ *  SCAFFOLDING: no app path reads/writes these yet (Layers 2 & 3 deferred). */
+export type DepositAuthStatus =
+  | 'none'
+  | 'saved'
+  | 'authorized'
+  | 'captured'
+  | 'released'
+  | 'expired';
+
+/** A booking's deposit hold (read surface for future Layers 2/3). Money is integer cents. */
+export interface Deposit {
+  cents: number;
+  status: DepositAuthStatus;
+  /** Saved card backing the hold (Layer 2). */
+  paymentMethodId?: string;
+  /** PaymentIntent authorizing the hold (Layer 3). */
+  authIntentId?: string;
+}
+
 /** Outcome of a single-booking cancel/refund. */
 export interface RefundResult {
   bookingId: string;
