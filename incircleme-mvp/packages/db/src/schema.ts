@@ -57,6 +57,9 @@ export const users = pgTable(
     freeProgramCredits: integer('free_program_credits').notNull().default(0),
     // Internal role — 'trust_reviewer' may use the admin review queue. Dev sets by hand.
     role: text('role').notNull().default('member'), // 'member' | 'trust_reviewer'
+    // Stripe Customer for saved deposit cards (Booking-Loop deposit groundwork · ADR D5).
+    // SCAFFOLDING — unused until Layer 2 (save-card) lands.
+    stripeCustomerId: text('stripe_customer_id'),
 
     // ── Founding-host badge ──────────────────────────────────────────────────
     // Nullable: null founding_status == not a founding host. The badge is DERIVED at
@@ -202,6 +205,12 @@ export const bookings = pgTable('bookings', {
   refundCents: integer('refund_cents').notNull().default(0),
   depositForfeited: boolean('deposit_forfeited').notNull().default(false),
   creditIssuedCents: integer('credit_issued_cents').notNull().default(0),
+  // Deposit auth lifecycle (Booking-Loop deposit groundwork · ADR D5). SCAFFOLDING ONLY —
+  // no Stripe calls / booking-flow wiring yet (Layers 2 & 3 deferred). deposit_cents above
+  // already holds the amount.
+  depositPaymentMethodId: text('deposit_payment_method_id'), // saved card (Layer 2)
+  depositAuthIntentId: text('deposit_auth_intent_id'), // PaymentIntent for the hold (Layer 3)
+  depositAuthStatus: text('deposit_auth_status').notNull().default('none'), // none|saved|authorized|captured|released|expired
 });
 
 export type EventRow = typeof events.$inferSelect;

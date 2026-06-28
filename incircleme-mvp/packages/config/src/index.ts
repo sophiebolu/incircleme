@@ -40,6 +40,18 @@ export const ECONOMICS = {
   /** Refundable seat-hold (creator-optional, default off per event). Returned at check-in. */
   seatHold: { amountCents: 500 },
 
+  /** Deposit auth lifecycle — locked knobs for the deposit groundwork (ADR D5,
+   *  2026-06-28). SCAFFOLDING: no logic reads these beyond types yet. Layers 2 (save-card)
+   *  and 3 (authorize/capture/release) are deferred (need the scheduler + check-in #46). */
+  deposit: {
+    /** Amount held per booking, in cents (€5). */
+    depositCents: 500,
+    /** How long before the event the hold is authorized — Layer 3 (~6 days). */
+    authorizeHoursBeforeEvent: 144,
+    /** Mirror of bookings.deposit_auth_status — the auth lifecycle states. */
+    authStatuses: ['none', 'saved', 'authorized', 'captured', 'released', 'expired'] as const,
+  },
+
   /** Booking hold window before an unpaid hold is released. */
   booking: {
     /** Minutes a seat is held after `book()` before the hold is released. */
