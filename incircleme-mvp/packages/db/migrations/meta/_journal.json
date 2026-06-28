@@ -141,6 +141,13 @@
       "when": 1782678590475,
       "tag": "0019_clever_the_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1782679715959,
+      "tag": "0020_friendly_fat_cobra",
+      "breakpoints": true
     }
   ]
 }
