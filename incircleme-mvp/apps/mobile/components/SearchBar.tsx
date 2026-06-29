@@ -39,6 +39,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: fonts.body,
     fontSize: 13,
-    color: tokens.color.gray,
+    color: tokens.color.text2,
   },
 });

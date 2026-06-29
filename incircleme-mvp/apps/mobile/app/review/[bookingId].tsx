@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -16,6 +16,7 @@ import type { BookingListItem, EventDetail, EventListItem } from '@incircleme/ty
 import { formatDateTime, interpolate, t, type StringKey } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { BrandBar } from '../../components/BrandBar';
+import { ScreenSkeleton, ErrorRetry, NotFound } from '../../components/ScreenStates';
 import { HostRow } from '../../components/HostRow';
 import { EventCard } from '../../components/EventCard';
 import { useNavClearance } from '../../lib/useNavClearance';
@@ -50,28 +51,43 @@ export default function ReviewScreen() {
   const [comment, setComment] = useState('');
   const [isPublic, setIsPublic] = useState(false); // off by default (host-only)
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(false); // submit error (kept separate from load status)
+  const [loadStatus, setLoadStatus] = useState<'loading' | 'ready' | 'notFound' | 'error'>('loading');
   const navClearance = useNavClearance();
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!bookingId) return;
+    setLoadStatus('loading');
     void (async () => {
       try {
         const list = await api.myBookings();
         const b = list.find((x) => x.id === bookingId) ?? null;
         setBooking(b);
+        setLoadStatus(b ? 'ready' : 'notFound'); // resolved-but-missing = not-found (like ticket)
         if (b) api.getEvent(b.event.id).then(setDetail).catch(() => {});
       } catch {
-        setBooking(null);
+        setLoadStatus('error');
       }
       api.listEvents().then((r) => setSimilar(r.slice(0, 3))).catch(() => {});
     })();
   }, [bookingId]);
 
-  if (!booking) {
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (loadStatus !== 'ready' || !booking) {
+    // Shared blank-state pattern (S2) — no bare SafeAreaView shell.
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <BrandBar />
+        {loadStatus === 'loading' ? (
+          <ScreenSkeleton />
+        ) : loadStatus === 'notFound' ? (
+          <NotFound />
+        ) : (
+          <ErrorRetry onRetry={load} />
+        )}
       </SafeAreaView>
     );
   }
@@ -228,7 +244,7 @@ export default function ReviewScreen() {
             <TextInput
               style={styles.comment}
               placeholder={t('rev_commentPlaceholder')}
-              placeholderTextColor={tokens.color.gray}
+              placeholderTextColor={tokens.color.text2}
               value={comment}
               onChangeText={setComment}
               multiline

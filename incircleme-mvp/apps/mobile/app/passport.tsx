@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -17,6 +17,7 @@ import { formatDate, interpolate, t } from '@incircleme/i18n';
 import { api } from '../lib/api';
 import { tierLabel } from '../lib/trustTier';
 import { BrandBar } from '../components/BrandBar';
+import { ScreenSkeleton, ErrorRetry } from '../components/ScreenStates';
 import { useNavClearance } from '../lib/useNavClearance';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
@@ -30,22 +31,36 @@ const TRAITS: { key: 'pp_reliable' | 'pp_hospitable' | 'pp_curious' }[] = [
 export default function PassportScreen() {
   const router = useRouter();
   const [pp, setPp] = useState<PassportSummary | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [notice, setNotice] = useState<string | null>(null);
   const navClearance = useNavClearance();
 
-  useEffect(() => {
-    api.getPassport().then(setPp).catch(() => setPp(null));
+  const load = useCallback(() => {
+    setStatus('loading');
+    api
+      .getPassport()
+      .then((p) => {
+        setPp(p);
+        setStatus('ready');
+      })
+      .catch(() => setStatus('error')); // the caller's passport always exists → failure = error, not not-found
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const comingSoon = () => {
     setNotice(t('prof_comingSoon'));
     setTimeout(() => setNotice(null), 1800);
   };
 
-  if (!pp) {
+  if (status !== 'ready' || !pp) {
+    // Shared blank-state pattern (S2) — no bare SafeAreaView shell.
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <BrandBar />
+        {status === 'loading' ? <ScreenSkeleton /> : <ErrorRetry onRetry={load} />}
       </SafeAreaView>
     );
   }

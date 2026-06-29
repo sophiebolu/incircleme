@@ -316,7 +316,7 @@ export default function ProgramForm() {
                           return next;
                         })
                       }
-                      placeholderTextColor={tokens.color.gray}
+                      placeholderTextColor={tokens.color.text2}
                     />
                   </View>
                   {/* Optional per-week prose (renders under the week title on the public detail). */}
@@ -331,7 +331,7 @@ export default function ProgramForm() {
                         return next;
                       })
                     }
-                    placeholderTextColor={tokens.color.gray}
+                    placeholderTextColor={tokens.color.text2}
                     multiline
                   />
                 </View>
@@ -361,7 +361,7 @@ export default function ProgramForm() {
                 onChangeText={(v) =>
                   setRefs((prev) => prev.map((x, idx) => (idx === i ? v : x)))
                 }
-                placeholderTextColor={tokens.color.gray}
+                placeholderTextColor={tokens.color.text2}
               />
             ))}
             <Pressable style={styles.ghost} onPress={() => setRefs((prev) => [...prev, ''])}>
@@ -484,7 +484,7 @@ function Field({
         onChangeText={onChangeText}
         multiline={multiline}
         keyboardType={keyboardType ?? 'default'}
-        placeholderTextColor={tokens.color.gray}
+        placeholderTextColor={tokens.color.text2}
       />
     </View>
   );

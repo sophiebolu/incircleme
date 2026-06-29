@@ -84,21 +84,21 @@ export default function EditProfile() {
         </View>
 
         <Field label="ep_name">
-          <TextInput value={name} onChangeText={setName} placeholder={t('ep_namePlaceholder')} placeholderTextColor={tokens.color.gray} style={styles.input} />
+          <TextInput value={name} onChangeText={setName} placeholder={t('ep_namePlaceholder')} placeholderTextColor={tokens.color.text2} style={styles.input} />
         </Field>
         <Field label="ep_bio">
           <TextInput
             value={bio}
             onChangeText={setBio}
             placeholder={t('ep_bioPlaceholder')}
-            placeholderTextColor={tokens.color.gray}
+            placeholderTextColor={tokens.color.text2}
             multiline
             maxLength={500}
             style={[styles.input, styles.inputMultiline]}
           />
         </Field>
         <Field label="ep_barrio">
-          <TextInput value={barrio} onChangeText={setBarrio} placeholder={t('ep_barrioPlaceholder')} placeholderTextColor={tokens.color.gray} style={styles.input} />
+          <TextInput value={barrio} onChangeText={setBarrio} placeholder={t('ep_barrioPlaceholder')} placeholderTextColor={tokens.color.text2} style={styles.input} />
         </Field>
         <Field label="ep_language">
           <View style={styles.langRow}>

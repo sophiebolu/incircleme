@@ -19,6 +19,9 @@ export const tokens = {
     goldDeep: '#7E6410',
     ink: '#1C1C1E',
     text2: '#6B6762',
+    // RULE: `gray` never carries meaningful text — it fails AA on cream (~2.4:1). Use it only
+    // for decorative icons, borders, and disabled surfaces. Text → text2 (secondary) or
+    // forest (emphasis/warning); placeholder hint text → text2.
     gray: '#A09B92',
     border: '#E5DFD6',
   },

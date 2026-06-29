@@ -258,7 +258,7 @@ export default function Profile() {
                 <TextInput
                   style={styles.input}
                   placeholder="correu@exemple.cat"
-                  placeholderTextColor={tokens.color.gray}
+                  placeholderTextColor={tokens.color.text2}
                   autoCapitalize="none"
                   keyboardType="email-address"
                   value={email}
@@ -273,7 +273,7 @@ export default function Profile() {
                     <TextInput
                       style={styles.input}
                       placeholder="token"
-                      placeholderTextColor={tokens.color.gray}
+                      placeholderTextColor={tokens.color.text2}
                       autoCapitalize="none"
                       value={token}
                       onChangeText={setToken}
