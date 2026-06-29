@@ -6,6 +6,7 @@ import { CalendarX2, CheckCircle2, RotateCcw, XCircle } from 'lucide-react-nativ
 import type { Notification, NotificationType } from '@incircleme/types';
 import { interpolate, t } from '@incircleme/i18n';
 import { api } from '../lib/api';
+import { relativeTime } from '../lib/relativeTime';
 import { BrandBar } from '../components/BrandBar';
 import { ErrorRetry, ScreenSkeleton } from '../components/ScreenStates';
 import { tokens } from '../theme/tokens';
@@ -21,16 +22,6 @@ const COPY_KEY = {
 } as const;
 
 const euros = (cents: number | null): string => (cents == null ? '' : String(Math.round(cents / 100)));
-
-/** Compact relative time (m/h/d are near-universal abbreviations across CA/ES/EN). */
-function relativeTime(iso: string, now: number): string {
-  const mins = Math.max(0, Math.round((now - new Date(iso).getTime()) / 60000));
-  if (mins < 1) return '·';
-  if (mins < 60) return `${mins}m`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs}h`;
-  return `${Math.round(hrs / 24)}d`;
-}
 
 function TypeIcon({ type }: { type: NotificationType }) {
   const size = 19;

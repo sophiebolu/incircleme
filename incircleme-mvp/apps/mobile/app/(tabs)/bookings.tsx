@@ -7,6 +7,7 @@ import type { BookingListItem } from '@incircleme/types';
 import { formatDateTime, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { isSignedIn } from '../../lib/auth';
+import { bookingChip } from '../../lib/bookingChip';
 import { BrandBar } from '../../components/BrandBar';
 import { ErrorRetry, ScreenSkeleton } from '../../components/ScreenStates';
 import { EventImageFallback } from '../../components/EventImageFallback';
@@ -15,30 +16,6 @@ import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
 
 type Tab = 'upcoming' | 'past' | 'cancelled';
-
-/** Status chip per S2 spec: held / cancelled / refunded / attended (none for live tickets). */
-type ChipTone = 'neutral' | 'ok' | 'pending' | 'warn';
-type ChipKey =
-  | 'chip_held'
-  | 'chip_cancelled'
-  | 'chip_refunded'
-  | 'chip_refundPending'
-  | 'chip_refundFailed'
-  | 'chip_attended';
-
-const bookingChip = (b: BookingListItem, now: number): { key: ChipKey; tone: ChipTone } | null => {
-  if (b.status === 'held') return { key: 'chip_held', tone: 'neutral' };
-  if (b.status === 'cancelled' || b.status === 'refunded') {
-    // Post-commit refunds can be in-flight or failed — surface the money state, don't go silent.
-    if (b.refundStatus === 'full' && b.refundCents > 0) return { key: 'chip_refunded', tone: 'ok' };
-    if (b.refundStatus === 'pending') return { key: 'chip_refundPending', tone: 'pending' };
-    if (b.refundStatus === 'failed') return { key: 'chip_refundFailed', tone: 'warn' };
-    return { key: 'chip_cancelled', tone: 'neutral' };
-  }
-  if (b.status === 'confirmed' && new Date(b.event.endsAt).getTime() < now)
-    return { key: 'chip_attended', tone: 'ok' };
-  return null; // confirmed + upcoming → the live ticket, no status chip
-};
 
 // Client-side bucketing: cancelled/refunded → Cancelled; ended → Past; else Upcoming.
 const bucketOf = (b: BookingListItem, now: number): Tab => {

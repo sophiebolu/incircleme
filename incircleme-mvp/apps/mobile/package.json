@@ -7,6 +7,7 @@
     "start": "expo start",
     "ios": "expo start --ios",
     "typecheck": "tsc --noEmit",
+    "test": "jest",
     "update:staging": "bash scripts/eas-update-staging.sh"
   },
   "dependencies": {
@@ -42,8 +43,12 @@
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^14.0.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.19.20",
     "@types/react": "^19.1.17",
+    "jest-expo": "^54.0.17",
+    "react-test-renderer": "19.1.0",
     "typescript": "^5.7.0"
   }
 }
