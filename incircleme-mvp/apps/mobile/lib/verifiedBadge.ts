@@ -1,11 +1,14 @@
-// Single predicate for the "verified" badge so the Passport gates the same way the profile,
-// public profile, and HostRow already do — and so there's ONE place to change when the backing
-// signal becomes a real identity check.
+// Single source of truth for whether to show the "Identitat verificada" badge, used by every
+// surface (Passport, public profile, own profile, HostRow).
 //
-// TODAY this is `users.verified`, which is set at signup → effectively true for every user. It
-// is NOT yet a real identity verification; a true KYC / Stripe-Connect signal is future work
-// (backlog §E). When that lands, swap the field read here (and adopt this predicate on the
-// other surfaces) rather than re-deriving the rule in each screen.
-export function showVerifiedBadge(x: { verified: boolean }): boolean {
-  return x.verified === true;
+// HIDDEN EVERYWHERE FOR NOW. `users.verified` is set true at account creation — it is NOT an
+// identity check — so rendering an "identity verified" badge off it overclaims trust, which
+// undermines the Reputation Passport. We show NO verified badge until a real identity signal
+// exists (host KYC / Stripe Connect identity verification).
+//
+// SEAM — when real verification lands, gate here off the real field, e.g.:
+//   return !!user.identityVerifiedAt;
+// The badge markup on all four surfaces is already gated behind this call, so it lights back up.
+export function showVerifiedBadge(_user: { verified: boolean }): boolean {
+  return false;
 }

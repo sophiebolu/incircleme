@@ -3,6 +3,7 @@ import { Check, ChevronRight } from 'lucide-react-native';
 import type { HostSummary } from '@incircleme/types';
 import { interpolate, t } from '@incircleme/i18n';
 import { tierLabel } from '../lib/trustTier';
+import { showVerifiedBadge } from '../lib/verifiedBadge';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
 
@@ -23,7 +24,7 @@ export function HostRow({ host, onPress }: { host: HostSummary; onPress?: () => 
             <Text style={styles.avatarInitial}>{initial}</Text>
           </View>
         )}
-        {host.verified ? (
+        {showVerifiedBadge(host) ? (
           <View style={styles.verified} accessibilityLabel={t('prof_verified')}>
             <Check size={11} color={tokens.color.cream} strokeWidth={3} />
           </View>
