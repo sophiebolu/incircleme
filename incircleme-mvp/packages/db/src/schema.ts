@@ -520,6 +520,11 @@ export const reviews = pgTable(
     comment: text('comment'),
     isPublic: boolean('is_public').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    // Trust-safety soft-hide — data retained, just excluded from public reads. Set by an
+    // admin (trust_reviewer). Never a hard delete.
+    hiddenAt: timestamp('hidden_at', { withTimezone: true }),
+    hiddenReason: text('hidden_reason'),
+    hiddenBy: uuid('hidden_by').references(() => users.id),
   },
   (t) => [unique('reviews_booking_reviewer_uq').on(t.bookingId, t.reviewerId)],
 );
