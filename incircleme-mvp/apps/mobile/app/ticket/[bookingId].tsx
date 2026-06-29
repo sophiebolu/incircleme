@@ -60,6 +60,7 @@ export default function TicketScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'notFound' | 'error'>('loading');
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [supportFallback, setSupportFallback] = useState(false); // mailto can't open → show address
   const navClearance = useNavClearance();
   const now = useTicker();
 
@@ -159,6 +160,21 @@ export default function TicketScreen() {
           : booking.creditIssuedCents > 0
             ? interpolate(t('tk_cancelledCredit'), { amount: euros(booking.creditIssuedCents) })
             : t('tk_cancelledNoRefund');
+
+  const isRefundFailed = isCancelled && booking.refundStatus === 'failed';
+  const SUPPORT_EMAIL = 'hola@incircleme.com';
+  const onContactSupport = async () => {
+    const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Refund help — booking ${booking.id}`)}`;
+    try {
+      if (await Linking.canOpenURL(url)) {
+        await Linking.openURL(url);
+        return;
+      }
+    } catch {
+      // fall through to the selectable-address fallback
+    }
+    setSupportFallback(true); // no mail client — reveal the address instead of no-opping
+  };
 
   const openMaps = () => {
     void Linking.openURL(
@@ -275,6 +291,22 @@ export default function TicketScreen() {
               >
                 <Text style={styles.reviewCtaText}>{t('tk_reviewCta')}</Text>
               </Pressable>
+            ) : null}
+            {isRefundFailed ? (
+              supportFallback ? (
+                <Text style={styles.supportFallback} selectable accessibilityRole="text">
+                  {SUPPORT_EMAIL}
+                </Text>
+              ) : (
+                <Pressable
+                  style={styles.supportCta}
+                  onPress={onContactSupport}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('tk_contactSupport')}
+                >
+                  <Text style={styles.supportCtaText}>{t('tk_contactSupport')}</Text>
+                </Pressable>
+              )
             ) : null}
           </View>
         )}
@@ -434,6 +466,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   reviewCtaText: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.cream },
+  // Failed-refund contact-support button — filled coralInk (warning system); cream text on
+  // coralInk = 4.73:1 (AA). Full-width below the banner text (wraps in the flex row).
+  supportCta: {
+    backgroundColor: tokens.color.coralInk,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  supportCtaText: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.cream },
+  // Fallback when no mail client: selectable address. forest on forestSoft banner = 8.53:1 (AA).
+  supportFallback: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.forest },
 
   // Hero
   hero: { height: 168, borderRadius: 16, overflow: 'hidden', backgroundColor: tokens.color.forest },
