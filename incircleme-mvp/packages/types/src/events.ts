@@ -95,6 +95,8 @@ export interface BookingListItem {
   refundStatus: RefundStatus;
   refundCents: number;
   creditIssuedCents: number;
+  /** Set once the host has checked the attendee in (drives the ticket's "✓ Checked in" badge). */
+  checkedInAt: string | null;
 }
 
 /** One confirmed attendee on a host's roster (powers the check-in view + manual fallback). */
