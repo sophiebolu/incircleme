@@ -57,6 +57,9 @@ export const strings = {
     theDifference: 'La diferència',
     // Circle chat surfaces (vocab lock §20, locked 2026-06-12)
     composerPlaceholder: 'Escriu al Cercle…',
+    // Circle empty state (Forward-Audit 3b pt3) — PROVISIONAL, not in the Vocabulary Lock.
+    cir_emptyTitle: 'Aquest Cercle tot just comença',
+    cir_emptyBody: 'Saluda i trenca el gel.',
     membersLine: '{circle} · {count} membres · {barri}',
     addressUnlocksPrefix: "L'adreça s'obre ",
     addressUnlocksEm: 'el dia abans',
@@ -562,6 +565,9 @@ export const strings = {
     skipForNow: 'Omitir por ahora',
     theDifference: 'La diferencia',
     composerPlaceholder: 'Escribe al Círculo…',
+    // Circle empty state (Forward-Audit 3b pt3) — PROVISIONAL, not in the Vocabulary Lock.
+    cir_emptyTitle: 'Este Círculo acaba de empezar',
+    cir_emptyBody: 'Saludar para romper el hielo.',
     membersLine: '{circle} · {count} miembros · {barri}',
     addressUnlocksPrefix: 'La dirección se abre ',
     addressUnlocksEm: 'el día antes',
@@ -1066,6 +1072,9 @@ export const strings = {
     skipForNow: 'Skip for now',
     theDifference: 'The difference',
     composerPlaceholder: 'Message the Circle…',
+    // Circle empty state (Forward-Audit 3b pt3) — PROVISIONAL, not in the Vocabulary Lock.
+    cir_emptyTitle: 'This Circle is just getting started',
+    cir_emptyBody: 'Say hello to break the ice.',
     membersLine: '{circle} · {count} members · {barri}',
     addressUnlocksPrefix: 'Address unlocks ',
     addressUnlocksEm: 'the day before',

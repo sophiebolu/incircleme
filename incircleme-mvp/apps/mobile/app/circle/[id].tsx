@@ -200,9 +200,8 @@ export default function CircleScreen() {
               <Text style={[styles.sender, isHost ? styles.senderHost : styles.senderOther]}>
                 {sender?.displayName ?? '—'}
               </Text>
-              {/* TODO(deferred, needs i18n verdict): "HOST" is hardcoded English and
-                  ungendered — route through i18n once copy is decided (CA/ES). */}
-              {isHost ? <Text style={styles.hostTag}>HOST</Text> : null}
+              {/* Reuses the locked §29 host-badge term (CA Amfitrió/a · ES Anfitrión/a · EN Host). */}
+              {isHost ? <Text style={styles.hostTag}>{t('prog_pub_hostBadge')}</Text> : null}
             </View>
           ) : null}
           <Text style={isSelf || isHost ? styles.bodyOnForest : styles.bodyOnWhite}>
@@ -386,14 +385,23 @@ export default function CircleScreen() {
           <Text style={styles.systemLine}>{t('addressUnlockedNote')}</Text>
         ) : null}
 
-        {/* Messages */}
+        {/* Messages. accessibilityLiveRegion="polite" → SR announces newly-arrived messages
+            (not "assertive", which would interrupt). iOS reality: liveRegion is Android-only;
+            an AccessibilityInfo.announceForAccessibility on socket-receive is the iOS follow-up. */}
         <FlatList
           ref={listRef}
           data={messages}
           keyExtractor={(m) => m.id}
           renderItem={renderMessage}
-          contentContainerStyle={styles.messages}
+          contentContainerStyle={messages.length === 0 ? styles.messagesEmptyWrap : styles.messages}
+          accessibilityLiveRegion="polite"
           onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+          ListEmptyComponent={
+            <View style={styles.cirEmpty}>
+              <Text style={styles.cirEmptyTitle}>{t('cir_emptyTitle')}</Text>
+              <Text style={styles.cirEmptyBody}>{t('cir_emptyBody')}</Text>
+            </View>
+          }
         />
 
         {/* Composer — sits above the floating UniversalNav (clears it + safe area) */}
@@ -534,8 +542,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyHeavy,
     fontSize: 8,
     letterSpacing: 0.8,
-    color: tokens.color.coral,
+    color: tokens.color.coralSoft, // coralSoft/forest = 5.28:1 (AA); coral failed at 3.7. Matches senderHost.
   },
+  // Zero-message warm empty (never a blank shell).
+  messagesEmptyWrap: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 32 },
+  cirEmpty: { alignItems: 'center', gap: 6 },
+  cirEmptyTitle: { fontFamily: fonts.displaySemi, fontSize: 17, color: tokens.color.ink, textAlign: 'center' },
+  cirEmptyBody: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: tokens.color.text2, textAlign: 'center' },
   bodyOnForest: { fontFamily: fonts.body, fontSize: 14, color: tokens.color.cream },
   bodyOnWhite: { fontFamily: fonts.body, fontSize: 14, color: tokens.color.ink },
   attachment: { width: 180, height: 130, borderRadius: 10, marginTop: 6 },
