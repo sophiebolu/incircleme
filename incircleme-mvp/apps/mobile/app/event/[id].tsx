@@ -18,6 +18,7 @@ import { api, ApiError } from '../../lib/api';
 import { HostRow } from '../../components/HostRow';
 import { BrandBar } from '../../components/BrandBar';
 import { ScreenSkeleton, ErrorRetry, NotFound } from '../../components/ScreenStates';
+import { EventReviews } from '../../components/EventReviews';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
@@ -148,6 +149,9 @@ export default function Event() {
             {hostFirstName ? <Text style={styles.storySig}>— {hostFirstName}</Text> : null}
           </View>
         ) : null}
+
+        {/* Reviews — visible-trust signal (read-only; aggregate of isPublic reviews) */}
+        <EventReviews eventId={event.id} />
 
         {/* When + refund policy */}
         <View style={styles.card}>
