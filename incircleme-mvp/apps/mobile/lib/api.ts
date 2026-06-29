@@ -13,6 +13,8 @@ import type {
   CreateProgramRequest,
   CreateReviewRequest,
   CredentialKind,
+  EventAttendee,
+  HostedEventSummary,
   PassportSummary,
   PublicProfile,
   RefundResult,
@@ -127,6 +129,15 @@ export const api = {
       body: JSON.stringify({ seatCount }),
     }),
   myBookings: () => request<BookingListItem[]>('/me/bookings'),
+  // Host check-in (Slice 2a — manual flow).
+  hostedEvents: () => request<HostedEventSummary[]>('/me/hosted-events'),
+  eventAttendees: (eventId: string) =>
+    request<EventAttendee[]>(`/events/${eventId}/attendees`),
+  checkIn: (eventId: string, bookingId: string) =>
+    request<{ checkedInAt: string }>(`/events/${eventId}/checkin`, {
+      method: 'POST',
+      body: JSON.stringify({ bookingId }),
+    }),
   cancelQuote: (bookingId: string) =>
     request<CancelQuote>(`/bookings/${bookingId}/cancel-quote`),
   cancelBooking: (bookingId: string) =>

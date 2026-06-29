@@ -148,6 +148,8 @@ export default function TicketScreen() {
   const isCancelled = booking.status === 'cancelled' || booking.status === 'refunded';
   const isActive = booking.status === 'confirmed' && !isPast;
   const isAttended = booking.status === 'confirmed' && isPast;
+  // Host has scanned this confirmed ticket in (Slice 2a) — surfaced as a badge on the live ticket.
+  const isCheckedIn = booking.status === 'confirmed' && !!booking.checkedInAt;
   // Post-commit refunds can be in-flight ('pending') or 'failed' — never render a bare
   // "Cancelled" that stays silent about money owed (promise-delivery).
   const cancelledLine =
@@ -258,7 +260,13 @@ export default function TicketScreen() {
               <View style={[styles.corner, styles.cTR]} />
               <View style={[styles.corner, styles.cBL]} />
               <View style={[styles.corner, styles.cBR]} />
-              <Text style={styles.qrLbl}>{t('ticket_showAtDoor')}</Text>
+              {isCheckedIn ? (
+                <View style={styles.checkedBadge} accessibilityLiveRegion="polite">
+                  <CheckCircle2 size={16} color={tokens.color.forest} strokeWidth={2.4} />
+                  <Text style={styles.checkedBadgeText}>{t('tk_checkedIn')}</Text>
+                </View>
+              ) : null}
+              <Text style={styles.qrLbl}>{isCheckedIn ? t('tk_checkedInSub') : t('ticket_showAtDoor')}</Text>
               <View style={styles.qrBox} accessible accessibilityLabel={t('tk_qrLabel')}>
                 <QRCode value={booking.id} size={148} color={tokens.color.ink} backgroundColor="#FFFFFF" />
               </View>
@@ -542,6 +550,18 @@ const styles = StyleSheet.create({
   cBR: { bottom: 10, right: 10, borderBottomWidth: 2, borderRightWidth: 2 },
   qrLbl: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: tokens.color.text2 },
   qrBox: { padding: 8, backgroundColor: '#FFFFFF' },
+  // "✓ Checked in" — forest on forestSoft (8.53:1), never gold. S8: no goldGlow for a neutral/ok state.
+  checkedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: tokens.color.forestSoft,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 8,
+  },
+  checkedBadgeText: { fontFamily: fonts.bodySemi, fontSize: 13, color: tokens.color.forest },
   holderNm: { fontFamily: fonts.bodySemi, fontSize: 13.5, color: tokens.color.ink, marginTop: 2 },
   em: { fontFamily: fonts.displayItalic, color: tokens.color.coralInk },
   holderMeta: { fontFamily: fonts.body, fontSize: 11, color: tokens.color.text2, letterSpacing: 0.3 },

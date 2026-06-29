@@ -207,10 +207,15 @@ export default function Profile() {
               <Text style={styles.statN}>{stats ? stats.attended : '—'}</Text>
               <Text style={styles.statL}>{t('prof_statAttended')}</Text>
             </View>
-            <View style={styles.stat}>
+            <Pressable
+              style={styles.stat}
+              onPress={() => router.push('/hosted-events')}
+              accessibilityRole="button"
+              accessibilityLabel={t('prof_statHosted')}
+            >
               <Text style={styles.statN}>{stats ? stats.hosted : '—'}</Text>
               <Text style={styles.statL}>{t('prof_statHosted')}</Text>
-            </View>
+            </Pressable>
             <Pressable style={styles.stat} onPress={() => router.push('/bookings')}>
               <Text style={styles.statN}>{stats ? stats.bookings : '—'}</Text>
               <Text style={styles.statL}>{t('bookings')}</Text>

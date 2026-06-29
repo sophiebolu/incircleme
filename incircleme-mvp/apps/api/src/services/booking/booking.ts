@@ -348,6 +348,7 @@ export async function listMyBookings(userId: string): Promise<BookingListItem[]>
       refundStatus: b.refundStatus as BookingListItem['refundStatus'],
       refundCents: b.refundCents,
       creditIssuedCents: b.creditIssuedCents,
+      checkedInAt: b.checkedInAt ? b.checkedInAt.toISOString() : null,
     });
   }
   return items;
