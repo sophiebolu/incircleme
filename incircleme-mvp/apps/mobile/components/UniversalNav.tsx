@@ -58,7 +58,7 @@ export function UniversalNav() {
         <View style={styles.pill}>
           {TABS.map(({ key, path, label, Icon }) => {
             const focused = active === key;
-            const color = focused ? tokens.color.goldDeep : tokens.color.gray;
+            const color = focused ? tokens.color.goldDeep : tokens.color.text2;
             return (
               <Pressable
                 key={key}
