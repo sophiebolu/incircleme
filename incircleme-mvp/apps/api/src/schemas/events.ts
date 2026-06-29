@@ -52,3 +52,33 @@ export const cancelQuoteSchema = z.object({
   hasDeposit: z.boolean(),
   cutoffHours: z.number().int(),
 });
+
+/** Body for POST /events/:eventId/checkin — the scanned booking id (event comes from the path). */
+export const checkInSchema = z.object({
+  bookingId: z.string().uuid(),
+});
+
+/** Zod-typed response for GET /events/:id/attendees (host roster). */
+export const eventAttendeesSchema = z.array(
+  z.object({
+    bookingId: z.string().uuid(),
+    attendee: z.object({
+      id: z.string().uuid(),
+      displayName: z.string().nullable(),
+      avatarUrl: z.string().nullable(),
+    }),
+    checkedInAt: z.string().nullable(),
+  }),
+);
+
+/** Zod-typed response for GET /me/hosted-events. */
+export const hostedEventsSchema = z.array(
+  z.object({
+    id: z.string().uuid(),
+    title: z.string(),
+    startsAt: z.string(),
+    status: z.enum(['upcoming', 'past', 'cancelled']),
+    confirmedCount: z.number().int(),
+    checkedInCount: z.number().int(),
+  }),
+);

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { sql, eq } from 'drizzle-orm';
 import { db, pool, bookings } from '@incircleme/db';
 import { buildApp } from '../src/app';
@@ -87,14 +87,15 @@ async function setupConfirmedBooking() {
   return { host, attendee, ev, bookingId };
 }
 
-describe('POST /bookings/:id/checkin', () => {
+describe('POST /events/:eventId/checkin', () => {
   it('success: host checks in a confirmed booking — checkedInAt is set', async () => {
-    const { host, bookingId } = await setupConfirmedBooking();
+    const { host, ev, bookingId } = await setupConfirmedBooking();
 
     const res = await app.inject({
       method: 'POST',
-      url: `/bookings/${bookingId}/checkin`,
+      url: `/events/${ev.id}/checkin`,
       headers: auth(host.accessToken),
+      payload: { bookingId },
     });
 
     expect(res.statusCode).toBe(200);
@@ -108,12 +109,13 @@ describe('POST /bookings/:id/checkin', () => {
   });
 
   it('idempotent: second check-in returns 200, timestamp NOT overwritten', async () => {
-    const { host, bookingId } = await setupConfirmedBooking();
+    const { host, ev, bookingId } = await setupConfirmedBooking();
 
     const first = await app.inject({
       method: 'POST',
-      url: `/bookings/${bookingId}/checkin`,
+      url: `/events/${ev.id}/checkin`,
       headers: auth(host.accessToken),
+      payload: { bookingId },
     });
     expect(first.statusCode).toBe(200);
     const firstTs = first.json().checkedInAt as string;
@@ -124,8 +126,9 @@ describe('POST /bookings/:id/checkin', () => {
 
     const second = await app.inject({
       method: 'POST',
-      url: `/bookings/${bookingId}/checkin`,
+      url: `/events/${ev.id}/checkin`,
       headers: auth(host.accessToken),
+      payload: { bookingId },
     });
     expect(second.statusCode).toBe(200);
     expect(second.json().checkedInAt).toBe(firstTs);
@@ -136,49 +139,88 @@ describe('POST /bookings/:id/checkin', () => {
   });
 
   it('403 when the caller is not the event host', async () => {
-    const { attendee, bookingId } = await setupConfirmedBooking();
+    const { attendee, ev, bookingId } = await setupConfirmedBooking();
 
     // The attendee tries to check themselves in — they are not the host.
     const res = await app.inject({
       method: 'POST',
-      url: `/bookings/${bookingId}/checkin`,
+      url: `/events/${ev.id}/checkin`,
       headers: auth(attendee.accessToken),
+      payload: { bookingId },
     });
     expect(res.statusCode).toBe(403);
     expect(res.json().error).toBe('not_host');
   });
 
-  it('403 when a different host (not the booking event host) tries to check in', async () => {
-    const { bookingId } = await setupConfirmedBooking();
+  it('403 when a different host (not this event host) tries to check in', async () => {
+    const { ev, bookingId } = await setupConfirmedBooking();
 
     // A completely different user who happens to host other events.
     const stranger = await signIn('stranger@checkin.com');
     const res = await app.inject({
       method: 'POST',
-      url: `/bookings/${bookingId}/checkin`,
+      url: `/events/${ev.id}/checkin`,
       headers: auth(stranger.accessToken),
+      payload: { bookingId },
     });
     expect(res.statusCode).toBe(403);
     expect(res.json().error).toBe('not_host');
   });
 
   it('401 when unauthenticated', async () => {
-    const { bookingId } = await setupConfirmedBooking();
+    const { ev, bookingId } = await setupConfirmedBooking();
     const res = await app.inject({
       method: 'POST',
-      url: `/bookings/${bookingId}/checkin`,
+      url: `/events/${ev.id}/checkin`,
+      payload: { bookingId },
     });
     expect(res.statusCode).toBe(401);
   });
 
-  it('404 for an unknown booking id', async () => {
-    const host = await signIn('host2@checkin.com');
+  it('404 for an unknown booking id (host owns the event)', async () => {
+    const { host, ev } = await setupConfirmedBooking();
     const res = await app.inject({
       method: 'POST',
-      url: '/bookings/00000000-0000-0000-0000-000000000000/checkin',
+      url: `/events/${ev.id}/checkin`,
       headers: auth(host.accessToken),
+      payload: { bookingId: '00000000-0000-0000-0000-000000000000' },
     });
     expect(res.statusCode).toBe(404);
+    expect(res.json().error).toBe('not_found');
+  });
+
+  it('409 wrong_event: right host + valid booking, but scanned against a different event', async () => {
+    const { host, bookingId } = await setupConfirmedBooking();
+
+    // The SAME host runs a second event; the attendee's ticket belongs to the first.
+    const evB = await app.inject({
+      method: 'POST',
+      url: '/events',
+      headers: auth(host.accessToken),
+      payload: {
+        title: 'Other event same host',
+        category: 'music',
+        neighbourhood: 'Gràcia',
+        startsAt: new Date(Date.now() + 3_600_000).toISOString(),
+        endsAt: new Date(Date.now() + 7_200_000).toISOString(),
+        seatCount: 4,
+        priceCents: 1000,
+      },
+    });
+    const evBId = (evB.json() as { id: string }).id;
+
+    const res = await app.inject({
+      method: 'POST',
+      url: `/events/${evBId}/checkin`,
+      headers: auth(host.accessToken),
+      payload: { bookingId },
+    });
+    expect(res.statusCode).toBe(409);
+    expect(res.json().error).toBe('wrong_event');
+
+    // The booking was NOT checked in (it belongs to the other event).
+    const [row] = await db.select().from(bookings).where(eq(bookings.id, bookingId));
+    expect(row!.checkedInAt).toBeNull();
   });
 
   it('409 when booking is in held status (not confirmed)', async () => {
@@ -211,8 +253,9 @@ describe('POST /bookings/:id/checkin', () => {
 
     const res = await app.inject({
       method: 'POST',
-      url: `/bookings/${bookingId}/checkin`,
+      url: `/events/${ev.id}/checkin`,
       headers: auth(host.accessToken),
+      payload: { bookingId },
     });
     expect(res.statusCode).toBe(409);
     expect(res.json().error).toBe('invalid_status');
@@ -220,7 +263,7 @@ describe('POST /bookings/:id/checkin', () => {
   });
 
   it('409 when booking is cancelled', async () => {
-    const { host, bookingId } = await setupConfirmedBooking();
+    const { host, ev, bookingId } = await setupConfirmedBooking();
 
     // Manually cancel the booking in the DB.
     await db
@@ -230,11 +273,52 @@ describe('POST /bookings/:id/checkin', () => {
 
     const res = await app.inject({
       method: 'POST',
-      url: `/bookings/${bookingId}/checkin`,
+      url: `/events/${ev.id}/checkin`,
       headers: auth(host.accessToken),
+      payload: { bookingId },
     });
     expect(res.statusCode).toBe(409);
     expect(res.json().error).toBe('invalid_status');
     expect(res.json().status).toBe('cancelled');
+  });
+
+  it('analytics: emits attendee_checked_in ONCE on first check-in, never on the idempotent repeat', async () => {
+    const { host, ev, bookingId, attendee } = await setupConfirmedBooking();
+
+    // trackEvent writes one JSON line via console.info — capture them. NB: read mock.calls
+    // BEFORE mockRestore() (restore clears the recorded history).
+    const spy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    let emitted: Record<string, unknown>[];
+    try {
+      const post = () =>
+        app.inject({
+          method: 'POST',
+          url: `/events/${ev.id}/checkin`,
+          headers: auth(host.accessToken),
+          payload: { bookingId },
+        });
+      await post(); // first → should emit
+      await post(); // idempotent repeat → must NOT emit
+      emitted = spy.mock.calls
+        .map((c) => {
+          try {
+            return JSON.parse(String(c[0]));
+          } catch {
+            return null;
+          }
+        })
+        .filter((o): o is Record<string, unknown> => !!o && o.evt === 'attendee_checked_in');
+    } finally {
+      spy.mockRestore();
+    }
+
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]).toMatchObject({
+      evt: 'attendee_checked_in',
+      eventId: ev.id,
+      bookingId,
+      attendeeUserId: attendee.user.id,
+      hostUserId: host.user.id,
+    });
   });
 });

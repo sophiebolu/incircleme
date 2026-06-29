@@ -1,9 +1,16 @@
-import { db, bookings, circles, events } from '@incircleme/db';
+import { db, bookings, circles, events, users } from '@incircleme/db';
 import type { BookingRow, EventRow } from '@incircleme/db';
-import { and, desc, eq, isNotNull, isNull, lt } from 'drizzle-orm';
-import type { BookingListItem, BookingStatus, BookResult } from '@incircleme/types';
+import { and, asc, count, desc, eq, inArray, isNotNull, isNull, lt } from 'drizzle-orm';
+import type {
+  BookingListItem,
+  BookingStatus,
+  BookResult,
+  EventAttendee,
+  HostedEventSummary,
+} from '@incircleme/types';
 import type { Payments } from '../../lib/payments';
 import { toEventListItem } from '../events/events';
+import { trackEvent } from '../../lib/analytics';
 import { bookingHoldWindowMs } from '@incircleme/config';
 
 export class RoomFullError extends Error {
@@ -29,6 +36,11 @@ export class NotHostError extends Error {
 export class InvalidStatusError extends Error {
   constructor(public readonly status: string) {
     super(`invalid_status:${status}`);
+  }
+}
+export class WrongEventError extends Error {
+  constructor() {
+    super('wrong_event');
   }
 }
 
@@ -135,20 +147,26 @@ export async function releaseByPaymentIntent(piId: string): Promise<void> {
  * - Idempotent: if already checked in, returns success without overwriting checkedInAt.
  */
 export async function checkIn(
+  eventId: string,
   bookingId: string,
   callerUserId: string,
 ): Promise<{ checkedInAt: string }> {
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
+    // Event-ownership gate FIRST: the scanner is scoped to an event the host opened, and a
+    // non-host must not be able to probe booking existence. Unknown event → not_host too.
+    const [e] = await tx.select().from(events).where(eq(events.id, eventId)).limit(1);
+    if (!e || e.hostUserId !== callerUserId) throw new NotHostError();
+
     const [b] = await tx.select().from(bookings).where(eq(bookings.id, bookingId)).limit(1);
     if (!b) throw new BookingNotFoundError();
 
-    // Look up the event to verify host ownership.
-    const [e] = await tx.select().from(events).where(eq(events.id, b.eventId)).limit(1);
-    if (!e || e.hostUserId !== callerUserId) throw new NotHostError();
+    // The scanned ticket must belong to THIS event (closes wrong-event scans for a host who
+    // runs more than one event).
+    if (b.eventId !== eventId) throw new WrongEventError();
 
-    // Idempotent: already checked in → return the original timestamp unchanged.
+    // Idempotent: already checked in → return the original timestamp, emit nothing.
     if (b.checkedInAt) {
-      return { checkedInAt: b.checkedInAt.toISOString() };
+      return { checkedInAt: b.checkedInAt.toISOString(), firstCheckIn: false, attendeeUserId: b.userId };
     }
 
     // Only confirmed bookings may be checked in.
@@ -156,7 +174,100 @@ export async function checkIn(
 
     const now = new Date();
     await tx.update(bookings).set({ checkedInAt: now }).where(eq(bookings.id, bookingId));
-    return { checkedInAt: now.toISOString() };
+    return { checkedInAt: now.toISOString(), firstCheckIn: true, attendeeUserId: b.userId };
+  });
+
+  // Emit only on a genuinely-new check-in (never on the idempotent repeat → no double-count).
+  if (result.firstCheckIn) {
+    trackEvent('attendee_checked_in', {
+      eventId,
+      bookingId,
+      attendeeUserId: result.attendeeUserId,
+      hostUserId: callerUserId,
+    });
+  }
+  return { checkedInAt: result.checkedInAt };
+}
+
+/**
+ * Host roster for an event: its CONFIRMED bookings with the attendee's public identity and
+ * check-in state. Host-gated (event ownership). Powers the check-in view + manual fallback.
+ */
+export async function listEventAttendees(
+  eventId: string,
+  callerUserId: string,
+): Promise<EventAttendee[]> {
+  const [e] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
+  if (!e || e.hostUserId !== callerUserId) throw new NotHostError();
+
+  const rows = await db
+    .select({
+      bookingId: bookings.id,
+      checkedInAt: bookings.checkedInAt,
+      attendeeId: users.id,
+      displayName: users.displayName,
+      avatarUrl: users.avatarUrl,
+    })
+    .from(bookings)
+    .innerJoin(users, eq(bookings.userId, users.id))
+    .where(and(eq(bookings.eventId, eventId), eq(bookings.status, 'confirmed')))
+    .orderBy(asc(bookings.bookedAt));
+
+  return rows.map((r) => ({
+    bookingId: r.bookingId,
+    attendee: { id: r.attendeeId, displayName: r.displayName, avatarUrl: r.avatarUrl },
+    checkedInAt: r.checkedInAt ? r.checkedInAt.toISOString() : null,
+  }));
+}
+
+/**
+ * Lean list of events the caller hosts (newest first), with confirmed + checked-in counts.
+ * The Slice-2 entry point to reach an event's check-in scanner — not a full dashboard.
+ */
+export async function listHostedEvents(callerUserId: string): Promise<HostedEventSummary[]> {
+  const evs = await db
+    .select()
+    .from(events)
+    .where(eq(events.hostUserId, callerUserId))
+    .orderBy(desc(events.startsAt));
+  if (evs.length === 0) return [];
+
+  // One grouped pass for the counts. count(checkedInAt) tallies only non-null timestamps.
+  const countRows = await db
+    .select({
+      eventId: bookings.eventId,
+      confirmed: count(),
+      checkedIn: count(bookings.checkedInAt),
+    })
+    .from(bookings)
+    .where(
+      and(
+        inArray(
+          bookings.eventId,
+          evs.map((e) => e.id),
+        ),
+        eq(bookings.status, 'confirmed'),
+      ),
+    )
+    .groupBy(bookings.eventId);
+  const counts = new Map(countRows.map((c) => [c.eventId, c]));
+
+  const now = Date.now();
+  return evs.map((e) => {
+    const c = counts.get(e.id);
+    const status: HostedEventSummary['status'] = e.deletedAt
+      ? 'cancelled'
+      : e.endsAt.getTime() < now
+        ? 'past'
+        : 'upcoming';
+    return {
+      id: e.id,
+      title: e.title,
+      startsAt: e.startsAt.toISOString(),
+      status,
+      confirmedCount: Number(c?.confirmed ?? 0),
+      checkedInCount: Number(c?.checkedIn ?? 0),
+    };
   });
 }
 

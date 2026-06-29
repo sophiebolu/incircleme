@@ -5,7 +5,9 @@ import {
   bookSchema,
   cancelBookingSchema,
   cancelQuoteSchema,
+  checkInSchema,
   createEventSchema,
+  eventAttendeesSchema,
   eventsQuerySchema,
 } from '../schemas/events';
 import { createEvent, getEventDetail, listEvents } from '../services/events/events';
@@ -15,9 +17,11 @@ import {
   BookingNotFoundError,
   EventNotFoundError,
   InvalidStatusError,
+  listEventAttendees,
   listMyBookings,
   NotHostError,
   RoomFullError,
+  WrongEventError,
 } from '../services/booking/booking';
 import {
   cancelBooking,
@@ -81,23 +85,44 @@ export async function eventRoutes(
   });
 
   /**
-   * POST /bookings/:id/checkin
-   * The event host scans an attendee's QR (which encodes the booking id) to record check-in.
-   * - Requires auth (the caller must be the host of the booking's event).
-   * - Only 'confirmed' bookings can be checked in.
-   * - Idempotent: a second call on an already-checked-in booking returns 200 with the
-   *   original checkedInAt timestamp unchanged.
+   * POST /events/:eventId/checkin  body: { bookingId }
+   * The host (running THIS event) scans an attendee's QR (which encodes the booking id) to
+   * record check-in. The event is the resource the scanner is scoped to, so it owns the path;
+   * the scanned booking id is the payload — and is validated to belong to this event.
+   * - Requires auth; caller must host the event in the path (else 403 not_host).
+   * - Booking must exist (404), belong to this event (409 wrong_event), and be 'confirmed'
+   *   (409 invalid_status).
+   * - Idempotent: a second call on an already-checked-in booking returns 200 with the original
+   *   checkedInAt timestamp unchanged (and emits no analytics — never double-counts).
    */
-  app.post('/bookings/:id/checkin', { preHandler: requireAuth }, async (req, reply) => {
-    const { id } = req.params as { id: string };
+  app.post('/events/:eventId/checkin', { preHandler: requireAuth }, async (req, reply) => {
+    const { eventId } = req.params as { eventId: string };
+    const parsed = checkInSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });
     try {
-      const result = await checkIn(id, req.userId!);
+      const result = await checkIn(eventId, parsed.data.bookingId, req.userId!);
       return reply.code(200).send(result);
     } catch (err) {
-      if (err instanceof BookingNotFoundError) return reply.code(404).send({ error: 'not_found' });
       if (err instanceof NotHostError) return reply.code(403).send({ error: 'not_host' });
+      if (err instanceof BookingNotFoundError) return reply.code(404).send({ error: 'not_found' });
+      if (err instanceof WrongEventError) return reply.code(409).send({ error: 'wrong_event' });
       if (err instanceof InvalidStatusError)
         return reply.code(409).send({ error: 'invalid_status', status: err.status });
+      throw err;
+    }
+  });
+
+  /**
+   * GET /events/:id/attendees — host roster for the check-in view + manual fallback.
+   * Host-gated by event ownership (NOT the admin gate). Confirmed bookings only.
+   */
+  app.get('/events/:id/attendees', { preHandler: [requireAuth, requireActive] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    try {
+      const attendees = await listEventAttendees(id, req.userId!);
+      return reply.code(200).send(eventAttendeesSchema.parse(attendees));
+    } catch (err) {
+      if (err instanceof NotHostError) return reply.code(403).send({ error: 'not_host' });
       throw err;
     }
   });

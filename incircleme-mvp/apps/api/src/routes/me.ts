@@ -10,6 +10,8 @@ import {
 } from '../services/auth/users';
 import { getUserStats } from '../services/me/stats';
 import { getPassport } from '../services/me/passport';
+import { listHostedEvents } from '../services/booking/booking';
+import { hostedEventsSchema } from '../schemas/events';
 
 export async function meRoutes(app: FastifyInstance): Promise<void> {
   app.get('/me', { preHandler: requireAuth }, async (req, reply) => {
@@ -19,6 +21,12 @@ export async function meRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.get('/me/stats', { preHandler: requireAuth }, async (req) => getUserStats(req.userId!));
+
+  // Events the caller hosts (newest first) + confirmed/checked-in counts. Entry point to the
+  // check-in scanner (Slice 2) — lean, not a full host dashboard.
+  app.get('/me/hosted-events', { preHandler: requireAuth }, async (req, reply) =>
+    reply.code(200).send(hostedEventsSchema.parse(await listHostedEvents(req.userId!))),
+  );
 
   app.get('/me/passport', { preHandler: requireAuth }, async (req, reply) => {
     const passport = await getPassport(req.userId!);
