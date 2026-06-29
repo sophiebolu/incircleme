@@ -40,4 +40,3 @@ const schema = z.object({
 });
 
 export const env = schema.parse(process.env);
-export type Env = typeof env;

@@ -178,5 +178,4 @@ const styles = StyleSheet.create({
   rowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.color.border },
   rowLabel: { fontFamily: fonts.bodyMedium, fontSize: 15, color: tokens.color.ink },
   always: { fontFamily: fonts.bodySemi, fontSize: 12, color: tokens.color.goldDeep },
-  note: { fontFamily: fonts.body, fontSize: 12, lineHeight: 17, color: tokens.color.text2, marginTop: 8 },
 });
