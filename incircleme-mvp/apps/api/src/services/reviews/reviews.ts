@@ -1,8 +1,8 @@
-import { db, reviews, bookings, events } from '@incircleme/db';
+import { db, reviews, bookings, events, users } from '@incircleme/db';
 import type { ReviewRow } from '@incircleme/db';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, lt } from 'drizzle-orm';
 import { REVIEWS, isVibeTag } from '@incircleme/config';
-import type { CreateReviewRequest, Review, ReviewAggregate } from '@incircleme/types';
+import type { CreateReviewRequest, PublicReview, Review, ReviewAggregate } from '@incircleme/types';
 
 export class BookingNotOwnedError extends Error {}
 export class NotAttendedError extends Error {}
@@ -107,6 +107,47 @@ function aggregate(
     feltIncludedCount,
     tagCounts,
   };
+}
+
+/**
+ * Event-page public review LIST — isPublic reviews only, newest-first, keyset-paginated by
+ * `before` (ISO of the last item's createdAt). Joins the reviewer's PUBLIC identity (display
+ * name + avatar). No moderation flag exists on `reviews` yet → only isPublic is enforced
+ * (trust-safety follow-up: add a hidden/removed flag and exclude it here).
+ */
+export async function listPublicEventReviews(
+  eventId: string,
+  opts: { limit?: number; before?: string } = {},
+): Promise<PublicReview[]> {
+  const limit = Math.min(Math.max(opts.limit ?? 10, 1), 50);
+  const where = [eq(reviews.eventId, eventId), eq(reviews.isPublic, true)];
+  if (opts.before) where.push(lt(reviews.createdAt, new Date(opts.before)));
+  const rows = await db
+    .select({
+      id: reviews.id,
+      rating: reviews.rating,
+      wouldGoAgain: reviews.wouldGoAgain,
+      vibeTags: reviews.vibeTags,
+      comment: reviews.comment,
+      createdAt: reviews.createdAt,
+      authorId: users.id,
+      displayName: users.displayName,
+      avatarUrl: users.avatarUrl,
+    })
+    .from(reviews)
+    .innerJoin(users, eq(reviews.reviewerId, users.id))
+    .where(and(...where))
+    .orderBy(desc(reviews.createdAt))
+    .limit(limit);
+  return rows.map((r) => ({
+    id: r.id,
+    author: { id: r.authorId, displayName: r.displayName, avatarUrl: r.avatarUrl },
+    rating: r.rating,
+    wouldGoAgain: r.wouldGoAgain,
+    vibeTags: r.vibeTags,
+    comment: r.comment,
+    createdAt: r.createdAt.toISOString(),
+  }));
 }
 
 /** Event-page aggregate — PUBLIC reviews only (host-only reviews never leak here). */

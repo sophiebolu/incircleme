@@ -1,12 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../plugins/auth';
-import { createReviewSchema } from '../schemas/reviews';
+import { createReviewSchema, publicReviewsQuerySchema } from '../schemas/reviews';
 import {
   AlreadyReviewedError,
   BookingNotOwnedError,
   NotAttendedError,
   createReview,
   getEventPublicAggregate,
+  listPublicEventReviews,
   getMyReviewCounts,
 } from '../services/reviews/reviews';
 
@@ -32,6 +33,14 @@ export async function reviewRoutes(app: FastifyInstance): Promise<void> {
   app.get('/events/:id/reviews', async (req) => {
     const { id } = req.params as { id: string };
     return getEventPublicAggregate(id);
+  });
+
+  // Public event-page review LIST — isPublic only, newest-first, keyset-paginated.
+  app.get('/events/:id/reviews/public', async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const parsed = publicReviewsQuerySchema.safeParse(req.query);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_query' });
+    return listPublicEventReviews(id, parsed.data);
   });
 
   // The signed-in user's own given/received review counts (Passport).

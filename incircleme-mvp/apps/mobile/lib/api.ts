@@ -16,6 +16,7 @@ import type {
   PassportSummary,
   PublicProfile,
   RefundResult,
+  PublicReview,
   Review,
   ReviewAggregate,
   EventDetail,
@@ -137,6 +138,10 @@ export const api = {
   createReview: (body: CreateReviewRequest) =>
     request<Review>('/reviews', { method: 'POST', body: JSON.stringify(body) }),
   getEventReviews: (eventId: string) => request<ReviewAggregate>(`/events/${eventId}/reviews`),
+  getEventPublicReviews: (eventId: string, before?: string) =>
+    request<PublicReview[]>(
+      `/events/${eventId}/reviews/public${before ? `?before=${encodeURIComponent(before)}` : ''}`,
+    ),
   me: () => request<MeResponse>('/me'),
   updateMe: (body: UpdateMeRequest) =>
     request<MeResponse>('/me', { method: 'PATCH', body: JSON.stringify(body) }),
