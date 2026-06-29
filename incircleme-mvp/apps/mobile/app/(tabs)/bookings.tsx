@@ -17,14 +17,26 @@ import { fonts } from '../../theme/fonts';
 type Tab = 'upcoming' | 'past' | 'cancelled';
 
 /** Status chip per S2 spec: held / cancelled / refunded / attended (none for live tickets). */
-const bookingChip = (b: BookingListItem, now: number): { key: 'chip_held' | 'chip_cancelled' | 'chip_refunded' | 'chip_attended'; ok: boolean } | null => {
-  if (b.status === 'held') return { key: 'chip_held', ok: false };
-  if (b.status === 'cancelled' || b.status === 'refunded')
-    return b.refundStatus === 'full' && b.refundCents > 0
-      ? { key: 'chip_refunded', ok: true }
-      : { key: 'chip_cancelled', ok: false };
+type ChipTone = 'neutral' | 'ok' | 'pending' | 'warn';
+type ChipKey =
+  | 'chip_held'
+  | 'chip_cancelled'
+  | 'chip_refunded'
+  | 'chip_refundPending'
+  | 'chip_refundFailed'
+  | 'chip_attended';
+
+const bookingChip = (b: BookingListItem, now: number): { key: ChipKey; tone: ChipTone } | null => {
+  if (b.status === 'held') return { key: 'chip_held', tone: 'neutral' };
+  if (b.status === 'cancelled' || b.status === 'refunded') {
+    // Post-commit refunds can be in-flight or failed — surface the money state, don't go silent.
+    if (b.refundStatus === 'full' && b.refundCents > 0) return { key: 'chip_refunded', tone: 'ok' };
+    if (b.refundStatus === 'pending') return { key: 'chip_refundPending', tone: 'pending' };
+    if (b.refundStatus === 'failed') return { key: 'chip_refundFailed', tone: 'warn' };
+    return { key: 'chip_cancelled', tone: 'neutral' };
+  }
   if (b.status === 'confirmed' && new Date(b.event.endsAt).getTime() < now)
-    return { key: 'chip_attended', ok: true };
+    return { key: 'chip_attended', tone: 'ok' };
   return null; // confirmed + upcoming → the live ticket, no status chip
 };
 
@@ -115,11 +127,28 @@ export default function Bookings() {
           <View style={styles.chips}>
             {(() => {
               const chip = bookingChip(item, Date.now());
-              return chip ? (
-                <View style={[styles.chip, chip.ok && styles.chipOk]}>
-                  <Text style={[styles.chipText, chip.ok && styles.chipTextOk]}>{t(chip.key)}</Text>
+              if (!chip) return null;
+              const tone = chip.tone;
+              return (
+                <View
+                  style={[
+                    styles.chip,
+                    tone === 'ok' && styles.chipOk,
+                    tone === 'warn' && styles.chipWarn,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      tone === 'ok' && styles.chipTextOk,
+                      tone === 'pending' && styles.chipTextPending,
+                      tone === 'warn' && styles.chipTextWarn,
+                    ]}
+                  >
+                    {t(chip.key)}
+                  </Text>
                 </View>
-              ) : null;
+              );
             })()}
             {item.circleId ? (
               <Pressable
@@ -260,6 +289,11 @@ const styles = StyleSheet.create({
   chipText: { fontFamily: fonts.bodySemi, fontSize: 10, letterSpacing: 0.4, color: tokens.color.text2 },
   chipOk: { backgroundColor: tokens.color.forestSoft, borderColor: tokens.color.forestSoft },
   chipTextOk: { color: tokens.color.forest },
+  // Refund pending — calm/neutral, forest text on cream (9.44:1 AA), not gray, not gold.
+  chipTextPending: { color: tokens.color.forest },
+  // Refund failed — coral warning: coralInk border + text on cream (4.73:1 AA), not gold/gray.
+  chipWarn: { borderColor: tokens.color.coralInk },
+  chipTextWarn: { color: tokens.color.coralInk },
   chipCircle: {
     flexDirection: 'row',
     alignItems: 'center',
