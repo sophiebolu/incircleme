@@ -515,6 +515,19 @@ export const strings = {
     pp_privateDefault: 'Privat per defecte',
     pp_levelUp: 'Com pujar de nivell',
     pp_privacy: 'Privacitat',
+    // PROVISIONAL (passport zero-activity warm framing) — awaiting Vocab-Lock. CA imperative.
+    pz_zeroTitle: 'El teu passaport comença aquí',
+    pz_zeroBody:
+      'Creix a mesura que hi participes. Els esdeveniments on véns, els cercles on entres i les ressenyes que reps construeixen una reputació que t’acompanya.',
+    pz_firstAction: 'Apunta’t al teu primer esdeveniment per començar.',
+    pz_ladderA11y: 'Escala de nivells de confiança. Ets a {tier}.',
+    pz_levelUpTitle: 'Com creix el teu passaport',
+    pz_levelUpIntro: 'Cinc nivells, guanyats amb el temps: ets al començament. Això és el que et fa pujar:',
+    pz_earnAttend: 'Vés als esdeveniments que has reservat',
+    pz_earnReviews: 'Rep ressenyes d’amfitrions i convidats',
+    pz_earnHost: 'Organitza els teus propis espais',
+    pz_earnCircles: 'Mantén-te actiu als teus cercles',
+    pz_levelUpClose: 'Entesos',
     // §37 Public host/creator profile (up_* locked 2026-06-20; keepClose stays §1)
     keepClose: 'Mantén-te a prop',
     up_about: 'Presentació',
@@ -1022,6 +1035,19 @@ export const strings = {
     pp_privateDefault: 'Privado por defecto',
     pp_levelUp: 'Cómo subir de nivel',
     pp_privacy: 'Privacidad',
+    // PROVISIONAL (passport zero-activity warm framing) — awaiting Vocab-Lock. ES infinitive.
+    pz_zeroTitle: 'Tu pasaporte empieza aquí',
+    pz_zeroBody:
+      'Crece a medida que participas. Los eventos a los que asistes, los círculos a los que te unes y las reseñas que recibes construyen una reputación que te acompaña.',
+    pz_firstAction: 'Asistir a tu primer evento para empezar.',
+    pz_ladderA11y: 'Escala de niveles de confianza. Estás en {tier}.',
+    pz_levelUpTitle: 'Cómo crece tu pasaporte',
+    pz_levelUpIntro: 'Cinco niveles, que se ganan con el tiempo: estás al principio. Esto es lo que te hace subir:',
+    pz_earnAttend: 'Asistir a los eventos que has reservado',
+    pz_earnReviews: 'Recibir reseñas de anfitriones e invitados',
+    pz_earnHost: 'Organizar tus propios espacios',
+    pz_earnCircles: 'Mantenerte activo en tus círculos',
+    pz_levelUpClose: 'Entendido',
     // §37 Public host/creator profile (up_* locked 2026-06-20; keepClose stays §1)
     keepClose: 'Mantente cerca',
     up_about: 'Presentación',
@@ -1526,6 +1552,19 @@ export const strings = {
     pp_privateDefault: 'Private by default',
     pp_levelUp: 'How to level up',
     pp_privacy: 'Privacy',
+    // PROVISIONAL (passport zero-activity warm framing) — awaiting Vocab-Lock
+    pz_zeroTitle: 'Your passport starts here',
+    pz_zeroBody:
+      'It grows as you show up. The events you attend, the circles you join, and the reviews you earn build a reputation that travels with you.',
+    pz_firstAction: 'Attend your first event to begin.',
+    pz_ladderA11y: 'Trust-tier ladder. You are at {tier}.',
+    pz_levelUpTitle: 'How your passport grows',
+    pz_levelUpIntro: "Five tiers, earned over time — you're at the start. Here's what builds your standing:",
+    pz_earnAttend: 'Show up to events you booked',
+    pz_earnReviews: 'Earn reviews from hosts and guests',
+    pz_earnHost: 'Host rooms of your own',
+    pz_earnCircles: 'Stay active in your circles',
+    pz_levelUpClose: 'Got it',
     // §37 Public host/creator profile (up_* locked 2026-06-20; keepClose stays §1)
     keepClose: 'Keep close',
     up_about: 'About',

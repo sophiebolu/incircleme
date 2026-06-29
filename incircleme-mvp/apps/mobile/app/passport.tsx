@@ -7,7 +7,6 @@ import {
   CalendarCheck,
   Lock,
   MessageSquare,
-  Shield,
   ShieldCheck,
   TrendingUp,
   Users,
@@ -15,8 +14,10 @@ import {
 import type { PassportSummary } from '@incircleme/types';
 import { formatDate, interpolate, t } from '@incircleme/i18n';
 import { api } from '../lib/api';
-import { tierLabel } from '../lib/trustTier';
+import { hasNoActivity, tierLabel } from '../lib/trustTier';
 import { BrandBar } from '../components/BrandBar';
+import { TierLadder } from '../components/TierLadder';
+import { LevelUpSheet } from '../components/LevelUpSheet';
 import { ScreenSkeleton, ErrorRetry } from '../components/ScreenStates';
 import { useNavClearance } from '../lib/useNavClearance';
 import { tokens } from '../theme/tokens';
@@ -32,7 +33,7 @@ export default function PassportScreen() {
   const router = useRouter();
   const [pp, setPp] = useState<PassportSummary | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [notice, setNotice] = useState<string | null>(null);
+  const [levelUpOpen, setLevelUpOpen] = useState(false);
   const navClearance = useNavClearance();
 
   const load = useCallback(() => {
@@ -50,11 +51,6 @@ export default function PassportScreen() {
     load();
   }, [load]);
 
-  const comingSoon = () => {
-    setNotice(t('prof_comingSoon'));
-    setTimeout(() => setNotice(null), 1800);
-  };
-
   if (status !== 'ready' || !pp) {
     // Shared blank-state pattern (S2) — no bare SafeAreaView shell.
     return (
@@ -69,6 +65,7 @@ export default function PassportScreen() {
     date: formatDate(pp.joinedAt, { month: 'long', year: 'numeric' }),
   });
   const r = pp.reviewsReceived;
+  const zero = hasNoActivity(pp); // brand-new passport → warm first-state, not cold 0/—
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -94,49 +91,66 @@ export default function PassportScreen() {
             {pp.neighbourhood ? ` · ${pp.neighbourhood}` : ''}
           </Text>
 
-          {/* Trait rings — scores not computed yet (Tier 3): honest "—" stubs */}
-          <View style={styles.rings}>
-            {TRAITS.map((tr) => (
-              <View key={tr.key} style={styles.ring}>
-                <View style={styles.donut}>
-                  <Text style={styles.donutVal}>—</Text>
-                </View>
-                <Text style={styles.ringLabel}>{t(tr.key)}</Text>
+          {/* Trait rings — scores not computed yet (Tier 3): honest "—" stubs. Hidden for a
+              brand-new user (the warm first-state leads instead of empty rings). */}
+          {!zero ? (
+            <>
+              <View style={styles.rings}>
+                {TRAITS.map((tr) => (
+                  <View key={tr.key} style={styles.ring}>
+                    <View style={styles.donut}>
+                      <Text style={styles.donutVal}>—</Text>
+                    </View>
+                    <Text style={styles.ringLabel}>{t(tr.key)}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
-          <Text style={styles.traitNote}>{t('pp_traitsSoon')}</Text>
+              <Text style={styles.traitNote}>{t('pp_traitsSoon')}</Text>
+            </>
+          ) : null}
         </View>
 
-        {/* How your score is built — only the rows we truly have data for */}
-        <Text style={styles.sectionLabel}>{t('pp_scoreBuilt')}</Text>
+        {zero ? (
+          /* Warm first-state: the ladder as an invitation (you're at the start), not a 0/— deficit. */
+          <View style={styles.zeroBlock}>
+            <TierLadder current={pp.trustTier} />
+            <Text style={styles.zeroTitle}>{t('pz_zeroTitle')}</Text>
+            <Text style={styles.zeroBody}>{t('pz_zeroBody')}</Text>
+            <Text style={styles.zeroAction}>{t('pz_firstAction')}</Text>
+          </View>
+        ) : (
+          <>
+            {/* How your score is built — only the rows we truly have data for */}
+            <Text style={styles.sectionLabel}>{t('pp_scoreBuilt')}</Text>
 
-        <StatRow
-          icon={<MessageSquare size={16} color={tokens.color.forest} strokeWidth={2} />}
-          title={t('pp_reviewsReceived')}
-          sub={interpolate(t('pp_reviewsSub'), {
-            avg: String(r.avgRating),
-            again: String(r.wouldGoAgainCount),
-            incl: String(r.feltIncludedCount),
-          })}
-          value={r.count > 0 ? String(r.avgRating) : '—'}
-        />
-        <StatRow
-          icon={<Users size={16} color={tokens.color.forest} strokeWidth={2} />}
-          title={t('pp_circlesActive')}
-          value={String(pp.activeCircles)}
-        />
-        <StatRow
-          icon={<BadgeCheck size={16} color={tokens.color.forest} strokeWidth={2} />}
-          title={t('pp_contributions')}
-          sub={interpolate(t('pp_contributionsSub'), { n: String(pp.reviewsGiven) })}
-          value={String(pp.reviewsGiven)}
-        />
-        <StatRow
-          icon={<CalendarCheck size={16} color={tokens.color.forest} strokeWidth={2} />}
-          title={t('prof_statAttended')}
-          value={String(pp.attended)}
-        />
+            <StatRow
+              icon={<MessageSquare size={16} color={tokens.color.forest} strokeWidth={2} />}
+              title={t('pp_reviewsReceived')}
+              sub={interpolate(t('pp_reviewsSub'), {
+                avg: String(r.avgRating),
+                again: String(r.wouldGoAgainCount),
+                incl: String(r.feltIncludedCount),
+              })}
+              value={r.count > 0 ? String(r.avgRating) : '—'}
+            />
+            <StatRow
+              icon={<Users size={16} color={tokens.color.forest} strokeWidth={2} />}
+              title={t('pp_circlesActive')}
+              value={String(pp.activeCircles)}
+            />
+            <StatRow
+              icon={<BadgeCheck size={16} color={tokens.color.forest} strokeWidth={2} />}
+              title={t('pp_contributions')}
+              sub={interpolate(t('pp_contributionsSub'), { n: String(pp.reviewsGiven) })}
+              value={String(pp.reviewsGiven)}
+            />
+            <StatRow
+              icon={<CalendarCheck size={16} color={tokens.color.forest} strokeWidth={2} />}
+              title={t('prof_statAttended')}
+              value={String(pp.attended)}
+            />
+          </>
+        )}
 
         {/* Badges — only the verified badge is backed today; the rest are deferred */}
         <Text style={styles.sectionLabel}>{t('pp_badges')}</Text>
@@ -161,18 +175,22 @@ export default function PassportScreen() {
           </View>
         </View>
 
+        {/* Level-up CTA opens the real explainer sheet. The old "Privacy" stub was removed —
+            there's no privacy screen to honour it, and the "private by default" note above
+            already states the posture (a button that does nothing is a broken promise). */}
         <View style={styles.actions}>
-          <Pressable style={styles.cta} onPress={comingSoon}>
+          <Pressable
+            style={styles.cta}
+            onPress={() => setLevelUpOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={t('pp_levelUp')}
+          >
             <TrendingUp size={15} color={tokens.color.cream} strokeWidth={2} />
             <Text style={styles.ctaText}>{t('pp_levelUp')}</Text>
           </Pressable>
-          <Pressable style={styles.ghost} onPress={comingSoon}>
-            <Shield size={15} color={tokens.color.ink} strokeWidth={2} />
-            <Text style={styles.ghostText}>{t('pp_privacy')}</Text>
-          </Pressable>
         </View>
-        {notice ? <Text style={styles.notice}>{notice}</Text> : null}
       </ScrollView>
+      <LevelUpSheet visible={levelUpOpen} current={pp.trustTier} onClose={() => setLevelUpOpen(false)} />
     </SafeAreaView>
   );
 }
@@ -309,30 +327,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   ctaText: { fontFamily: fonts.bodySemi, fontSize: 13.5, color: tokens.color.cream },
-  ghost: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 7,
-    borderColor: tokens.color.border,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingVertical: 12,
-  },
-  ghostText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: tokens.color.ink },
-  notice: {
-    alignSelf: 'center',
-    fontFamily: fonts.bodySemi,
-    fontSize: 12.5,
-    color: tokens.color.ink,
-    backgroundColor: tokens.color.goldGlow,
-    borderColor: tokens.color.goldBorder,
-    borderWidth: 1,
-    borderRadius: 999,
-    overflow: 'hidden',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    marginTop: 12,
-  },
+
+  // Warm zero-activity first-state. ink/cream ~15:1, text2/cream 5.08:1, forest/cream 9.44:1 — all AA.
+  zeroBlock: { gap: 10, marginTop: 2 },
+  zeroTitle: { fontFamily: fonts.displaySemi, fontSize: 17, color: tokens.color.ink, marginTop: 8 },
+  zeroBody: { fontFamily: fonts.body, fontSize: 13.5, lineHeight: 20, color: tokens.color.text2 },
+  zeroAction: { fontFamily: fonts.bodySemi, fontSize: 13.5, color: tokens.color.forest },
 });
