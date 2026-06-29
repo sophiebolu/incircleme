@@ -9,6 +9,7 @@ import { api } from '../../lib/api';
 import { clearSession, isSignedIn, saveSession } from '../../lib/auth';
 import { barrioLabel } from '../../lib/onboarding';
 import { tierLabel } from '../../lib/trustTier';
+import { showVerifiedBadge } from '../../lib/verifiedBadge';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { signInWithGoogle } from '../../lib/googleAuth';
 import { BrandBar } from '../../components/BrandBar';
@@ -135,7 +136,7 @@ export default function Profile() {
               ) : (
                 <Text style={styles.avatarInitial}>{initial}</Text>
               )}
-              {me.verified ? (
+              {showVerifiedBadge(me) ? (
                 <View style={styles.verified} accessibilityLabel={t('prof_verified')}>
                   <Check size={12} color={tokens.color.cream} strokeWidth={3} />
                 </View>

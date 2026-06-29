@@ -16,6 +16,7 @@ import type { PublicProfile } from '@incircleme/types';
 import { formatDate, interpolate, t } from '@incircleme/i18n';
 import { api } from '../../lib/api';
 import { tierLabel } from '../../lib/trustTier';
+import { showVerifiedBadge } from '../../lib/verifiedBadge';
 import { BrandBar } from '../../components/BrandBar';
 import { EventCard } from '../../components/EventCard';
 import { useNavClearance } from '../../lib/useNavClearance';
@@ -75,7 +76,7 @@ export default function PublicProfileScreen() {
             ) : (
               <Text style={styles.avatarInitial}>{initial}</Text>
             )}
-            {profile.verified ? (
+            {showVerifiedBadge(profile) ? (
               <View style={styles.verified} accessibilityLabel={t('prof_verified')}>
                 <Check size={13} color={tokens.color.cream} strokeWidth={3} />
               </View>
@@ -126,7 +127,7 @@ export default function PublicProfileScreen() {
         <View style={styles.repCard}>
           <Text style={styles.repTier}>{tierLabel(profile.trustTier)}</Text>
           <View style={styles.pills}>
-            {profile.verified ? (
+            {showVerifiedBadge(profile) ? (
               <View style={styles.pill}>
                 <CheckCircle2 size={12} color={tokens.color.forest} strokeWidth={2} />
                 <Text style={styles.pillText}>{t('prof_verified')}</Text>
