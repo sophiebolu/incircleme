@@ -6,9 +6,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Star } from 'lucide-react-native';
 import { REVIEWS } from '@incircleme/config';
-import type { ReviewAggregate } from '@incircleme/types';
+import type { PublicReview, ReviewAggregate } from '@incircleme/types';
 import { interpolate, t, type StringKey } from '@incircleme/i18n';
 import { api } from '../lib/api';
+import { ReviewCard } from './ReviewCard';
 import { ScreenSkeleton, ErrorRetry } from './ScreenStates';
 import { tokens } from '../theme/tokens';
 import { fonts } from '../theme/fonts';
@@ -25,14 +26,17 @@ const VIBE_LABEL: Record<string, StringKey> = {
 
 export function EventReviews({ eventId }: { eventId: string }) {
   const [agg, setAgg] = useState<ReviewAggregate | null>(null);
+  const [reviews, setReviews] = useState<PublicReview[]>([]);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
 
+  // Aggregate + comment list share one loading/error — a list-fetch failure shows error+retry
+  // (never a blank), even when count > 0.
   const load = useCallback(() => {
     setStatus('loading');
-    api
-      .getEventReviews(eventId)
-      .then((a) => {
+    Promise.all([api.getEventReviews(eventId), api.getEventPublicReviews(eventId)])
+      .then(([a, list]) => {
         setAgg(a);
+        setReviews(list);
         setStatus('ready');
       })
       .catch(() => setStatus('error'));
@@ -99,6 +103,12 @@ export function EventReviews({ eventId }: { eventId: string }) {
           </View>
         ) : null}
       </View>
+
+      {/* The actual written reviews — reading real comments is what converts.
+          Capped at the API page; no "See all" yet (no reviews-list destination exists). */}
+      {reviews.map((r) => (
+        <ReviewCard key={r.id} review={r} />
+      ))}
     </View>
   );
 }

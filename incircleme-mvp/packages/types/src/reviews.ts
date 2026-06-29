@@ -28,6 +28,25 @@ export interface CreateReviewRequest {
   isPublic?: boolean;
 }
 
+/** Reviewer's PUBLIC identity (display name + avatar — never legal name). */
+export interface PublicReviewAuthor {
+  id: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+}
+
+/** A single public (isPublic) review for the event page (GET /events/:id/reviews/public). */
+export interface PublicReview {
+  id: string;
+  author: PublicReviewAuthor;
+  rating: number;
+  wouldGoAgain: boolean | null;
+  vibeTags: string[];
+  /** UGC — rendered as-written, never auto-translated. */
+  comment: string | null;
+  createdAt: string;
+}
+
 /** Aggregate the Passport + host + event page read. */
 export interface ReviewAggregate {
   count: number;

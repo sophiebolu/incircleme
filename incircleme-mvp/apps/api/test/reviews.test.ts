@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { sql, eq } from 'drizzle-orm';
-import { db, pool, bookings } from '@incircleme/db';
+import { db, pool, bookings, reviews, users } from '@incircleme/db';
 import { buildApp } from '../src/app';
 import { redis } from '../src/lib/redis';
 import { FakePayments } from '../src/lib/payments';
@@ -191,5 +191,68 @@ describe('reviews', () => {
 
     const noAuth = await app.inject({ method: 'POST', url: '/reviews', payload: { bookingId, rating: 5 } });
     expect(noAuth.statusCode).toBe(401);
+  });
+});
+
+describe('public review list (GET /events/:id/reviews/public)', () => {
+  const list = (eventId: string, qs = '') =>
+    app.inject({ method: 'GET', url: `/events/${eventId}/reviews/public${qs}` });
+
+  it('returns only public reviews, newest-first, with the reviewer public identity', async () => {
+    const host = await signIn('host@t.com');
+    const ev = (await createEvent(host.accessToken)).json();
+    const u1 = await signIn('u1@t.com');
+    const u2 = await signIn('u2@t.com');
+    const u3 = await signIn('u3@t.com');
+    await db.update(users).set({ displayName: 'Marta R.', avatarUrl: 'https://x/a.jpg' }).where(eq(users.id, u1.user.id));
+    const b1 = await confirmedBooking(u1.accessToken, ev.id);
+    const b2 = await confirmedBooking(u2.accessToken, ev.id);
+    const b3 = await confirmedBooking(u3.accessToken, ev.id);
+
+    await postReview(u1.accessToken, { bookingId: b1, rating: 5, wouldGoAgain: true, vibeTags: ['warm_welcome'], comment: 'Came alone, left with friends.', isPublic: true });
+    await postReview(u2.accessToken, { bookingId: b2, rating: 4, isPublic: true });
+    await postReview(u3.accessToken, { bookingId: b3, rating: 5, comment: 'private note', isPublic: false }); // excluded
+
+    // Deterministic order: u1 older, u2 newest.
+    await db.update(reviews).set({ createdAt: new Date('2026-06-01T00:00:00Z') }).where(eq(reviews.reviewerId, u1.user.id));
+    await db.update(reviews).set({ createdAt: new Date('2026-06-02T00:00:00Z') }).where(eq(reviews.reviewerId, u2.user.id));
+
+    const res = await list(ev.id);
+    expect(res.statusCode).toBe(200);
+    const body = res.json() as Array<{ id: string; author: { id: string; displayName: string | null; avatarUrl: string | null }; comment: string | null; rating: number; wouldGoAgain: boolean | null }>;
+    expect(body.length).toBe(2); // u3 private → excluded
+    expect(body[0]!.author.id).toBe(u2.user.id); // newest first
+    expect(body[1]!.author.id).toBe(u1.user.id);
+    expect(body[1]!.author.displayName).toBe('Marta R.'); // public identity, not legal name
+    expect(body[1]!.author.avatarUrl).toBe('https://x/a.jpg');
+    expect(body[1]!.comment).toBe('Came alone, left with friends.');
+    expect(body[1]!.wouldGoAgain).toBe(true);
+    expect(body.some((r) => r.comment === 'private note')).toBe(false); // private never leaks
+  });
+
+  it('keyset-paginates with limit + before', async () => {
+    const host = await signIn('host@t.com');
+    const ev = (await createEvent(host.accessToken)).json();
+    const u1 = await signIn('u1@t.com');
+    const u2 = await signIn('u2@t.com');
+    const b1 = await confirmedBooking(u1.accessToken, ev.id);
+    const b2 = await confirmedBooking(u2.accessToken, ev.id);
+    await postReview(u1.accessToken, { bookingId: b1, rating: 5, isPublic: true });
+    await postReview(u2.accessToken, { bookingId: b2, rating: 5, isPublic: true });
+    await db.update(reviews).set({ createdAt: new Date('2026-06-01T00:00:00Z') }).where(eq(reviews.reviewerId, u1.user.id));
+    await db.update(reviews).set({ createdAt: new Date('2026-06-02T00:00:00Z') }).where(eq(reviews.reviewerId, u2.user.id));
+
+    const page1 = (await list(ev.id, '?limit=1')).json() as Array<{ createdAt: string; author: { id: string } }>;
+    expect(page1.length).toBe(1);
+    expect(page1[0]!.author.id).toBe(u2.user.id); // newest
+    const page2 = (await list(ev.id, `?limit=1&before=${encodeURIComponent(page1[0]!.createdAt)}`)).json() as Array<{ author: { id: string } }>;
+    expect(page2.length).toBe(1);
+    expect(page2[0]!.author.id).toBe(u1.user.id); // older
+  });
+
+  it('empty when the event has no public reviews', async () => {
+    const host = await signIn('host@t.com');
+    const ev = (await createEvent(host.accessToken)).json();
+    expect((await list(ev.id)).json()).toEqual([]);
   });
 });
