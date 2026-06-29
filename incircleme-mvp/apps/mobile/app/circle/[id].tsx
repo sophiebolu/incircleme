@@ -23,9 +23,10 @@ import {
   getActiveLocale,
   type Locale,
 } from '@incircleme/i18n';
-import { api } from '../../lib/api';
+import { api, ApiError } from '../../lib/api';
 import { joinCircle } from '../../lib/socket';
 import { BrandBar } from '../../components/BrandBar';
+import { ScreenSkeleton, ErrorRetry, NotFound } from '../../components/ScreenStates';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
@@ -53,6 +54,7 @@ export default function CircleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [circle, setCircle] = useState<CircleDetail | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'notFound' | 'error'>('loading');
   const [messages, setMessages] = useState<CircleMessage[]>([]);
   const [moments, setMoments] = useState<ArrivingMoment[]>([]);
   const [draft, setDraft] = useState('');
@@ -69,9 +71,11 @@ export default function CircleScreen() {
 
   const load = useCallback(async () => {
     if (!id) return;
+    setStatus('loading');
     try {
       const [detail, profile] = await Promise.all([api.getCircle(id), api.me()]);
       setCircle(detail);
+      setStatus('ready');
       setMessages(detail.recentMessages);
       setVoteState({ yes: detail.keepYesCount, mine: detail.myKeepVote });
       setMe(profile.id);
@@ -80,8 +84,8 @@ export default function CircleScreen() {
         .getCapsule(id)
         .then(() => setHasCapsule(true))
         .catch(() => setHasCapsule(false));
-    } catch {
-      setCircle(null);
+    } catch (err) {
+      setStatus(err instanceof ApiError && err.status === 404 ? 'notFound' : 'error');
     }
   }, [id]);
 
@@ -149,8 +153,20 @@ export default function CircleScreen() {
     }
   };
 
-  if (!circle) {
-    return <SafeAreaView style={styles.safe} />;
+  if (status !== 'ready' || !circle) {
+    // Shared blank-state pattern (S2) — no bare SafeAreaView shell.
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <BrandBar />
+        {status === 'loading' ? (
+          <ScreenSkeleton />
+        ) : status === 'notFound' ? (
+          <NotFound />
+        ) : (
+          <ErrorRetry onRetry={() => void load()} />
+        )}
+      </SafeAreaView>
+    );
   }
 
   const now = Date.now();
@@ -385,7 +401,7 @@ export default function CircleScreen() {
           <TextInput
             style={styles.input}
             placeholder={t('composerPlaceholder')}
-            placeholderTextColor={tokens.color.gray}
+            placeholderTextColor={tokens.color.text2}
             value={draft}
             onChangeText={setDraft}
             onSubmitEditing={send}

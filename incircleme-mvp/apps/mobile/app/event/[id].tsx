@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,9 +14,10 @@ import {
 } from 'lucide-react-native';
 import type { EventDetail } from '@incircleme/types';
 import { formatDateTime, formatPrice, interpolate, t } from '@incircleme/i18n';
-import { api } from '../../lib/api';
+import { api, ApiError } from '../../lib/api';
 import { HostRow } from '../../components/HostRow';
 import { BrandBar } from '../../components/BrandBar';
+import { ScreenSkeleton, ErrorRetry, NotFound } from '../../components/ScreenStates';
 import { useNavClearance } from '../../lib/useNavClearance';
 import { tokens } from '../../theme/tokens';
 import { fonts } from '../../theme/fonts';
@@ -28,15 +29,39 @@ export default function Event() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [event, setEvent] = useState<EventDetail | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'notFound' | 'error'>('loading');
   const navClearance = useNavClearance();
 
-  useEffect(() => {
-    if (id) api.getEvent(id).then(setEvent).catch(() => setEvent(null));
+  const load = useCallback(() => {
+    if (!id) return;
+    setStatus('loading');
+    api
+      .getEvent(id)
+      .then((e) => {
+        setEvent(e);
+        setStatus('ready');
+      })
+      .catch((err) => setStatus(err instanceof ApiError && err.status === 404 ? 'notFound' : 'error'));
   }, [id]);
 
-  if (!event) {
-    // TODO(deferred, needs copy verdict): explicit not-found / loading empty state.
-    return <SafeAreaView style={styles.safe} />;
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (status !== 'ready' || !event) {
+    // Shared blank-state pattern (S2) — no bare SafeAreaView shell.
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <BrandBar />
+        {status === 'loading' ? (
+          <ScreenSkeleton />
+        ) : status === 'notFound' ? (
+          <NotFound />
+        ) : (
+          <ErrorRetry onRetry={load} />
+        )}
+      </SafeAreaView>
+    );
   }
 
   const when = formatDateTime(event.startsAt, {
@@ -374,7 +399,7 @@ const styles = StyleSheet.create({
   cta: { backgroundColor: tokens.color.forest, borderRadius: 999, paddingVertical: 15, alignItems: 'center', marginTop: 18 },
   ctaText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.cream },
   ctaFull: { backgroundColor: tokens.color.border },
-  ctaFullText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.gray },
+  ctaFullText: { fontFamily: fonts.bodySemi, fontSize: 15, color: tokens.color.forest },
   ghost: {
     flexDirection: 'row',
     alignItems: 'center',
