@@ -270,6 +270,10 @@ export const strings = {
     tk_cancelledRefunded: 'Cancel·lada · {amount} € retornats',
     tk_cancelledCredit: 'Cancel·lada · {amount} € de crèdit',
     tk_cancelledNoRefund: 'Cancel·lada',
+    // Post-commit refund states — PROVISIONAL, flagged (not in the Vocabulary Lock; needs sign-off).
+    tk_cancelledRefundPending: 'Reemborsament en camí — tornarà a la teva targeta en uns dies.',
+    tk_cancelledRefundFailed:
+      'El reemborsament ha tingut un problema. Ens n’ocupem — contacta amb el suport si no arriba aviat.',
     tk_qrLabel: 'Codi QR d’entrada',
     cs_title: 'Vols cancel·lar l’entrada?',
     cs_bodyRefund: 'Et tornarem {amount} € a la targeta.',
@@ -285,6 +289,8 @@ export const strings = {
     chip_held: 'Reservada',
     chip_cancelled: 'Cancel·lada',
     chip_refunded: 'Retornada',
+    chip_refundPending: 'Reemborsament pendent',
+    chip_refundFailed: 'Reemborsament endarrerit',
     chip_attended: 'Hi vas ser',
     err_loading: 'Carregant…',
     err_notFound: 'No ho hem trobat.',
@@ -757,6 +763,10 @@ export const strings = {
     tk_cancelledRefunded: 'Cancelada · {amount} € reembolsados',
     tk_cancelledCredit: 'Cancelada · {amount} € de crédito',
     tk_cancelledNoRefund: 'Cancelada',
+    // Post-commit refund states — PROVISIONAL, flagged (not in the Vocabulary Lock; needs sign-off).
+    tk_cancelledRefundPending: 'Reembolso en camino — volverá a tu tarjeta en unos días.',
+    tk_cancelledRefundFailed:
+      'Tu reembolso ha tenido un problema. Estamos en ello — contacta con soporte si no llega pronto.',
     tk_qrLabel: 'Código QR de entrada',
     cs_title: '¿Cancelar tu entrada?',
     cs_bodyRefund: 'Te devolveremos {amount} € a la tarjeta.',
@@ -772,6 +782,8 @@ export const strings = {
     chip_held: 'Reservada',
     chip_cancelled: 'Cancelada',
     chip_refunded: 'Reembolsada',
+    chip_refundPending: 'Reembolso pendiente',
+    chip_refundFailed: 'Reembolso retrasado',
     chip_attended: 'Asististe',
     err_loading: 'Cargando…',
     err_notFound: 'No lo hemos encontrado.',
@@ -1243,6 +1255,10 @@ export const strings = {
     tk_cancelledRefunded: 'Cancelled · €{amount} refunded',
     tk_cancelledCredit: 'Cancelled · €{amount} credit added',
     tk_cancelledNoRefund: 'Cancelled',
+    // Post-commit refund states — PROVISIONAL, flagged (not in the Vocabulary Lock; needs sign-off).
+    tk_cancelledRefundPending: 'Refund on its way — it’ll be back on your card within a few days.',
+    tk_cancelledRefundFailed:
+      'Your refund hit a snag. We’re on it — contact support if it doesn’t arrive soon.',
     tk_qrLabel: 'Your entry QR code',
     cs_title: 'Cancel your ticket?',
     cs_bodyRefund: 'You’ll get €{amount} back to your card.',
@@ -1258,6 +1274,8 @@ export const strings = {
     chip_held: 'Held',
     chip_cancelled: 'Cancelled',
     chip_refunded: 'Refunded',
+    chip_refundPending: 'Refund pending',
+    chip_refundFailed: 'Refund delayed',
     chip_attended: 'Attended',
     err_loading: 'Loading…',
     err_notFound: 'We couldn’t find that.',

@@ -147,12 +147,18 @@ export default function TicketScreen() {
   const isCancelled = booking.status === 'cancelled' || booking.status === 'refunded';
   const isActive = booking.status === 'confirmed' && !isPast;
   const isAttended = booking.status === 'confirmed' && isPast;
+  // Post-commit refunds can be in-flight ('pending') or 'failed' — never render a bare
+  // "Cancelled" that stays silent about money owed (promise-delivery).
   const cancelledLine =
     booking.refundStatus === 'full' && booking.refundCents > 0
       ? interpolate(t('tk_cancelledRefunded'), { amount: euros(booking.refundCents) })
-      : booking.creditIssuedCents > 0
-        ? interpolate(t('tk_cancelledCredit'), { amount: euros(booking.creditIssuedCents) })
-        : t('tk_cancelledNoRefund');
+      : booking.refundStatus === 'pending'
+        ? t('tk_cancelledRefundPending')
+        : booking.refundStatus === 'failed'
+          ? t('tk_cancelledRefundFailed')
+          : booking.creditIssuedCents > 0
+            ? interpolate(t('tk_cancelledCredit'), { amount: euros(booking.creditIssuedCents) })
+            : t('tk_cancelledNoRefund');
 
   const openMaps = () => {
     void Linking.openURL(
