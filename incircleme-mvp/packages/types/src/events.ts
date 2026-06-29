@@ -96,3 +96,22 @@ export interface BookingListItem {
   refundCents: number;
   creditIssuedCents: number;
 }
+
+/** One confirmed attendee on a host's roster (powers the check-in view + manual fallback). */
+export interface EventAttendee {
+  bookingId: string;
+  attendee: { id: string; displayName: string | null; avatarUrl: string | null };
+  /** ISO timestamp once the host has checked them in; null until then. */
+  checkedInAt: string | null;
+}
+
+/** Lean summary of an event the caller hosts — the entry point to the check-in scanner. */
+export interface HostedEventSummary {
+  id: string;
+  title: string;
+  startsAt: string;
+  /** Derived (events have no status column): cancelled = soft-deleted, else by time. */
+  status: 'upcoming' | 'past' | 'cancelled';
+  confirmedCount: number;
+  checkedInCount: number;
+}

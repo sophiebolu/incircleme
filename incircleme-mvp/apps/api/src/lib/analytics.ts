@@ -6,7 +6,7 @@
 // Launch-Readiness Remediation Plan. Call sites do not change when that lands.
 
 /** Stable event names. Extend as instrumentation grows. */
-export type AnalyticsEvent = 'founding_host_granted';
+export type AnalyticsEvent = 'founding_host_granted' | 'attendee_checked_in';
 
 /**
  * Emit a structured analytics event. The payload is a single JSON line:
