@@ -1,0 +1,2 @@
+# Local DB snapshots taken before migrations (never committed).
+.db-backups/
