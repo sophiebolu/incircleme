@@ -72,6 +72,13 @@ export interface PassportSummary {
   neighbourhood: string | null;
   trustTier: import('./index').TrustTier;
   joinedAt: string;
+  /**
+   * Account-level verified flag (users.verified). NB: today this is set at signup, so it is
+   * effectively true for every user — it is NOT yet a real identity check. Drives the
+   * "verified" badge consistently with the profile / public-profile / HostRow surfaces;
+   * replace the backing signal when real identity verification (host KYC / Stripe Connect) lands.
+   */
+  verified: boolean;
   attended: number;
   hosted: number;
   bookings: number;

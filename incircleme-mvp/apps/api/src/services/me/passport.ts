@@ -45,6 +45,7 @@ export async function getPassport(userId: string): Promise<PassportSummary | nul
     neighbourhood: user.neighbourhood,
     trustTier: user.trustTier,
     joinedAt: user.joinedAt,
+    verified: user.verified,
     attended: stats.attended,
     hosted: stats.hosted,
     bookings: stats.bookings,
