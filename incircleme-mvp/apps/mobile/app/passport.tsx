@@ -15,6 +15,7 @@ import type { PassportSummary } from '@incircleme/types';
 import { formatDate, interpolate, t } from '@incircleme/i18n';
 import { api } from '../lib/api';
 import { hasNoActivity, tierLabel } from '../lib/trustTier';
+import { showVerifiedBadge } from '../lib/verifiedBadge';
 import { BrandBar } from '../components/BrandBar';
 import { TierLadder } from '../components/TierLadder';
 import { LevelUpSheet } from '../components/LevelUpSheet';
@@ -152,13 +153,18 @@ export default function PassportScreen() {
           </>
         )}
 
-        {/* Badges — only the verified badge is backed today; the rest are deferred */}
+        {/* Badges. The verified badge now gates on pp.verified — same signal the profile /
+            public-profile / HostRow surfaces use — so an unverified user no longer sees a false
+            "verified". (Today users.verified is account-level; real identity verification is §E
+            future work — see lib/verifiedBadge.) */}
         <Text style={styles.sectionLabel}>{t('pp_badges')}</Text>
         <View style={styles.badgeRow}>
-          <View style={[styles.badge, styles.badgeEarned]}>
-            <ShieldCheck size={18} color={tokens.color.forest} strokeWidth={2} />
-            <Text style={styles.badgeText}>{t('prof_verified')}</Text>
-          </View>
+          {showVerifiedBadge(pp) ? (
+            <View style={[styles.badge, styles.badgeEarned]}>
+              <ShieldCheck size={18} color={tokens.color.forest} strokeWidth={2} />
+              <Text style={styles.badgeText}>{t('prof_verified')}</Text>
+            </View>
+          ) : null}
           <View style={styles.badge}>
             <Lock size={16} color={tokens.color.gray} strokeWidth={2} />
             <Text style={styles.badgeTextLocked}>{t('pp_badgesSoon')}</Text>
