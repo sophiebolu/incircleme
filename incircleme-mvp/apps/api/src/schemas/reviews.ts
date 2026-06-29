@@ -7,6 +7,11 @@ export const publicReviewsQuerySchema = z.object({
   before: z.string().datetime().optional(),
 });
 
+/** POST /reviews/:id/hide — admin soft-hide; reason is optional free text. */
+export const hideReviewSchema = z.object({
+  reason: z.string().max(500).optional(),
+});
+
 // vibeTags accept any string here; the service drops non-canonical keys via
 // isVibeTag (config is the source of truth for the valid set).
 export const createReviewSchema = z.object({

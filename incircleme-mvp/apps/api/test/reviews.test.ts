@@ -256,3 +256,62 @@ describe('public review list (GET /events/:id/reviews/public)', () => {
     expect((await list(ev.id)).json()).toEqual([]);
   });
 });
+
+describe('review moderation (hide / unhide)', () => {
+  async function makeAdmin(email: string) {
+    const a = await signIn(email);
+    await db.update(users).set({ role: 'trust_reviewer' }).where(eq(users.id, a.user.id));
+    return a;
+  }
+  const hide = (id: string, token: string, body: Record<string, unknown> = {}) =>
+    app.inject({ method: 'POST', url: `/reviews/${id}/hide`, headers: auth(token), payload: body });
+  const unhide = (id: string, token: string) =>
+    app.inject({ method: 'POST', url: `/reviews/${id}/unhide`, headers: auth(token) });
+  const publicList = (eventId: string) =>
+    app.inject({ method: 'GET', url: `/events/${eventId}/reviews/public` });
+  const agg = (eventId: string) => app.inject({ method: 'GET', url: `/events/${eventId}/reviews` });
+
+  it('hide drops a review from the list AND the aggregate, sets fields; unhide restores', async () => {
+    const host = await signIn('host@t.com');
+    const ev = (await createEvent(host.accessToken)).json();
+    const u1 = await signIn('u1@t.com');
+    const u2 = await signIn('u2@t.com');
+    const b1 = await confirmedBooking(u1.accessToken, ev.id);
+    const b2 = await confirmedBooking(u2.accessToken, ev.id);
+    const r1 = (await postReview(u1.accessToken, { bookingId: b1, rating: 5, wouldGoAgain: true, isPublic: true })).json();
+    await postReview(u2.accessToken, { bookingId: b2, rating: 3, isPublic: true });
+    const admin = await makeAdmin('admin@t.com');
+
+    expect(((await publicList(ev.id)).json() as unknown[]).length).toBe(2);
+    expect((await agg(ev.id)).json().count).toBe(2);
+
+    const h = await hide(r1.id, admin.accessToken, { reason: 'spam' });
+    expect(h.statusCode).toBe(200);
+    const [row] = await db.select().from(reviews).where(eq(reviews.id, r1.id));
+    expect(row!.hiddenAt).not.toBeNull(); // soft-hide, row retained
+    expect(row!.hiddenReason).toBe('spam');
+    expect(row!.hiddenBy).toBe(admin.user.id);
+
+    // excluded from BOTH public reads; aggregate count == visible list
+    expect(((await publicList(ev.id)).json() as unknown[]).length).toBe(1);
+    expect((await agg(ev.id)).json().count).toBe(1);
+
+    expect((await unhide(r1.id, admin.accessToken)).statusCode).toBe(200);
+    expect(((await publicList(ev.id)).json() as unknown[]).length).toBe(2);
+    expect((await agg(ev.id)).json().count).toBe(2);
+    const [restored] = await db.select().from(reviews).where(eq(reviews.id, r1.id));
+    expect(restored!.hiddenAt).toBeNull();
+  });
+
+  it('403 for a non-admin; 404 for a missing review', async () => {
+    const host = await signIn('host@t.com');
+    const ev = (await createEvent(host.accessToken)).json();
+    const u1 = await signIn('u1@t.com');
+    const b1 = await confirmedBooking(u1.accessToken, ev.id);
+    const r1 = (await postReview(u1.accessToken, { bookingId: b1, rating: 5, isPublic: true })).json();
+
+    expect((await hide(r1.id, u1.accessToken, { reason: 'x' })).statusCode).toBe(403); // not trust_reviewer
+    const admin = await makeAdmin('admin@t.com');
+    expect((await hide('00000000-0000-0000-0000-000000000000', admin.accessToken)).statusCode).toBe(404);
+  });
+});

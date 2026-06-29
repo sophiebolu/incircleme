@@ -1,6 +1,6 @@
 import { db, reviews, bookings, events, users } from '@incircleme/db';
 import type { ReviewRow } from '@incircleme/db';
-import { and, desc, eq, lt } from 'drizzle-orm';
+import { and, desc, eq, isNull, lt } from 'drizzle-orm';
 import { REVIEWS, isVibeTag } from '@incircleme/config';
 import type { CreateReviewRequest, PublicReview, Review, ReviewAggregate } from '@incircleme/types';
 
@@ -120,7 +120,11 @@ export async function listPublicEventReviews(
   opts: { limit?: number; before?: string } = {},
 ): Promise<PublicReview[]> {
   const limit = Math.min(Math.max(opts.limit ?? 10, 1), 50);
-  const where = [eq(reviews.eventId, eventId), eq(reviews.isPublic, true)];
+  const where = [
+    eq(reviews.eventId, eventId),
+    eq(reviews.isPublic, true),
+    isNull(reviews.hiddenAt), // trust-safety: hidden reviews never surface publicly
+  ];
   if (opts.before) where.push(lt(reviews.createdAt, new Date(opts.before)));
   const rows = await db
     .select({
@@ -155,8 +159,31 @@ export async function getEventPublicAggregate(eventId: string): Promise<ReviewAg
   const rows = await db
     .select({ rating: reviews.rating, wouldGoAgain: reviews.wouldGoAgain, vibeTags: reviews.vibeTags })
     .from(reviews)
-    .where(and(eq(reviews.eventId, eventId), eq(reviews.isPublic, true)));
+    // hidden excluded → the aggregate count stays equal to the visible list.
+    .where(and(eq(reviews.eventId, eventId), eq(reviews.isPublic, true), isNull(reviews.hiddenAt)));
   return aggregate(rows);
+}
+
+export class ReviewNotFoundError extends Error {}
+
+/** Admin soft-hide — retains the row, excludes it from public reads. */
+export async function hideReview(id: string, actorId: string, reason: string | null): Promise<void> {
+  const updated = await db
+    .update(reviews)
+    .set({ hiddenAt: new Date(), hiddenReason: reason, hiddenBy: actorId })
+    .where(eq(reviews.id, id))
+    .returning({ id: reviews.id });
+  if (updated.length === 0) throw new ReviewNotFoundError();
+}
+
+/** Admin un-hide — restores visibility, clears the moderation fields. */
+export async function unhideReview(id: string): Promise<void> {
+  const updated = await db
+    .update(reviews)
+    .set({ hiddenAt: null, hiddenReason: null, hiddenBy: null })
+    .where(eq(reviews.id, id))
+    .returning({ id: reviews.id });
+  if (updated.length === 0) throw new ReviewNotFoundError();
 }
 
 /** Host/Passport aggregate — ALL reviews about a host (private + public). */

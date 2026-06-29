@@ -1,13 +1,17 @@
 import type { FastifyInstance } from 'fastify';
-import { requireAuth } from '../plugins/auth';
-import { createReviewSchema, publicReviewsQuerySchema } from '../schemas/reviews';
+import { requireActive, requireAuth } from '../plugins/auth';
+import { requireReviewer } from '../plugins/requireReviewer';
+import { createReviewSchema, hideReviewSchema, publicReviewsQuerySchema } from '../schemas/reviews';
 import {
   AlreadyReviewedError,
   BookingNotOwnedError,
   NotAttendedError,
+  ReviewNotFoundError,
   createReview,
   getEventPublicAggregate,
+  hideReview,
   listPublicEventReviews,
+  unhideReview,
   getMyReviewCounts,
 } from '../services/reviews/reviews';
 
@@ -47,4 +51,29 @@ export async function reviewRoutes(app: FastifyInstance): Promise<void> {
   app.get('/me/reviews', { preHandler: requireAuth }, async (req) =>
     getMyReviewCounts(req.userId!),
   );
+
+  // Trust-safety — admin (trust_reviewer) soft-hide / un-hide of a public review.
+  app.post('/reviews/:id/hide', { preHandler: [requireReviewer, requireActive] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const parsed = hideReviewSchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });
+    try {
+      await hideReview(id, req.userId!, parsed.data.reason ?? null);
+      return reply.code(200).send({ ok: true });
+    } catch (err) {
+      if (err instanceof ReviewNotFoundError) return reply.code(404).send({ error: 'not_found' });
+      throw err;
+    }
+  });
+
+  app.post('/reviews/:id/unhide', { preHandler: [requireReviewer, requireActive] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    try {
+      await unhideReview(id);
+      return reply.code(200).send({ ok: true });
+    } catch (err) {
+      if (err instanceof ReviewNotFoundError) return reply.code(404).send({ error: 'not_found' });
+      throw err;
+    }
+  });
 }
